@@ -5,6 +5,8 @@ VisualStudioVersion = 17.13.35828.75 d17.13
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TitheSync.UI", "TitheSync.UI\TitheSync.UI.csproj", "{E61DFD54-2E81-438A-B6DE-32A066B06268}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TitheSync.Core", "TitheSync.Core\TitheSync.Core.csproj", "{C2DE3AA4-045C-47DF-BD5B-DF395AA8240E}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +17,10 @@ Global
 		{E61DFD54-2E81-438A-B6DE-32A066B06268}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E61DFD54-2E81-438A-B6DE-32A066B06268}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E61DFD54-2E81-438A-B6DE-32A066B06268}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C2DE3AA4-045C-47DF-BD5B-DF395AA8240E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C2DE3AA4-045C-47DF-BD5B-DF395AA8240E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C2DE3AA4-045C-47DF-BD5B-DF395AA8240E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C2DE3AA4-045C-47DF-BD5B-DF395AA8240E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
