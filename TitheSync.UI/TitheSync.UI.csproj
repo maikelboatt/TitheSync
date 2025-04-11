@@ -14,4 +14,8 @@
     <PackageReference Include="Serilog.Extensions.Logging" Version="9.0.1" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\TitheSync.Core\TitheSync.Core.csproj" />
+  </ItemGroup>
+
 </Project>
