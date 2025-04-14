@@ -1,21 +1,39 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <OutputType>WinExe</OutputType>
-    <TargetFramework>net9.0-windows</TargetFramework>
-    <Nullable>enable</Nullable>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <UseWPF>true</UseWPF>
-  </PropertyGroup>
+    <PropertyGroup>
+        <OutputType>WinExe</OutputType>
+        <TargetFramework>net9.0-windows</TargetFramework>
+        <Nullable>enable</Nullable>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <UseWPF>true</UseWPF>
+    </PropertyGroup>
 
-  <ItemGroup>
-    <PackageReference Include="MvvmCross" Version="9.3.1" />
-    <PackageReference Include="MvvmCross.Platforms.Wpf" Version="9.3.1" />
-    <PackageReference Include="Serilog.Extensions.Logging" Version="9.0.1" />
-  </ItemGroup>
+    <ItemGroup>
+        <PackageReference Include="FontAwesome.Sharp" Version="6.6.0"/>
+        <PackageReference Include="FontAwesome.WPF" Version="4.7.0.9"/>
+        <PackageReference Include="MahApps.Metro.IconPacks" Version="5.1.0"/>
+        <PackageReference Include="MvvmCross" Version="9.3.1"/>
+        <PackageReference Include="MvvmCross.Platforms.Wpf" Version="9.3.1"/>
+        <PackageReference Include="Serilog.Extensions.Logging" Version="9.0.1"/>
+    </ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\TitheSync.Core\TitheSync.Core.csproj" />
-  </ItemGroup>
+    <ItemGroup>
+        <ProjectReference Include="..\TitheSync.Core\TitheSync.Core.csproj"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <Page Update="Assets\Icons\Icons.xaml">
+            <Generator>MSBuild:Compile</Generator>
+            <XamlRuntime>Wpf</XamlRuntime>
+            <SubType>Designer</SubType>
+        </Page>
+    </ItemGroup>
+
+    <ItemGroup>
+        <None Remove="Assets\Icons\logo.png"/>
+        <Resource Include="Assets\Icons\logo.png">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </Resource>
+    </ItemGroup>
 
 </Project>
