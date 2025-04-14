@@ -1,0 +1,158 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <!--  Start: Pop-up Button Style  -->
+    <!--
+        Style: PopupButtonStyle
+        Description: Defines a button style with a transparent background, border, and foreground.
+        The button is centered and has a height of 50. Includes triggers for mouse-over
+        and pressed states.
+    -->
+    <Style x:Key="PopupButtonStyle" TargetType="{x:Type Button}">
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="BorderBrush" Value="Transparent" />
+        <Setter Property="Foreground" Value="Transparent" />
+        <Setter Property="BorderThickness" Value="0" />
+        <Setter Property="HorizontalContentAlignment" Value="Center" />
+        <Setter Property="VerticalContentAlignment" Value="Center" />
+        <Setter Property="Padding" Value="0" />
+        <Setter Property="Height" Value="50" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type Button}">
+                    <Border x:Name="border"
+                            Background="{TemplateBinding Background}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}"
+                            SnapsToDevicePixels="true">
+                        <ContentPresenter x:Name="contentPresenter"
+                                          Margin="{TemplateBinding Padding}"
+                                          HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                          VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
+                                          Focusable="False"
+                                          RecognizesAccessKey="True"
+                                          SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" />
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <!--  Trigger: Changes background and border brush when mouse is over the button  -->
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter Property="Background" Value="Transparent" />
+                            <Setter Property="BorderBrush" Value="Transparent" />
+                        </Trigger>
+                        <!--  Trigger: Changes background and border brush when button is pressed  -->
+                        <Trigger Property="IsPressed" Value="True">
+                            <Setter Property="Background" Value="Transparent" />
+                            <Setter Property="BorderBrush" Value="Transparent" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+    <!--  End: Pop-up Button Style  -->
+
+    <!--  Start: iToggleButton Style  -->
+    <!--
+        Style: IToggleButtonStyle
+        Description: Defines a toggle button style with a fixed width and height.
+        Includes a ViewBox with a Canvas containing paths for icons.
+        Triggers handle mouse-over and checked states.
+    -->
+    <Style x:Key="IToggleButtonStyle" TargetType="{x:Type ToggleButton}">
+        <Setter Property="Width" Value="30" />
+        <Setter Property="Height" Value="30" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type ToggleButton}">
+                    <Border x:Name="border"
+                            Background="{TemplateBinding Background}"
+                            BorderThickness="{TemplateBinding BorderThickness}"
+                            SnapsToDevicePixels="True">
+                        <Viewbox Width="20"
+                                 Height="20"
+                                 Margin="0,6,0,0"
+                                 Stretch="UniformToFill">
+                            <Canvas Width="512" Height="512">
+                                <!--  Path: Represents the first icon line  -->
+                                <Path Margin="0,0,0,0"
+                                      Data="m32 0h448c17.671875 0 32 14.328125 32 32s-14.328125 32-32 32h-448c-17.671875 0-32-14.328125-32-32s14.328125-32 32-32zm0 0"
+                                      Fill="{DynamicResource SecondaryTextColor}" />
+                                <!--  Path: Represents the second icon line  -->
+                                <Path Margin="0,5,0,0"
+                                      Data="m32 128h448c17.671875 0 32 14.328125 32 32s-14.328125 32-32 32h-448c-17.671875 0-32-14.328125-32-32s14.328125-32 32-32zm0 0"
+                                      Fill="{DynamicResource SecondaryTextColor}" />
+                                <!--  Path: Represents the third icon line  -->
+                                <Path Margin="0,10,0,0"
+                                      Data="m32 256h448c17.671875 0 32 14.328125 32 32s-14.328125 32-32 32h-448c-17.671875 0-32-14.328125-32-32s14.328125-32 32-32zm0 0"
+                                      Fill="{DynamicResource SecondaryTextColor}" />
+                            </Canvas>
+                        </Viewbox>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <!--  Trigger: Changes border background and brush when mouse is over the toggle button  -->
+                        <Trigger Property="IsMouseOver" Value="true">
+                            <Setter TargetName="border" Property="Background" Value="Transparent" />
+                            <Setter TargetName="border" Property="BorderBrush" Value="#FFFFFF" />
+                        </Trigger>
+                        <!--  Trigger: Changes border background and brush when toggle button is checked  -->
+                        <Trigger Property="IsChecked" Value="true">
+                            <Setter TargetName="border" Property="Background" Value="Transparent" />
+                            <Setter TargetName="border" Property="BorderBrush" Value="#FFFFFF" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+    <!--  End: iToggleButton Style  -->
+
+    <!--  Start: Button Close | Restore | Minimize  -->
+    <!--
+        Style: IconButtonsStyle
+        Description: Defines a button style for window control buttons (close, restore, minimize).
+        Includes a Path for the icon and triggers for mouse-over and pressed states.
+    -->
+    <Style x:Key="IconButtonsStyle" TargetType="{x:Type Button}">
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="Cursor" Value="Hand" />
+        <Setter Property="BorderThickness" Value="0" />
+        <Setter Property="Height" Value="25" />
+        <Setter Property="Width" Value="25" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type Button}">
+                    <Border Name="bd"
+                            Background="{TemplateBinding Background}"
+                            BorderThickness="{TemplateBinding BorderThickness}"
+                            CornerRadius="5">
+                        <!--  Path: Represents the button icon  -->
+                        <Path Name="ico"
+                              Width="10"
+                              Height="10"
+                              Data="{TemplateBinding Content}"
+                              Fill="{DynamicResource PrimaryTextColor}"
+                              Stretch="Uniform" />
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <!--  Trigger: Changes background when mouse is over the button  -->
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter Property="Background" Value="{DynamicResource SecondaryBackgroundColor}" />
+                        </Trigger>
+                        <!--  MultiTrigger: Changes background and icon fill for close button when mouse is over  -->
+                        <MultiTrigger>
+                            <MultiTrigger.Conditions>
+                                <Condition Property="IsMouseOver" Value="True" />
+                                <Condition Property="Tag" Value="IsCloseButton" />
+                            </MultiTrigger.Conditions>
+                            <Setter Property="Background" Value="{DynamicResource btnClose}" />
+                            <Setter TargetName="ico" Property="Fill" Value="{DynamicResource PrimaryTexColor}" />
+                        </MultiTrigger>
+                        <!--  Trigger: Changes icon fill when button is pressed  -->
+                        <Trigger Property="IsPressed" Value="True">
+                            <Setter TargetName="ico" Property="Fill" Value="{DynamicResource PrimaryTexColor}" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+    <!--  End: Button Close | Restore | Minimize  -->
+</ResourceDictionary>
