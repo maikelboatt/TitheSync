@@ -1,0 +1,17 @@
+﻿<UserControl x:Class="TitheSync.UI.Components.MemberListing"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:members="clr-namespace:TitheSync.Core.ViewModels.Members;assembly=TitheSync.Core"
+             d:DataContext="{d:DesignInstance Type=members:MemberListingViewModel}"
+             d:DesignHeight="auto"
+             d:DesignWidth="auto"
+             FontFamily="Raleway"
+             mc:Ignorable="d">
+    <Grid>
+        <TextBlock Padding="0,30"
+                   HorizontalAlignment="Center"
+                   Text="Welcome to the Member Listing" />
+    </Grid>
+</UserControl>
