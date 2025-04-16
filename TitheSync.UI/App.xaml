@@ -19,7 +19,7 @@
                 <ResourceDictionary Source="Styles/ButtonStyle.xaml" />
                 <ResourceDictionary Source="Styles/Colors.xaml" />
                 <!--  Dark theme resources  -->
-                <ResourceDictionary Source="Themes/DarkTheme.xaml" />
+                <ResourceDictionary Source="Themes/LightTheme.xaml" />
                 <!--  Icon resources  -->
                 <ResourceDictionary Source="Assets/Icons/Icons.xaml" />
             </ResourceDictionary.MergedDictionaries>
