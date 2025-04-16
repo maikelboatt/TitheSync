@@ -1,0 +1,20 @@
+﻿<views:MvxWpfView x:Class="TitheSync.UI.Views.DashboardView"
+                  xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                  xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                  xmlns:components="clr-namespace:TitheSync.UI.Components"
+                  xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+                  xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+                  xmlns:viewModels="clr-namespace:TitheSync.Core.ViewModels;assembly=TitheSync.Core"
+                  xmlns:views="clr-namespace:MvvmCross.Platforms.Wpf.Views;assembly=MvvmCross.Platforms.Wpf"
+                  d:DataContext="{d:DesignInstance Type=viewModels:DashboardViewModel}"
+                  d:DesignHeight="auto"
+                  d:DesignWidth="auto"
+                  mc:Ignorable="d">
+    <Grid>
+        <Border Background="{DynamicResource SecondaryBackgroundColor}" CornerRadius="8">
+            <Grid>
+                <components:ChartPane DataContext="{Binding ChartPaneViewModel}" />
+            </Grid>
+        </Border>
+    </Grid>
+</views:MvxWpfView>
