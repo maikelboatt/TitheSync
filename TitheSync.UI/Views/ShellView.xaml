@@ -8,15 +8,64 @@
 <views:MvxWpfView x:Class="TitheSync.UI.Views.ShellView"
                   xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                   xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                  xmlns:components="clr-namespace:TitheSync.UI.Components"
                   xmlns:customs="clr-namespace:TitheSync.UI.Customs"
                   xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+                  xmlns:local="clr-namespace:TitheSync.UI.Views"
                   xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+                  xmlns:members="clr-namespace:TitheSync.Core.ViewModels.Members;assembly=TitheSync.Core"
+                  xmlns:panes="clr-namespace:TitheSync.Core.ViewModels.Panes;assembly=TitheSync.Core"
+                  xmlns:payments="clr-namespace:TitheSync.Core.ViewModels.Payments;assembly=TitheSync.Core"
+                  xmlns:viewModels="clr-namespace:TitheSync.Core.ViewModels;assembly=TitheSync.Core"
                   xmlns:views="clr-namespace:MvvmCross.Platforms.Wpf.Views;assembly=MvvmCross.Platforms.Wpf"
                   Name="Root"
+                  d:DataContext="{d:DesignInstance Type=viewModels:ShellViewModel}"
                   d:DesignHeight="600"
                   d:DesignWidth="1100"
-                  FontFamily="Raleway"
+                  FontFamily="Cinzel Decorative"
                   mc:Ignorable="d">
+
+    <views:MvxWpfView.Resources>
+        <DataTemplate DataType="{x:Type viewModels:HomeViewModel}">
+            <local:HomeView />
+        </DataTemplate>
+
+        <DataTemplate DataType="{x:Type viewModels:DashboardViewModel}">
+            <local:DashboardView />
+        </DataTemplate>
+
+        <DataTemplate DataType="{x:Type viewModels:PaymentViewModel}">
+            <local:PaymentsView />
+        </DataTemplate>
+
+        <DataTemplate DataType="{x:Type viewModels:NotificationViewModel}">
+            <local:NotificationView />
+        </DataTemplate>
+
+        <DataTemplate DataType="{x:Type viewModels:SettingsViewModel}">
+            <local:SettingsView />
+        </DataTemplate>
+
+        <DataTemplate DataType="{x:Type members:MemberListingViewModel}">
+            <components:MemberListing />
+        </DataTemplate>
+
+        <DataTemplate DataType="{x:Type payments:PaymentListingViewModel}">
+            <components:PaymentListing />
+        </DataTemplate>
+
+        <DataTemplate DataType="{x:Type panes:NotificationPaneViewModel}">
+            <components:NotificationPane />
+        </DataTemplate>
+
+        <DataTemplate DataType="{x:Type panes:ChartPaneViewModel}">
+            <components:ChartPane />
+        </DataTemplate>
+
+        <DataTemplate DataType="{x:Type panes:SettingsPaneViewModel}">
+            <components:SettingsPane />
+        </DataTemplate>
+    </views:MvxWpfView.Resources>
 
     <!--  Main container with rounded corners  -->
     <Border UseLayoutRounding="True">
@@ -80,6 +129,7 @@
                                         MouseLeave="btnDashboard_MouseLeave"
                                         Style="{DynamicResource PopupButtonStyle}">
                                     <customs:NavigationItem VerticalAlignment="Center"
+                                                            CommandName="{Binding NavigateToDashboardCommand}"
                                                             GroupName="MenuItem"
                                                             Icon="{DynamicResource Dashboard}"
                                                             IconWidth="16"
@@ -93,6 +143,7 @@
                                         MouseLeave="btnHome_MouseLeave"
                                         Style="{DynamicResource PopupButtonStyle}">
                                     <customs:NavigationItem VerticalAlignment="Center"
+                                                            CommandName="{Binding NavigateToHomeCommand}"
                                                             GroupName="MenuItem"
                                                             Icon="{DynamicResource Home}"
                                                             IconWidth="16"
@@ -106,6 +157,7 @@
                                         MouseLeave="btnBilling_MouseLeave"
                                         Style="{DynamicResource PopupButtonStyle}">
                                     <customs:NavigationItem VerticalAlignment="Center"
+                                                            CommandName="{Binding NavigateToPaymentCommand}"
                                                             GroupName="MenuItem"
                                                             Icon="{DynamicResource Payments}"
                                                             IconWidth="16"
@@ -119,6 +171,7 @@
                                         MouseLeave="btnOrderList_MouseLeave"
                                         Style="{DynamicResource PopupButtonStyle}">
                                     <customs:NavigationItem VerticalAlignment="Center"
+                                                            CommandName="{Binding NavigateToNotificationCommand}"
                                                             GroupName="MenuItem"
                                                             Icon="{DynamicResource Notification}"
                                                             IconWidth="16"
@@ -132,6 +185,7 @@
                                         MouseLeave="btnSetting_MouseLeave"
                                         Style="{DynamicResource PopupButtonStyle}">
                                     <customs:NavigationItem VerticalAlignment="Center"
+                                                            CommandName="{Binding NavigateToSettingsCommand}"
                                                             GroupName="MenuItem"
                                                             Icon="{DynamicResource Settings}"
                                                             IconWidth="16"
@@ -235,7 +289,9 @@
                         </StackPanel>
 
                         <!--  Placeholder for dynamic content  -->
-                        <ContentControl Grid.Row="1" Margin="20" />
+                        <ContentControl Grid.Row="1"
+                                        Margin="20"
+                                        Content="{Binding CurrentMainContent}" />
                     </Grid>
                 </Grid>
             </Border>
