@@ -1,10 +1,14 @@
-﻿using MvvmCross;
+﻿using Microsoft.Extensions.Configuration;
+using MvvmCross;
 using MvvmCross.Exceptions;
 using MvvmCross.IoC;
 using MvvmCross.ViewModels;
 using System.Reflection;
 using TitheSync.Core.Factory;
 using TitheSync.Core.ViewModels;
+using TitheSync.DataAccess.DatabaseAccess;
+using TitheSync.DataAccess.Repositories;
+using TitheSync.Domain.Repositories;
 
 namespace TitheSync.Core
 {
@@ -15,19 +19,53 @@ namespace TitheSync.Core
     public class App:MvxApplication
     {
         /// <summary>
+        ///     Gets the application configuration.
+        /// </summary>
+        public IConfiguration Configuration { get; private set; }
+
+        /// <summary>
         ///     Initializes the application by registering ViewModels and services.
         /// </summary>
         public override void Initialize()
         {
+            // Load appsettings.json configuration
+            Configuration = new ConfigurationBuilder()
+                            .SetBasePath(AppContext.BaseDirectory)
+                            .AddJsonFile("appsettings.json", false, true)
+                            .Build();
+
+
+            // Lazily constructs and registers a singleton instance of the `ISqlDataAccess` interface
+            // with the implementation `SqlDataAccess` in the IoC container.
+            Mvx.IoCProvider?.LazyConstructAndRegisterSingleton<ISqlDataAccess, SqlDataAccess>();
+
             // Get the assembly containing the current type
             Assembly[] assemblies =
-            [
-                GetType().Assembly
-            ];
+            {
+                GetType().Assembly,
+                typeof(IMemberRepository).Assembly,
+                typeof(MemberRepository).Assembly
+            };
 
             // Register all types ending with "ViewModel" in the assembly as dynamic types
             foreach (Assembly assembly in assemblies)
             {
+                // Dynamically registers all types in the specified assembly that have names ending with "Services".
+                // These types are registered as interfaces and as lazy singletons in the IoC container.
+                CreatableTypes(assembly)
+                    .EndingWith("Services")
+                    .AsInterfaces()
+                    .RegisterAsLazySingleton();
+
+                // Dynamically registers all types in the specified assembly that have names ending with "Repository".
+                // These types are registered as interfaces and as lazy singletons in the IoC container.
+                CreatableTypes(assembly)
+                    .EndingWith("Repository")
+                    .AsInterfaces()
+                    .RegisterAsLazySingleton();
+
+                // Dynamically registers all types in the specified assembly that have names ending with "ViewModel".
+                // These types are registered as dynamic types in the IoC container.
                 CreatableTypes(assembly)
                     .EndingWith("ViewModel")
                     .AsTypes()
