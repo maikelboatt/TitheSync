@@ -1,4 +1,6 @@
-﻿namespace TitheSync.DataAccess.DTO
+﻿using TitheSync.Domain.Enums;
+
+namespace TitheSync.DataAccess.DTO
 {
     /// <summary>
     ///     Represents a data transfer object for a member.
@@ -18,6 +20,6 @@
         string Contact,
         bool IsLeader,
         string Address,
-        string Organization,
-        string BibleClass );
+        OrganizationEnums Organization,
+        BibleClassEnum BibleClass );
 }
