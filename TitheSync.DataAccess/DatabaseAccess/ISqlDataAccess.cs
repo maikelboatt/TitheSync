@@ -12,12 +12,12 @@
         /// <typeparam name="TU" >The type of the parameters object.</typeparam>
         /// <param name="storedProcedure" >The name of the stored procedure to execute.</param>
         /// <param name="parameters" >The parameters to pass to the stored procedure.</param>
-        /// <param name="connectionString" >The connection string to use. Defaults to "DefaultConnection".</param>
+        /// <param name="cancellationToken" >A token to monitor for cancellation requests.</param>
         /// <returns>
         ///     A task representing the asynchronous operation, containing the result set as an enumerable of type
         ///     <typeparamref name="T" />.
         /// </returns>
-        Task<IEnumerable<T>> QueryAsync<T, TU>( string storedProcedure, TU parameters, string connectionString = "DefaultConnection" );
+        Task<IEnumerable<T>> QueryAsync<T, TU>( string storedProcedure, TU parameters, CancellationToken cancellationToken = default );
 
         /// <summary>
         ///     Executes a command asynchronously without returning a result.
@@ -25,8 +25,8 @@
         /// <typeparam name="T" >The type of the parameters object.</typeparam>
         /// <param name="storedProcedure" >The name of the stored procedure to execute.</param>
         /// <param name="parameters" >The parameters to pass to the stored procedure.</param>
-        /// <param name="connectionString" >The connection string to use. Defaults to "DefaultConnection".</param>
+        /// <param name="cancellationToken" >A token to monitor for cancellation requests.</param>
         /// <returns>A task representing the asynchronous operation.</returns>
-        Task CommandAsync<T>( string storedProcedure, T parameters, string connectionString = "DefaultConnection" );
+        Task CommandAsync<T>( string storedProcedure, T parameters, CancellationToken cancellationToken = default );
     }
 }
