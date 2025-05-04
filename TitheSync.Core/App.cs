@@ -19,25 +19,22 @@ namespace TitheSync.Core
     public class App:MvxApplication
     {
         /// <summary>
-        ///     Gets the application configuration.
-        /// </summary>
-        public IConfiguration Configuration { get; private set; }
-
-        /// <summary>
         ///     Initializes the application by registering ViewModels and services.
         /// </summary>
         public override void Initialize()
         {
             // Load appsettings.json configuration
-            Configuration = new ConfigurationBuilder()
-                            .SetBasePath(AppContext.BaseDirectory)
-                            .AddJsonFile("appsettings.json", false, true)
-                            .Build();
+            IConfigurationRoot configuration = new ConfigurationBuilder()
+                                               .SetBasePath(AppContext.BaseDirectory)
+                                               .AddJsonFile("appsettings.json", false, true)
+                                               .Build();
 
+            // Register the IConfiguration instance
+            Mvx.IoCProvider?.RegisterSingleton(configuration);
 
-            // Lazily constructs and registers a singleton instance of the `ISqlDataAccess` interface
-            // with the implementation `SqlDataAccess` in the IoC container.
-            Mvx.IoCProvider?.LazyConstructAndRegisterSingleton<ISqlDataAccess, SqlDataAccess>();
+            // Register ISqlDataAccess with the connection string
+            Mvx.IoCProvider.LazyConstructAndRegisterSingleton<ISqlDataAccess>(() =>
+                                                                                  new SqlDataAccess(configuration.GetConnectionString("DefaultConnection")));
 
             // Get the assembly containing the current type
             Assembly[] assemblies =
@@ -53,7 +50,7 @@ namespace TitheSync.Core
                 // Dynamically registers all types in the specified assembly that have names ending with "Services".
                 // These types are registered as interfaces and as lazy singletons in the IoC container.
                 CreatableTypes(assembly)
-                    .EndingWith("Services")
+                    .EndingWith("Service")
                     .AsInterfaces()
                     .RegisterAsLazySingleton();
 
@@ -76,21 +73,20 @@ namespace TitheSync.Core
             Mvx.IoCProvider?.RegisterSingleton<IViewModelFactory>(new ViewModelFactory());
 
             // Register a factory function for creating ViewModel instances with parameters
-            Mvx.IoCProvider?.RegisterSingleton<Func<Type, object, MvxViewModel>>(
-                () => ( viewModelType, parameter ) =>
-                {
-                    // Resolve the ViewModel instance from the IoC container
-                    MvxViewModel viewModel = (MvxViewModel)(Mvx.IoCProvider.Resolve(viewModelType)
-                                                            ?? throw new MvxIoCResolveException($"Failed to resolve ViewModel of type: {viewModelType.FullName}"));
+            Mvx.IoCProvider?.RegisterSingleton<Func<Type, object, MvxViewModel>>(() => ( viewModelType, parameter ) =>
+            {
+                // Resolve the ViewModel instance from the IoC container
+                MvxViewModel viewModel = (MvxViewModel)(Mvx.IoCProvider.Resolve(viewModelType)
+                                                        ?? throw new MvxIoCResolveException($"Failed to resolve ViewModel of type: {viewModelType.FullName}"));
 
-                    // Invoke the "Prepare" method on the ViewModel if it exists
-                    viewModelType.GetMethod("Prepare", new[] { parameter.GetType() })
-                                 ?.Invoke(viewModel, new[] { parameter });
+                // Invoke the "Prepare" method on the ViewModel if it exists
+                viewModelType.GetMethod("Prepare", new[] { parameter.GetType() })
+                             ?.Invoke(viewModel, new[] { parameter });
 
-                    // Initialize the ViewModel
-                    viewModel.Initialize();
-                    return viewModel;
-                });
+                // Initialize the ViewModel
+                viewModel.Initialize();
+                return viewModel;
+            });
 
             // Call the base class's Initialize method
             base.Initialize();
