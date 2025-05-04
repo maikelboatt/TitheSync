@@ -20,7 +20,7 @@ namespace TitheSync.Domain.Models
         string contact,
         bool isLeader,
         string address,
-        OrganizationEnums organization,
+        OrganizationEnum organization,
         BibleClassEnum bibleClass )
     {
         /// <summary>
@@ -56,7 +56,7 @@ namespace TitheSync.Domain.Models
         /// <summary>
         ///     Gets the organization the member belongs to.
         /// </summary>
-        public OrganizationEnums Organization { get; init; } = organization;
+        public OrganizationEnum Organization { get; init; } = organization;
 
         /// <summary>
         ///     Gets the Bible class the member is part of.
