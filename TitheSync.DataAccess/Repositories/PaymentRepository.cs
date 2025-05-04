@@ -20,15 +20,19 @@ namespace TitheSync.DataAccess.Repositories
         public async Task<IEnumerable<Payment>> GetPaymentsAsync()
         {
             // Executes a query to retrieve all payments.
-            IEnumerable<PaymentDto> enumerable = await dataAccess.QueryAsync<PaymentDto, dynamic>("sp.Payment_GetAll", new { });
+            IEnumerable<PaymentDto> enumerable = await dataAccess.QueryAsync<PaymentDto, dynamic>(
+                "sp.Payment_GetAll",
+                new
+                {
+                });
 
             // Converts a collection of PaymentDto objects to a collection of Payment objects.
-            return enumerable.Select(
-                x => new Payment(
-                    x.PaymentId,
-                    x.Amount,
-                    dateConverterService.ConvertToDateOnly(x.DatePaid)
-                ));
+            return enumerable.Select(x => new Payment(
+                                         x.PaymentId,
+                                         x.PaymentMemberId,
+                                         x.Amount,
+                                         dateConverterService.ConvertToDateOnly(x.DatePaid)
+                                     ));
         }
 
         /// <summary>
@@ -39,7 +43,12 @@ namespace TitheSync.DataAccess.Repositories
         public async Task<Payment?> GetPaymentByIdAsync( int paymentId )
         {
             // Executes a query to retrieve a payment by its unique identifier.
-            IEnumerable<PaymentDto> enumerable = await dataAccess.QueryAsync<PaymentDto, dynamic>("sp.Payment_GetById", new { PaymentId = paymentId });
+            IEnumerable<PaymentDto> enumerable = await dataAccess.QueryAsync<PaymentDto, dynamic>(
+                "sp.Payment_GetById",
+                new
+                {
+                    PaymentId = paymentId
+                });
 
             // Retrieves the first payment DTO from the enumerable, or null if none exist.
             PaymentDto? paymentDto = enumerable.FirstOrDefault();
@@ -48,6 +57,7 @@ namespace TitheSync.DataAccess.Repositories
             return paymentDto is not null
                 ? new Payment(
                     paymentDto.PaymentId,
+                    paymentDto.PaymentMemberId,
                     paymentDto.Amount,
                     dateConverterService.ConvertToDateOnly(paymentDto.DatePaid)
                 )
@@ -63,11 +73,19 @@ namespace TitheSync.DataAccess.Repositories
             // Creates a new instance of the PaymentDto class using the provided Payment object.
             PaymentDto record = new(
                 payment.PaymentId,
+                payment.PaymentMemberId,
                 payment.Amount,
                 dateConverterService.ConvertToDateTime(payment.DatePaid)
             );
 
-            await dataAccess.CommandAsync("sp.Payment_Add", record);
+            await dataAccess.CommandAsync(
+                "sp.Payment_Add",
+                new
+                {
+                    record.Amount,
+                    record.DatePaid,
+                    record.PaymentMemberId
+                });
         }
 
         /// <summary>
@@ -78,12 +96,15 @@ namespace TitheSync.DataAccess.Repositories
         {
             // Creates a new instance of the PaymentDto class using the provided Payment object.
             PaymentDto record = new(
+                payment.PaymentMemberId,
                 payment.PaymentId,
                 payment.Amount,
                 dateConverterService.ConvertToDateTime(payment.DatePaid)
             );
 
-            await dataAccess.CommandAsync("sp.Payment_Update", record);
+            await dataAccess.CommandAsync(
+                "sp.Payment_Update",
+                record);
         }
 
         /// <summary>
@@ -92,7 +113,12 @@ namespace TitheSync.DataAccess.Repositories
         /// <param name="paymentId" >The unique identifier of the payment to delete.</param>
         public async Task DeletePaymentAsync( int paymentId )
         {
-            await dataAccess.CommandAsync("sp.Payment_Delete", new { PaymentId = paymentId });
+            await dataAccess.CommandAsync(
+                "sp.Payment_Delete",
+                new
+                {
+                    PaymentId = paymentId
+                });
         }
     }
 }
