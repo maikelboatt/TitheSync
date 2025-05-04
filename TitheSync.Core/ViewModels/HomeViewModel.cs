@@ -6,7 +6,7 @@ namespace TitheSync.Core.ViewModels
 {
     public class HomeViewModel( IViewModelFactory viewModelFactory ):MvxViewModel, IHomeViewModel
     {
-        public MemberListingViewModel? MemberListingViewModel { get; set; }
+        public MemberListingViewModel? MemberListingViewModel => CreateViewModel();
 
         private MemberListingViewModel? CreateViewModel()
         {
