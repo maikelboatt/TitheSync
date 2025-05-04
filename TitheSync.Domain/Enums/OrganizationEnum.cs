@@ -1,6 +1,6 @@
 ﻿namespace TitheSync.Domain.Enums
 {
-    public enum OrganizationEnums
+    public enum OrganizationEnum
     {
         MensFellowship = 0,
         WomensFellowship = 1,
