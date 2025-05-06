@@ -11,13 +11,18 @@ namespace TitheSync.Core.Stores
     {
         private readonly ReaderWriterLockSlim _lock = new();
         private readonly ILogger<MemberStore> _logger;
-        private readonly List<Member> _members = new();
+        private readonly List<Member> _members = [];
         private readonly IMemberService _memberService;
 
         /// <summary>
         ///     Initializes a new instance of the <see cref="MemberStore" /> class.
         /// </summary>
         /// <param name="memberService" >The service used to manage members.</param>
+        /// <param name="logger" >The logger instance for logging store operations.</param>
+        /// <exception cref="ArgumentNullException" >
+        ///     Thrown when the <paramref name="memberService" /> and or
+        ///     <seealso cref="logger" /> is null.
+        /// </exception>
         public MemberStore( IMemberService memberService, ILogger<MemberStore> logger )
         {
             // Validate the member service
