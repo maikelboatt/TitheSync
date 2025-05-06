@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 using MvvmCross;
 using MvvmCross.Exceptions;
 using MvvmCross.IoC;
@@ -34,7 +35,10 @@ namespace TitheSync.Core
 
             // Register ISqlDataAccess with the connection string
             Mvx.IoCProvider.LazyConstructAndRegisterSingleton<ISqlDataAccess>(() =>
-                                                                                  new SqlDataAccess(configuration.GetConnectionString("DefaultConnection")));
+            {
+                ILogger<SqlDataAccess> logger = Mvx.IoCProvider.Resolve<ILogger<SqlDataAccess>>();
+                return new SqlDataAccess(configuration.GetConnectionString("DefaultConnection"), logger);
+            });
 
             // Get the assembly containing the current type
             Assembly[] assemblies =
