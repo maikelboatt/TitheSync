@@ -1,16 +1,24 @@
 ﻿using MvvmCross.Commands;
 using MvvmCross.ViewModels;
 using TitheSync.Core.Factory;
+using TitheSync.Core.Stores;
 
 namespace TitheSync.Core.ViewModels
 {
-    public class ShellViewModel( IViewModelFactory viewModelFactory ):MvxViewModel
+    public class ShellViewModel:MvxViewModel
     {
-        #region Fields
+        public ShellViewModel( IViewModelFactory viewModelFactory, IModalNavigationStore modalNavigationStore )
+        {
+            _viewModelFactory = viewModelFactory;
+            _modalNavigationStore = modalNavigationStore;
 
-        private MvxViewModel? _currentMainContent;
-
-        #endregion
+            // Initialize commands
+            NavigateToHomeCommand = new MvxCommand(ExecuteNavigateToHome);
+            NavigateToPaymentCommand = new MvxCommand(ExecuteNavigateToPayment);
+            NavigateToDashboardCommand = new MvxCommand(ExecuteNavigateToDashboard);
+            NavigateToNotificationCommand = new MvxCommand(ExecuteNavigateToNotification);
+            NavigateToSettingsCommand = new MvxCommand(ExecuteNavigateToSettings);
+        }
 
         #region Properties
 
@@ -20,15 +28,27 @@ namespace TitheSync.Core.ViewModels
             private set => SetProperty(ref _currentMainContent, value);
         }
 
+        public bool IsModalOpen => _modalNavigationStore.IsOpen;
+        public MvxViewModel? CurrentModalContent => _modalNavigationStore.CurrentModalViewModel;
+
         #endregion
+
+        #region Fields
+
+        private MvxViewModel? _currentMainContent;
+        private readonly IViewModelFactory _viewModelFactory;
+        private readonly IModalNavigationStore _modalNavigationStore;
+
+        #endregion
+
 
         #region Commands
 
-        public IMvxCommand NavigateToHomeCommand => new MvxCommand(ExecuteNavigateToHome);
-        public IMvxCommand NavigateToPaymentCommand => new MvxCommand(ExecuteNavigateToPayment);
-        public IMvxCommand NavigateToDashboardCommand => new MvxCommand(ExecuteNavigateToDashboard);
-        public IMvxCommand NavigateToNotificationCommand => new MvxCommand(ExecuteNavigateToNotification);
-        public IMvxCommand NavigateToSettingsCommand => new MvxCommand(ExecuteNavigateToSettings);
+        public IMvxCommand NavigateToHomeCommand { get; }
+        public IMvxCommand NavigateToPaymentCommand { get; }
+        public IMvxCommand NavigateToDashboardCommand { get; }
+        public IMvxCommand NavigateToNotificationCommand { get; }
+        public IMvxCommand NavigateToSettingsCommand { get; }
 
         #endregion
 
@@ -36,35 +56,35 @@ namespace TitheSync.Core.ViewModels
 
         private void ExecuteNavigateToSettings()
         {
-            SettingsViewModel? settingsViewModel = viewModelFactory.CreateViewModel<SettingsViewModel>();
+            SettingsViewModel? settingsViewModel = _viewModelFactory.CreateViewModel<SettingsViewModel>();
             CurrentMainContent = settingsViewModel;
             settingsViewModel?.Initialize();
         }
 
         private void ExecuteNavigateToNotification()
         {
-            NotificationViewModel? notificationViewModel = viewModelFactory.CreateViewModel<NotificationViewModel>();
+            NotificationViewModel? notificationViewModel = _viewModelFactory.CreateViewModel<NotificationViewModel>();
             CurrentMainContent = notificationViewModel;
             notificationViewModel?.Initialize();
         }
 
         private void ExecuteNavigateToDashboard()
         {
-            DashboardViewModel? dashboardViewModel = viewModelFactory.CreateViewModel<DashboardViewModel>();
+            DashboardViewModel? dashboardViewModel = _viewModelFactory.CreateViewModel<DashboardViewModel>();
             CurrentMainContent = dashboardViewModel;
             dashboardViewModel?.Initialize();
         }
 
         private void ExecuteNavigateToPayment()
         {
-            PaymentViewModel? paymentViewModel = viewModelFactory.CreateViewModel<PaymentViewModel>();
+            PaymentViewModel? paymentViewModel = _viewModelFactory.CreateViewModel<PaymentViewModel>();
             CurrentMainContent = paymentViewModel;
             paymentViewModel?.Initialize();
         }
 
         private void ExecuteNavigateToHome()
         {
-            HomeViewModel? homeViewmodel = viewModelFactory.CreateViewModel<HomeViewModel>();
+            HomeViewModel? homeViewmodel = _viewModelFactory.CreateViewModel<HomeViewModel>();
             CurrentMainContent = homeViewmodel;
             homeViewmodel?.Initialize();
         }
