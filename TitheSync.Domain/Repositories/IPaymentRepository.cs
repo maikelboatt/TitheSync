@@ -16,9 +16,9 @@ namespace TitheSync.Domain.Repositories
         /// <summary>
         ///     Retrieves a payment by its unique identifier asynchronously.
         /// </summary>
-        /// <param name="paymentId" >The unique identifier of the payment.</param>
+        /// <param name="id" >The unique identifier of the payment.</param>
         /// <returns>A task that represents the asynchronous operation. The task result contains the payment with the specified ID.</returns>
-        Task<Payment?> GetPaymentByIdAsync( int paymentId );
+        Task<Payment?> GetPaymentByIdAsync( int id );
 
         /// <summary>
         ///     Adds a new payment to the repository asynchronously.
@@ -37,8 +37,8 @@ namespace TitheSync.Domain.Repositories
         /// <summary>
         ///     Deletes a payment from the repository by its unique identifier asynchronously.
         /// </summary>
-        /// <param name="paymentId" >The unique identifier of the payment to delete.</param>
+        /// <param name="id" >The unique identifier of the payment to delete.</param>
         /// <returns>A task that represents the asynchronous operation.</returns>
-        Task DeletePaymentAsync( int paymentId );
+        Task DeletePaymentAsync( int id );
     }
 }
