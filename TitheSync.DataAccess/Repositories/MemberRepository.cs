@@ -3,6 +3,7 @@ using TitheSync.DataAccess.DatabaseAccess;
 using TitheSync.DataAccess.DTO;
 using TitheSync.Domain.Models;
 using TitheSync.Domain.Repositories;
+using TitheSync.Domain.Services;
 
 namespace TitheSync.DataAccess.Repositories
 {
@@ -12,6 +13,7 @@ namespace TitheSync.DataAccess.Repositories
     public class MemberRepository:IMemberRepository
     {
         private readonly ISqlDataAccess _dataAccess;
+        private readonly IDatabaseExecutionExceptionHandlingService _databaseExecutionExceptionHandlingService;
         private readonly ILogger<MemberRepository> _logger;
 
         /// <summary>
@@ -19,12 +21,15 @@ namespace TitheSync.DataAccess.Repositories
         /// </summary>
         /// <param name="dataAccess" >The data access layer for executing SQL commands.</param>
         /// <param name="logger" >The logger instance for logging repository operations.</param>
+        /// <param name="databaseExecutionExceptionHandlingService" ></param>
         /// <exception cref="ArgumentNullException" >Thrown when <paramref name="dataAccess" /> is null.</exception>
-        public MemberRepository( ISqlDataAccess dataAccess, ILogger<MemberRepository> logger )
+        public MemberRepository( ISqlDataAccess dataAccess, ILogger<MemberRepository> logger, IDatabaseExecutionExceptionHandlingService databaseExecutionExceptionHandlingService )
         {
-            // Initialize the data access layer
+            // Validate the data access layer
             _dataAccess = dataAccess ?? throw new ArgumentNullException(nameof(dataAccess));
-            _logger = logger;
+            // Initialize the logger
+            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            _databaseExecutionExceptionHandlingService = databaseExecutionExceptionHandlingService ?? throw new ArgumentNullException(nameof(databaseExecutionExceptionHandlingService));
         }
 
         /// <summary>
@@ -36,13 +41,16 @@ namespace TitheSync.DataAccess.Repositories
         {
             try
             {
-                IEnumerable<MemberDto> memberDtos = await _dataAccess.QueryAsync<MemberDto, dynamic>("sp.Member_GetAll", new { });
-                return memberDtos.Select(MapToMember);
+                IEnumerable<MemberDto> result = await _databaseExecutionExceptionHandlingService.ExecuteWithExceptionHandlingAsync(
+                    "sp.Member_GetAll",
+                    new { },
+                    async () => await _dataAccess.QueryAsync<MemberDto, dynamic>("sp.Member_GetAll", new { })
+                );
+                return result.Select(MapToMember);
             }
-            catch (Exception ex)
+            catch (Exception e)
             {
-                // Log the exception
-                _logger.LogError(ex, "Error retrieving members");
+                _logger.LogError(e, "Error retrieving members");
                 throw;
             }
         }
@@ -52,102 +60,92 @@ namespace TitheSync.DataAccess.Repositories
         /// </summary>
         /// <param name="id" >The unique identifier of the member.</param>
         /// <returns>The <see cref="Member" /> object if found; otherwise, null.</returns>
-        /// <exception cref="ArgumentException" >Thrown when the <paramref name="id" /> is invalid.</exception>
-        /// <exception cref="Exception" >Thrown when an error occurs during data retrieval.</exception>
+        /// <exception cref="ArgumentException" >Thrown when the provided ID is invalid.</exception>
         public async Task<Member?> GetMemberByIdAsync( int id )
         {
-            if (id <= 0) throw new ArgumentException("Invalid member ID.", nameof(id));
+            if (id <= 0)
+                throw new ArgumentException("Invalid member ID.", nameof(id));
 
-            try
-            {
-                IEnumerable<MemberDto> memberDtos = await _dataAccess.QueryAsync<MemberDto, dynamic>("sp.Member_GetById", new { MemberId = id });
-                return memberDtos.Select(MapToMember).FirstOrDefault();
-            }
-            catch (Exception ex)
-            {
-                // Log the exception
-                _logger.LogError("Error retrieving member by ID: {ExMessage}", ex.Message);
-                throw;
-            }
+            IEnumerable<MemberDto> result = await _databaseExecutionExceptionHandlingService.ExecuteWithExceptionHandlingAsync(
+                "sp.Member_GetById",
+                new { MemberId = id },
+                async () => await _dataAccess.QueryAsync<MemberDto, dynamic>("sp.Member_GetById", new { MemberId = id })
+            );
+            return result.Select(MapToMember).FirstOrDefault();
         }
 
         /// <summary>
         ///     Adds a new member to the data store.
         /// </summary>
         /// <param name="member" >The <see cref="Member" /> object to add.</param>
-        /// <exception cref="ArgumentNullException" >Thrown when <paramref name="member" /> is null.</exception>
-        /// <exception cref="Exception" >Thrown when an error occurs during data insertion.</exception>
+        /// <exception cref="ArgumentNullException" >Thrown when the provided member is null.</exception>
         public async Task AddMemberAsync( Member member )
         {
-            if (member == null) throw new ArgumentNullException(nameof(member));
+            ArgumentNullException.ThrowIfNull(member);
 
-            try
-            {
-                MemberDto record = MapToMemberDto(member);
-                await _dataAccess.CommandAsync(
-                    "sp.Member_Add",
-                    new
-                    {
-                        record.FirstName,
-                        record.LastName,
-                        record.Contact,
-                        record.IsLeader,
-                        record.Address,
-                        record.Organization,
-                        record.BibleClass
-                    });
-            }
-            catch (Exception ex)
-            {
-                // Log the exception
-                _logger.LogError("Error adding member: {ExMessage}", ex.Message);
-                throw;
-            }
+            await _databaseExecutionExceptionHandlingService.ExecuteWithExceptionHandlingAsync(
+                "sp.Member_Add",
+                new { },
+                async () =>
+                {
+                    MemberDto record = MapToMemberDto(member);
+                    await _dataAccess.CommandAsync(
+                        "sp.Member_Add",
+                        new
+                        {
+                            record.FirstName,
+                            record.LastName,
+                            record.Contact,
+                            record.IsLeader,
+                            record.Address,
+                            record.Organization,
+                            record.BibleClass
+                        });
+                    return true; // Dummy return for Task<bool>
+                }
+            );
         }
 
         /// <summary>
         ///     Updates an existing member in the data store.
         /// </summary>
-        /// <param name="member" >The <see cref="Member" /> object to update.</param>
-        /// <exception cref="ArgumentNullException" >Thrown when <paramref name="member" /> is null.</exception>
-        /// <exception cref="Exception" >Thrown when an error occurs during data update.</exception>
+        /// <param name="member" >The <see cref="Member" /> object with updated information.</param>
+        /// <exception cref="ArgumentNullException" >Thrown when the provided member is null.</exception>
         public async Task UpdateMemberAsync( Member member )
         {
             ArgumentNullException.ThrowIfNull(member);
 
-            try
-            {
-                MemberDto record = MapToMemberDto(member);
-                await _dataAccess.CommandAsync("sp.Member_Update", record);
-            }
-            catch (Exception ex)
-            {
-                // Log the exception
-                _logger.LogError("Error updating member: {ExMessage}", ex.Message);
-                throw;
-            }
+            await _databaseExecutionExceptionHandlingService.ExecuteWithExceptionHandlingAsync(
+                "sp.Member_Update",
+                new { },
+                async () =>
+                {
+                    MemberDto record = MapToMemberDto(member);
+                    await _dataAccess.CommandAsync("sp.Member_Update", record);
+                    return true; // Dummy return for Task<bool>
+                }
+            );
         }
 
         /// <summary>
         ///     Deletes a member from the data store by their unique identifier.
         /// </summary>
         /// <param name="id" >The unique identifier of the member to delete.</param>
-        /// <exception cref="ArgumentException" >Thrown when the <paramref name="id" /> is invalid.</exception>
-        /// <exception cref="Exception" >Thrown when an error occurs during data deletion.</exception>
+        /// <exception cref="ArgumentException" >Thrown when the provided ID is invalid.</exception>
         public async Task DeleteMemberAsync( int id )
         {
-            if (id <= 0) throw new ArgumentException("Invalid member ID.", nameof(id));
+            if (id <= 0)
+                throw new ArgumentException("Invalid member ID.", nameof(id));
 
-            try
-            {
-                await _dataAccess.CommandAsync("sp.Member_Delete", new { MemberId = id });
-            }
-            catch (Exception ex)
-            {
-                // Log the exception
-                _logger.LogError("Error deleting member: {ExMessage}", ex.Message);
-                throw;
-            }
+            await _databaseExecutionExceptionHandlingService.ExecuteWithExceptionHandlingAsync(
+                "sp.Member_Delete",
+                new { MemberId = id },
+                async () =>
+                {
+                    await _dataAccess.CommandAsync("sp.Member_Delete", new { MemberId = id });
+                    return true; // Dummy return for Task<bool>
+                }
+            );
         }
 
         /// <summary>
