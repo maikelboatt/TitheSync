@@ -14,6 +14,7 @@
                   xmlns:local="clr-namespace:TitheSync.UI.Views"
                   xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
                   xmlns:members="clr-namespace:TitheSync.Core.ViewModels.Members;assembly=TitheSync.Core"
+                  xmlns:modalDialogControl="clr-namespace:ModalDialogControl;assembly=ModalDialogControl"
                   xmlns:panes="clr-namespace:TitheSync.Core.ViewModels.Panes;assembly=TitheSync.Core"
                   xmlns:payments="clr-namespace:TitheSync.Core.ViewModels.Payments;assembly=TitheSync.Core"
                   xmlns:viewModels="clr-namespace:TitheSync.Core.ViewModels;assembly=TitheSync.Core"
@@ -75,6 +76,14 @@
                 <VisualBrush Visual="{Binding ElementName=Border}" />
             </Grid.OpacityMask>
 
+            <!--  Modal Dialog Control  -->
+            <modalDialogControl:ModalDialog Panel.ZIndex="1"
+                                            IsOpen="{Binding IsModalOpen, UpdateSourceTrigger=PropertyChanged}"
+                                            TheBackground="{DynamicResource TertiaryBackgroundColor}"
+                                            TheShadow="{DynamicResource SecondaryWhiteColor}">
+
+                <ContentControl Margin="30,15" Content="{Binding CurrentModalContent}" />
+            </modalDialogControl:ModalDialog>
             <!--  Main border with primary background color  -->
             <Border x:Name="Border"
                     Background="{DynamicResource PrimaryBackgroundColor}"
