@@ -17,16 +17,19 @@ namespace TitheSync.DataAccess.DTO
         /// <param name="firstName" >The first name of the member.</param>
         /// <param name="lastName" >The last name of the member.</param>
         /// <param name="contact" >The contact information of the member.</param>
+        /// <param name="gender" >The gender of the member</param>
         /// <param name="isLeader" >Indicates whether the member is a leader.</param>
         /// <param name="address" >The address of the member.</param>
         /// <param name="organization" >The organization the member belongs to.</param>
         /// <param name="bibleClass" >The Bible class the member attends.</param>
-        public MemberDto( int memberId, string firstName, string lastName, string contact, bool isLeader, string address, OrganizationEnum organization, BibleClassEnum bibleClass )
+        public MemberDto( int memberId, string firstName, string lastName, string contact, string gender, bool isLeader, string address, OrganizationEnum organization,
+            BibleClassEnum bibleClass )
         {
             MemberId = memberId;
             FirstName = firstName;
             LastName = lastName;
             Contact = contact;
+            Gender = gender;
             IsLeader = isLeader;
             Address = address;
             Organization = organization;
@@ -37,6 +40,7 @@ namespace TitheSync.DataAccess.DTO
         public string FirstName { get; init; }
         public string LastName { get; init; }
         public string Contact { get; init; }
+        public string Gender { get; init; }
         public bool IsLeader { get; init; }
         public string Address { get; init; }
         public OrganizationEnum Organization { get; init; }
