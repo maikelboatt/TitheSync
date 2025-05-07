@@ -216,4 +216,67 @@
     </Style>
 
     <!--#endregion-->
+
+    <!--  Start : CRUD Buttons  -->
+
+    <!--  Edit Button  -->
+    <Style x:Key="EditBtn" TargetType="Button">
+        <Setter Property="Background" Value="#512da8" />
+        <Setter Property="BorderBrush" Value="#4a148c" />
+        <Setter Property="Foreground" Value="#ffffff" />
+        <Setter Property="FocusVisualStyle" Value="{x:Null}" />
+        <Setter Property="VerticalAlignment" Value="Center" />
+        <Setter Property="Cursor" Value="Hand" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <Border Padding="5"
+                            Background="{TemplateBinding Background}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="1"
+                            CornerRadius="5">
+                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+                    </Border>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+        <Style.Triggers>
+            <Trigger Property="IsMouseOver" Value="True">
+                <Setter Property="Background" Value="#673ab7" />
+            </Trigger>
+        </Style.Triggers>
+    </Style>
+
+    <!--  Create Button  -->
+    <Style x:Key="CreateBtn"
+           BasedOn="{StaticResource EditBtn}"
+           TargetType="Button">
+        <Setter Property="Background" Value="#7DCFB6" />
+        <Setter Property="BorderBrush" Value="#7DCFB6" />
+        <Style.Triggers>
+            <Trigger Property="IsMouseOver" Value="True">
+                <Setter Property="Background" Value="#33CA7F" />
+            </Trigger>
+        </Style.Triggers>
+    </Style>
+
+    <!--  Delete Button  -->
+    <Style x:Key="DelBtn"
+           BasedOn="{StaticResource EditBtn}"
+           TargetType="Button">
+        <Setter Property="Background" Value="#d32f2f" />
+        <Setter Property="BorderBrush" Value="#b71c1c" />
+        <Style.Triggers>
+            <Trigger Property="IsMouseOver" Value="True">
+                <Setter Property="Background" Value="#f44336" />
+            </Trigger>
+        </Style.Triggers>
+    </Style>
+
+    <!--  Read Button  -->
+    <Style x:Key="InfoBtn"
+           BasedOn="{StaticResource EditBtn}"
+           TargetType="Button" />
+
+    <!--  End : CRUD Buttons  -->
 </ResourceDictionary>
