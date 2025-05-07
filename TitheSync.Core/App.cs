@@ -5,6 +5,7 @@ using MvvmCross.Exceptions;
 using MvvmCross.IoC;
 using MvvmCross.ViewModels;
 using System.Reflection;
+using TitheSync.Core.Controls;
 using TitheSync.Core.Factory;
 using TitheSync.Core.ViewModels;
 using TitheSync.DataAccess.DatabaseAccess;
@@ -51,10 +52,17 @@ namespace TitheSync.Core
             // Register all types ending with "ViewModel" in the assembly as dynamic types
             foreach (Assembly assembly in assemblies)
             {
-                // Dynamically registers all types in the specified assembly that have names ending with "Services".
+                // Dynamically registers all types in the specified assembly that have names ending with "Service".
                 // These types are registered as interfaces and as lazy singletons in the IoC container.
                 CreatableTypes(assembly)
                     .EndingWith("Service")
+                    .AsInterfaces()
+                    .RegisterAsLazySingleton();
+
+                // Dynamically registers all types in the specified assembly that have names ending with "Store".
+                // These types are registered as interfaces and as lazy singletons in the IoC container.
+                CreatableTypes(assembly)
+                    .EndingWith("Store")
                     .AsInterfaces()
                     .RegisterAsLazySingleton();
 
@@ -72,6 +80,9 @@ namespace TitheSync.Core
                     .AsTypes()
                     .RegisterAsDynamic();
             }
+
+            // Register ModalNavigationControl
+            Mvx.IoCProvider?.RegisterType<IModalNavigationControl, ModalNavigationControl>();
 
             // Register the IViewModelFactory implementation
             Mvx.IoCProvider?.RegisterSingleton<IViewModelFactory>(new ViewModelFactory());
