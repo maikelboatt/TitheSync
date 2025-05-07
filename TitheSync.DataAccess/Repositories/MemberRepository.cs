@@ -153,7 +153,16 @@ namespace TitheSync.DataAccess.Repositories
         /// </summary>
         /// <param name="dto" >The <see cref="MemberDto" /> object to map.</param>
         /// <returns>The mapped <see cref="Member" /> object.</returns>
-        private static Member MapToMember( MemberDto dto ) => new(dto.MemberId, dto.FirstName, dto.LastName, dto.Contact, dto.IsLeader, dto.Address, dto.Organization, dto.BibleClass);
+        private static Member MapToMember( MemberDto dto ) => new(
+            dto.MemberId,
+            dto.FirstName,
+            dto.LastName,
+            dto.Contact,
+            dto.Gender,
+            dto.IsLeader,
+            dto.Address,
+            dto.Organization,
+            dto.BibleClass);
 
         /// <summary>
         ///     Maps a <see cref="Member" /> object to a <see cref="MemberDto" /> object.
@@ -165,6 +174,7 @@ namespace TitheSync.DataAccess.Repositories
             member.FirstName,
             member.LastName,
             member.Contact,
+            member.Gender,
             member.IsLeader,
             member.Address,
             member.Organization,
