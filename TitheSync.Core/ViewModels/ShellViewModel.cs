@@ -18,6 +18,14 @@ namespace TitheSync.Core.ViewModels
             NavigateToDashboardCommand = new MvxCommand(ExecuteNavigateToDashboard);
             NavigateToNotificationCommand = new MvxCommand(ExecuteNavigateToNotification);
             NavigateToSettingsCommand = new MvxCommand(ExecuteNavigateToSettings);
+
+            modalNavigationStore.CurrentModalViewModelChanged += ModalNavigationStoreOnCurrentModalViewModelChanged;
+        }
+
+        private void ModalNavigationStoreOnCurrentModalViewModelChanged()
+        {
+            RaisePropertyChanged(nameof(CurrentModalContent));
+            RaisePropertyChanged(nameof(IsModalOpen));
         }
 
         #region Properties
