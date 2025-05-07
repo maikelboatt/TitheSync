@@ -1,19 +1,207 @@
-﻿<UserControl x:Class="TitheSync.UI.Components.MemberListing"
-             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-             xmlns:members="clr-namespace:TitheSync.Core.ViewModels.Members;assembly=TitheSync.Core"
-             d:DataContext="{d:DesignInstance Type=members:MemberListingViewModel}"
-             d:DesignHeight="auto"
-             d:DesignWidth="auto"
-             FontFamily="Raleway"
-             mc:Ignorable="d">
+﻿<views:MvxWpfView x:Class="TitheSync.UI.Components.MemberListing"
+                  xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                  xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                  xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+                  xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
+                  xmlns:loadingSpinnerControl="clr-namespace:LoadingSpinnerControl;assembly=LoadingSpinnerControl"
+                  xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+                  xmlns:members="clr-namespace:TitheSync.Core.ViewModels.Members;assembly=TitheSync.Core"
+                  xmlns:views="clr-namespace:MvvmCross.Platforms.Wpf.Views;assembly=MvvmCross.Platforms.Wpf"
+                  d:DataContext="{d:DesignInstance Type=members:MemberListingViewModel}"
+                  d:DesignHeight="auto"
+                  d:DesignWidth="auto"
+                  FontFamily="Raleway"
+                  mc:Ignorable="d">
+    <views:MvxWpfView.Resources>
+        <BooleanToVisibilityConverter x:Key="ToVisibilityConverter" />
+    </views:MvxWpfView.Resources>
+    <!--  Main container grid for the Member Listing UI  -->
     <Grid>
-        <TextBlock Padding="0,30"
-                   HorizontalAlignment="Center"
-                   Text="Welcome to the Member Listing" />
+        <!--  Loading spinner displayed when data is being loaded  -->
+        <loadingSpinnerControl:LoadingSpinner Diameter="100"
+                                              IsLoading="{Binding IsLoading}"
+                                              Thickness="3" />
 
-        <TextBlock Text="{Binding MemberCount}" />
+        <!--  StackPanel displayed with a loading message when data is being loaded  -->
+        <StackPanel VerticalAlignment="Center" Visibility="{Binding IsLoading, Converter={StaticResource ToVisibilityConverter}, UpdateSourceTrigger=PropertyChanged}">
+            <TextBlock Margin="0,10"
+                       VerticalAlignment="Top"
+                       FontFamily="Amita"
+                       Text="Loading Members from database...."
+                       TextAlignment="Center" />
+        </StackPanel>
+
+        <!--  Grid displayed when data loading is complete  -->
+        <Grid Visibility="{Binding IsLoading, Converter={StaticResource InverseBooleanToVisibilityConverter}, ConverterParameter=true, UpdateSourceTrigger=PropertyChanged}">
+            <Grid Margin="3">
+                <!--  Row definitions for the header and content sections  -->
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="50" />
+                    <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
+
+                <!--  Header section containing search and action buttons  -->
+                <Grid Grid.Row="0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition />
+                        <ColumnDefinition />
+                        <ColumnDefinition />
+                    </Grid.ColumnDefinitions>
+
+                    <!--  Search bar with an icon  -->
+                    <StackPanel Margin="15,0,0,0"
+                                VerticalAlignment="Center"
+                                Orientation="Horizontal">
+                        <TextBox Width="200"
+                                 Margin="0,0,-10,0"
+                                 Style="{DynamicResource TextBoxStyle}"
+                                 Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}" />
+                        <TextBox Width="40"
+                                 Margin="0,0,-27,0"
+                                 BorderThickness="0,2,2,2"
+                                 Focusable="False"
+                                 Style="{DynamicResource TextBoxStyle}" />
+                        <iconPacks:PackIconMaterial VerticalAlignment="Center"
+                                                    Kind="AccountSearchOutline"
+                                                    Style="{DynamicResource IconButtonIcon}" />
+                    </StackPanel>
+
+                    <!--  Button to open the batch payment dialog  -->
+                    <Button Grid.Column="1"
+                            Width="100"
+                            Margin="30,0"
+                            HorizontalAlignment="Right"
+                            Command="{Binding OpenBatchPaymentDialogAsyncCommand}"
+                            IsDefault="True"
+                            Style="{DynamicResource CreateBtn}">
+                        <iconPacks:PackIconMaterial Kind="HeatWave" Style="{StaticResource IconButtonIcon}" />
+                    </Button>
+
+                    <!--  Button to open the Add member dialog  -->
+                    <Button Grid.Column="2"
+                            Width="100"
+                            Margin="10,0"
+                            HorizontalAlignment="Right"
+                            Command="{Binding OpenAddDialogAsyncCommand}"
+                            IsDefault="True"
+                            Style="{DynamicResource CreateBtn}">
+                        <iconPacks:PackIconMaterial Kind="Pig" Style="{StaticResource IconButtonIcon}" />
+                    </Button>
+                </Grid>
+
+                <!--  DataGrid displaying the list of members  -->
+                <DataGrid Grid.Row="1"
+                          Background="{DynamicResource SecondaryBackgroundColor}"
+                          CellStyle="{StaticResource DataGridCellStyle1}"
+                          ColumnHeaderStyle="{StaticResource DataGridColumnHeaderStyle1}"
+                          ItemsSource="{Binding Members, UpdateSourceTrigger=PropertyChanged}"
+                          RowStyle="{StaticResource DataGridRowStyle1}"
+                          Style="{DynamicResource DataGridStyle1}"
+                          VerticalScrollBarVisibility="Auto">
+                    <DataGrid.Columns>
+                        <!--  Column for selecting members using a checkbox  -->
+                        <DataGridTemplateColumn Width="Auto" Header="Select">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <CheckBox IsChecked="{Binding IsSelected, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+
+                        <!--  Column displaying the first name of members  -->
+                        <DataGridTextColumn Width="*"
+                                            Binding="{Binding FirstName}"
+                                            CanUserResize="False"
+                                            Header="First name"
+                                            IsReadOnly="True" />
+
+                        <!--  Column displaying the last name of members  -->
+                        <DataGridTextColumn Width="*"
+                                            Binding="{Binding LastName}"
+                                            CanUserResize="False"
+                                            Header="Last name "
+                                            IsReadOnly="True" />
+
+                        <!--  Column displaying the contact information of members  -->
+                        <DataGridTextColumn Width="*"
+                                            Binding="{Binding Contact}"
+                                            CanUserResize="False"
+                                            Header="Contact"
+                                            IsReadOnly="True" />
+
+                        <!--  Column indicating if the member is a leader  -->
+                        <DataGridTextColumn Width="*"
+                                            Binding="{Binding IsLeader}"
+                                            CanUserResize="False"
+                                            Header="IsLeader"
+                                            IsReadOnly="True" />
+
+                        <!--  Column displaying the gender of members  -->
+                        <DataGridTextColumn Width="*"
+                                            Binding="{Binding Gender}"
+                                            CanUserResize="False"
+                                            Header="Gender"
+                                            IsReadOnly="True" />
+
+                        <!--  Column displaying the address of members  -->
+                        <DataGridTextColumn Width="*"
+                                            Binding="{Binding Address}"
+                                            CanUserResize="False"
+                                            Header="Address"
+                                            IsReadOnly="True" />
+
+                        <!--  Column displaying the organization of members  -->
+                        <DataGridTextColumn Width="*"
+                                            Binding="{Binding Organization}"
+                                            CanUserResize="False"
+                                            Header="Organization"
+                                            IsReadOnly="True" />
+
+                        <!--  Column displaying the Bible class of members  -->
+                        <DataGridTextColumn Width="*"
+                                            Binding="{Binding BibleClass}"
+                                            CanUserResize="False"
+                                            Header="BibleClass"
+                                            IsReadOnly="True" />
+
+                        <!--  Column containing operation buttons for each member  -->
+                        <DataGridTemplateColumn Width="auto"
+                                                Header="Operations"
+                                                IsReadOnly="True">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <StackPanel Orientation="Horizontal">
+                                        <!--  Button to open the details dialog for a member  -->
+                                        <Button Margin="0,0,5,0"
+                                                Command="{Binding RelativeSource={RelativeSource AncestorType={x:Type UserControl}}, Path=DataContext.OpenDetailsDialogAsyncCommand}"
+                                                CommandParameter="{Binding MemberId}"
+                                                IsDefault="True"
+                                                Style="{DynamicResource CreateBtn}">
+                                            <iconPacks:PackIconMaterial Kind="OpenInNew" Style="{StaticResource IconButtonIcon}" />
+                                        </Button>
+
+                                        <!--  Button to open the update dialog for a member  -->
+                                        <Button Margin="0,0,5,0"
+                                                Command="{Binding RelativeSource={RelativeSource AncestorType={x:Type UserControl}}, Path=DataContext.OpenUpdateDialogAsyncCommand}"
+                                                CommandParameter="{Binding MemberId}"
+                                                Style="{DynamicResource EditBtn}">
+                                            <iconPacks:PackIconMaterial Kind="AccountEdit" Style="{StaticResource IconButtonIcon}" />
+                                        </Button>
+
+                                        <!--  Button to open the delete dialog for a member  -->
+                                        <Button Margin="0,0,5,0"
+                                                Command="{Binding RelativeSource={RelativeSource AncestorType={x:Type UserControl}}, Path=DataContext.OpenDeleteDialogAsyncCommand}"
+                                                CommandParameter="{Binding MemberId}"
+                                                Style="{DynamicResource DelBtn}">
+                                            <iconPacks:PackIconMaterial Kind="DeleteOutline" Style="{StaticResource IconButtonIcon}" />
+                                        </Button>
+                                    </StackPanel>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+                    </DataGrid.Columns>
+                </DataGrid>
+            </Grid>
+        </Grid>
     </Grid>
-</UserControl>
+</views:MvxWpfView>

@@ -1,8 +1,8 @@
-﻿using System.Windows.Controls;
+﻿using MvvmCross.Platforms.Wpf.Views;
 
 namespace TitheSync.UI.Components
 {
-    public partial class MemberListing:UserControl
+    public partial class MemberListing:MvxWpfView
     {
         public MemberListing()
         {
@@ -10,4 +10,3 @@ namespace TitheSync.UI.Components
         }
     }
 }
-
