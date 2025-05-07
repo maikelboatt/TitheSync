@@ -9,6 +9,7 @@ namespace TitheSync.Domain.Models
     /// <param name="firstName" >The first name of the member.</param>
     /// <param name="lastName" >The last name of the member.</param>
     /// <param name="contact" >The contact information of the member.</param>
+    /// <param name="gender" >The gender of the member.</param>
     /// <param name="isLeader" >Indicates whether the member is a leader.</param>
     /// <param name="address" >The address of the member.</param>
     /// <param name="organization" >The organization the member belongs to.</param>
@@ -18,6 +19,7 @@ namespace TitheSync.Domain.Models
         string firstName,
         string lastName,
         string contact,
+        string gender,
         bool isLeader,
         string address,
         OrganizationEnum organization,
@@ -42,6 +44,11 @@ namespace TitheSync.Domain.Models
         ///     Gets the contact information of the member.
         /// </summary>
         public string Contact { get; init; } = contact;
+
+        /// <summary>
+        ///     Gets the gender of the member
+        /// </summary>
+        public string Gender { get; init; } = gender;
 
         /// <summary>
         ///     Gets a value indicating whether the member is a leader.
