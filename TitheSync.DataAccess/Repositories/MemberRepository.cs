@@ -99,7 +99,8 @@ namespace TitheSync.DataAccess.Repositories
                             record.IsLeader,
                             record.Address,
                             record.Organization,
-                            record.BibleClass
+                            record.BibleClass,
+                            record.Gender
                         });
                     return true; // Dummy return for Task<bool>
                 }
