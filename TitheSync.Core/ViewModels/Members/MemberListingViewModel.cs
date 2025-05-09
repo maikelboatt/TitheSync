@@ -2,10 +2,11 @@
 using MvvmCross.Commands;
 using MvvmCross.ViewModels;
 using System.Collections.Specialized;
+using System.Windows;
 using TitheSync.Core.Controls;
 using TitheSync.Core.Stores;
-using TitheSync.Domain.Enums;
 using TitheSync.Domain.Models;
+using TitheSync.Domain.Services;
 
 namespace TitheSync.Core.ViewModels.Members
 {
@@ -29,12 +30,23 @@ namespace TitheSync.Core.ViewModels.Members
         /// </summary>
         private readonly IMemberStore _memberStore;
 
+        private readonly IMessageService _messageService;
+
         /// <summary>
         ///     Control for managing modal navigation, such as opening and closing dialogs.
         /// </summary>
         private readonly IModalNavigationControl _modalNavigationControl;
 
+        /// <summary>
+        ///     Indicates whether the ViewModel is currently performing a loading operation.
+        /// </summary>
         private bool _isLoading;
+
+        /// <summary>
+        ///     Backing field for the list of members, initialized from the member store.
+        /// </summary>
+        private MvxObservableCollection<Member> _members;
+
 
         #region Constructor
 
@@ -44,20 +56,26 @@ namespace TitheSync.Core.ViewModels.Members
         /// <param name="memberStore" >The member store to retrieve members from.</param>
         /// <param name="logger" >The logger instance for logging errors and information.</param>
         /// <param name="modalNavigationControl" >The control to popup modals</param>
+        /// <param name="messageService" >The service for displaying messages to the user.</param>
         /// <exception cref="ArgumentNullException" >
         ///     Thrown when <paramref name="memberStore" /> or <paramref name="logger" /> is
         ///     null.
         /// </exception>
         /// .
-        public MemberListingViewModel( IMemberStore memberStore, ILogger<MemberListingViewModel> logger, IModalNavigationControl modalNavigationControl )
+        public MemberListingViewModel( IMemberStore memberStore, ILogger<MemberListingViewModel> logger, IModalNavigationControl modalNavigationControl, IMessageService messageService )
         {
             try
             {
                 _memberStore = memberStore ?? throw new ArgumentNullException(nameof(memberStore));
                 _logger = logger ?? throw new ArgumentNullException(nameof(logger));
                 _modalNavigationControl = modalNavigationControl ?? throw new ArgumentNullException(nameof(modalNavigationControl));
+                _messageService = messageService ?? throw new ArgumentNullException(nameof(messageService));
+
+                _members = new MvxObservableCollection<Member>(_memberStore.Members);
 
                 _members.CollectionChanged += MembersOnCollectionChanged;
+
+                _memberStore.OnMemberAdded += MemberStoreOnOnMemberAdded;
 
 
                 // Initialize commands
@@ -77,10 +95,7 @@ namespace TitheSync.Core.ViewModels.Members
 
         #endregion
 
-        /// <summary>
-        ///     Backing field for the list of members, initialized from the member store.
-        /// </summary>
-        private MvxObservableCollection<Member> _members => new(_memberStore.Members.ToList());
+        #region Lifecycle
 
         /// <summary>
         ///     Initializes the ViewModel asynchronously.
@@ -91,6 +106,24 @@ namespace TitheSync.Core.ViewModels.Members
             await base.Initialize();
             await LoadMembersAsync();
         }
+
+
+        /// <summary>
+        ///     Cleans up resources and unsubscribes from events when the view is destroyed.
+        /// </summary>
+        /// <param name="viewFinishing" >
+        ///     Indicates whether the view is finishing. Defaults to true.
+        /// </param>
+        public override void ViewDestroy( bool viewFinishing = true )
+        {
+            _members.CollectionChanged -= MembersOnCollectionChanged;
+            _memberStore.OnMemberAdded -= MemberStoreOnOnMemberAdded;
+            base.ViewDestroy(viewFinishing);
+        }
+
+        #endregion
+
+        #region Event Handlers
 
         /// <summary>
         ///     Event handler for when the members collection changes.
@@ -103,25 +136,36 @@ namespace TitheSync.Core.ViewModels.Members
             RaisePropertyChanged(() => Members);
         }
 
+        /// <summary>
+        ///     Event handler for when a new member is added to the member store.
+        ///     Adds the new member to the local members collection.
+        /// </summary>
+        /// <param name="member" >The member that was added.</param>
+        private void MemberStoreOnOnMemberAdded( Member member )
+        {
+            _members.Add(member);
+        }
+
+        #endregion
+
         #region Properties
 
         /// <summary>
         ///     Gets the collection of members.
         /// </summary>
-        public IEnumerable<Member> Members { get; } =
-        [
-            new(1, "John", "Doe", "1234567890", "Male", true, "123 Main St", OrganizationEnum.MensFellowship, BibleClassEnum.ProfDanso),
-            new(2, "Jane", "Smith", "9876543210", "Female", false, "456 Elm St", OrganizationEnum.WomensFellowship, BibleClassEnum.MrLartey),
-            new(3, "Alice", "Johnson", "5555555555", "Female", true, "789 Oak St", OrganizationEnum.Choir, BibleClassEnum.EmeliaAkrofi),
-            new(4, "Bob", "Brown", "4444444444", "Male", false, "321 Pine St", OrganizationEnum.Suwma, BibleClassEnum.AbrahamDadzie),
-            new(5, "Charlie", "Davis", "3333333333", "Male", true, "654 Maple St", OrganizationEnum.YouthFellowship, BibleClassEnum.AtoPrempeh),
-            new(6, "Emily", "Wilson", "2222222222", "Female", false, "987 Birch St", OrganizationEnum.SingingBand, BibleClassEnum.MichaelKumi),
-            new(7, "Frank", "Taylor", "1111111111", "Male", true, "159 Cedar St", OrganizationEnum.GirlsFellowship, BibleClassEnum.JacobBiney),
-            new(8, "Grace", "Anderson", "6666666666", "Female", false, "753 Walnut St", OrganizationEnum.BoysAndGirlsBrigade, BibleClassEnum.AuntyAggie),
-            new(9, "Henry", "Thomas", "7777777777", "Male", true, "852 Spruce St", OrganizationEnum.MensFellowship, BibleClassEnum.ProfDanso),
-            new(10, "Ivy", "Moore", "8888888888", "Female", false, "951 Ash St", OrganizationEnum.WomensFellowship, BibleClassEnum.MrLartey)
-        ];
+        public MvxObservableCollection<Member> Members
+        {
+            get => _members;
+            private set
+            {
+                _members = value;
+                RaisePropertyChanged(() => Members);
+            }
+        }
 
+        /// <summary>
+        ///     Gets or sets a value indicating whether the ViewModel is currently performing a loading operation.
+        /// </summary>
         public bool IsLoading
         {
             get => _isLoading;
@@ -131,7 +175,7 @@ namespace TitheSync.Core.ViewModels.Members
         /// <summary>
         ///     Gets the count of members in the collection.
         /// </summary>
-        public int MemberCount => Members?.Count() ?? 0;
+        public int MemberCount => Members.Count;
 
         /// <summary>
         ///     Gets the list of members that are currently selected.
@@ -181,9 +225,18 @@ namespace TitheSync.Core.ViewModels.Members
             try
             {
                 // Simulate loading members
-                await Task.Delay(3000, _cancellationTokenSource.Token); // Example delay
+                // await Task.Delay(3000, _cancellationTokenSource.Token); // Example delay
 
-                // await _memberStore.LoadMemberAsync(_cancellationTokenSource.Token);
+                _members.Clear();
+                await _memberStore.LoadMemberAsync(_cancellationTokenSource.Token);
+
+                // Add loaded members to the collection
+                foreach (Member member in _memberStore.Members)
+                {
+                    _members.Add(member);
+                }
+
+                UpdateView();
             }
             catch (OperationCanceledException)
             {
@@ -197,6 +250,12 @@ namespace TitheSync.Core.ViewModels.Members
             {
                 IsLoading = false;
             }
+        }
+
+        private void UpdateView()
+        {
+            // Update the view with the loaded members
+            RaisePropertyChanged(() => Members);
         }
 
         /// <summary>
@@ -215,10 +274,7 @@ namespace TitheSync.Core.ViewModels.Members
         /// </summary>
         /// <param name="id" >The ID of the member to update.</param>
         /// <returns>A task representing the asynchronous operation.</returns>
-        private void ExecuteOpenUpdateDialog( int id )
-        {
-            List<Member> selected = SelectedMembers;
-        }
+        private void ExecuteOpenUpdateDialog( int id ) => _modalNavigationControl.PopUp<MemberUpdateFormViewModel>(id);
 
         /// <summary>
         ///     Executes the logic to open the dialog for deleting an existing member.
@@ -239,7 +295,15 @@ namespace TitheSync.Core.ViewModels.Members
         /// </summary>
         /// <param name="selectedMembers" >The members making the batch payment</param>
         /// <returns>A task representing the asynchronous operation.</returns>
-        private void ExecuteOpenBatchPaymentDialog( List<Member>? selectedMembers ) => throw new NotImplementedException();
+        private void ExecuteOpenBatchPaymentDialog( List<Member>? selectedMembers )
+        {
+            List<Member> selected = SelectedMembers;
+            if (selected.Count == 0)
+            {
+                _messageService.Show("Please select one or more members for batch payment", "Notification", MessageBoxButton.OK, MessageBoxImage.Exclamation);
+            }
+            // _modalNavigationControl.PopUp<BatchPaymentFormViewModel>(selected);
+        }
 
         #endregion
     }
