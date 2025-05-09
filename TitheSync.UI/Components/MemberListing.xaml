@@ -74,7 +74,7 @@
                             Command="{Binding OpenBatchPaymentDialogAsyncCommand}"
                             IsDefault="True"
                             Style="{DynamicResource CreateBtn}">
-                        <iconPacks:PackIconMaterial Kind="HeatWave" Style="{StaticResource IconButtonIcon}" />
+                        <iconPacks:PackIconMaterial Kind="AccountMultiplePlus" Style="{StaticResource IconButtonIcon}" />
                     </Button>
 
                     <!--  Button to open the Add member dialog  -->
@@ -85,7 +85,7 @@
                             Command="{Binding OpenAddDialogAsyncCommand}"
                             IsDefault="True"
                             Style="{DynamicResource CreateBtn}">
-                        <iconPacks:PackIconMaterial Kind="Pig" Style="{StaticResource IconButtonIcon}" />
+                        <iconPacks:PackIconMaterial Kind="AccountPlus" Style="{StaticResource IconButtonIcon}" />
                     </Button>
                 </Grid>
 
