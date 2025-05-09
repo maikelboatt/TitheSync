@@ -10,7 +10,7 @@ using TitheSync.Domain.Models;
 
 namespace TitheSync.Core.ViewModels.Members
 {
-    public class MemberCreateFormViewModel:MvxViewModel<int>, IMemberCreateFormViewModel
+    public class MemberCreateFormViewModel:MvxViewModel<int>, IMemberCreateFormViewModel, INotifyDataErrorInfo
     {
         private readonly ILogger<MemberCreateFormViewModel> _logger;
         private readonly IMemberStore _memberStore;
@@ -39,6 +39,12 @@ namespace TitheSync.Core.ViewModels.Members
             // Initialize commands
             SubmitRecordCommand = new MvxAsyncCommand(ExecuteSubmitRecord, CanSubmit);
             CancelRecordCommand = new MvxCommand(ExecuteCancelRecord);
+        }
+
+        public override void ViewDestroy( bool viewFinishing = true )
+        {
+            _validator.ErrorsChanged -= ValidatorOnErrorsChanged;
+            base.ViewDestroy(viewFinishing);
         }
 
         private void ValidatorOnErrorsChanged( object? sender, DataErrorsChangedEventArgs e )
@@ -97,11 +103,7 @@ namespace TitheSync.Core.ViewModels.Members
         public IEnumerable GetErrors( string propertyName ) => _validator.GetErrors(propertyName);
 
         public bool HasErrors => _validator.HasErrors;
-        public event EventHandler<DataErrorsChangedEventArgs> ErrorsChanged
-        {
-            add => _validator.ErrorsChanged += value;
-            remove => _validator.ErrorsChanged -= value;
-        }
+        public event EventHandler<DataErrorsChangedEventArgs> ErrorsChanged;
 
         #endregion
 
