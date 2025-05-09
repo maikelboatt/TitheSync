@@ -12,6 +12,10 @@ namespace TitheSync.Core.ViewModels
             _viewModelFactory = viewModelFactory;
             _modalNavigationStore = modalNavigationStore;
 
+            // Initialize the main content to DashboardViewModel
+            DashboardViewModel? dashboardViewModel = _viewModelFactory.CreateViewModel<DashboardViewModel>();
+            CurrentMainContent = dashboardViewModel;
+
             // Initialize commands
             NavigateToHomeCommand = new MvxCommand(ExecuteNavigateToHome);
             NavigateToPaymentCommand = new MvxCommand(ExecuteNavigateToPayment);
@@ -48,7 +52,6 @@ namespace TitheSync.Core.ViewModels
         private readonly IModalNavigationStore _modalNavigationStore;
 
         #endregion
-
 
         #region Commands
 
