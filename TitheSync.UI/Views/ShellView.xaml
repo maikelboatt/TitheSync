@@ -71,6 +71,10 @@
         <DataTemplate DataType="{x:Type members:MemberCreateFormViewModel}">
             <memberForm:MemberCreateForm />
         </DataTemplate>
+
+        <DataTemplate DataType="{x:Type members:MemberUpdateFormViewModel}">
+            <memberForm:MemberUpdateForm />
+        </DataTemplate>
     </views:MvxWpfView.Resources>
 
     <!--  Main container with rounded corners  -->
