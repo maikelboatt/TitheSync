@@ -13,6 +13,7 @@ namespace TitheSync.Core.Stores
         private readonly ILogger<PaymentStore> _logger;
         private readonly List<Payment> _payments = [];
         private readonly IPaymentService _paymentService;
+        private readonly List<PaymentWithName> _paymentsWithNames = [];
 
         /// <summary>
         ///     Initializes a new instance of the <see cref="PaymentStore" /> class.
@@ -42,6 +43,24 @@ namespace TitheSync.Core.Stores
                 try
                 {
                     return _payments.ToList();
+                }
+                finally
+                {
+                    _lock.ExitReadLock();
+                }
+            }
+        }
+        /// <summary>
+        ///     Gets the list of payments with names in a thread-safe manner.
+        /// </summary>
+        public IReadOnlyList<PaymentWithName> PaymentWithNames
+        {
+            get
+            {
+                _lock.EnterReadLock();
+                try
+                {
+                    return _paymentsWithNames.ToList();
                 }
                 finally
                 {
@@ -156,7 +175,7 @@ namespace TitheSync.Core.Stores
         /// <summary>
         ///     Event triggered when payment is added.
         /// </summary>
-        public event Action<Payment>? OnPaymentAdded;
+        public event Action<PaymentWithName>? OnPaymentAdded;
 
         /// <summary>
         ///     Event triggered when payment is updated.
@@ -172,5 +191,33 @@ namespace TitheSync.Core.Stores
         ///     Event triggered when payments are loaded.
         /// </summary>
         public event Action? OnPaymentsLoaded;
+
+        /// <summary>
+        ///     Loads payments with names asynchronously from the payment service.
+        /// </summary>
+        /// <param name="cancellationToken" >A token to monitor for cancellation requests.</param>
+        public async Task LoadPaymentWithNamesAsync( CancellationToken cancellationToken = default )
+        {
+            try
+            {
+                IEnumerable<PaymentWithName> payments = await _paymentService.GetPaymentsWithNamesAsync();
+                _lock.EnterWriteLock();
+
+                try
+                {
+                    _paymentsWithNames.Clear();
+                    _paymentsWithNames.AddRange(payments);
+                }
+                finally
+                {
+                    _lock.ExitWriteLock();
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error loading payments with names");
+                throw;
+            }
+        }
     }
 }
