@@ -1,4 +1,4 @@
-﻿namespace TitheSync.Domain.Services
+﻿namespace TitheSync.Infrastructure.Services
 {
     /// <summary>
     ///     Provides methods to convert between <see cref="DateTime" /> and <see cref="DateOnly" />.
