@@ -2,8 +2,7 @@
 using TitheSync.DataAccess.DatabaseAccess;
 using TitheSync.DataAccess.DTO;
 using TitheSync.Domain.Models;
-using TitheSync.Domain.Repositories;
-using TitheSync.Domain.Services;
+using TitheSync.Infrastructure.Services;
 
 namespace TitheSync.DataAccess.Repositories
 {
@@ -126,6 +125,12 @@ namespace TitheSync.DataAccess.Repositories
                     return true; // Dummy return for Task<bool>
                 }
             );
+
+            // MemberDto record = MapToMemberDto(member);
+            //
+            // await _dataAccess.CommandAsync(
+            //     "sp.Member_Update",
+            //     record);
         }
 
         /// <summary>
