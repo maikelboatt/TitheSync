@@ -1,6 +1,4 @@
-﻿using Microsoft.Data.SqlClient;
-
-namespace TitheSync.Domain.Services
+﻿namespace TitheSync.Infrastructure.Services
 {
     public interface IDatabaseExecutionExceptionHandlingService
     {

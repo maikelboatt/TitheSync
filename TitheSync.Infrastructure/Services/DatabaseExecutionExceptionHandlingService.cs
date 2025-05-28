@@ -2,7 +2,7 @@
 using Microsoft.Extensions.Logging;
 using System.Diagnostics;
 
-namespace TitheSync.Domain.Services
+namespace TitheSync.Infrastructure.Services
 {
     public class DatabaseExecutionExceptionHandlingService( ILogger<DatabaseExecutionExceptionHandlingService> logger )
         :IDatabaseExecutionExceptionHandlingService
