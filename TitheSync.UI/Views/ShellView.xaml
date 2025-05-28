@@ -17,6 +17,7 @@
                   xmlns:members="clr-namespace:TitheSync.Core.ViewModels.Members;assembly=TitheSync.Core"
                   xmlns:modalDialogControl="clr-namespace:ModalDialogControl;assembly=ModalDialogControl"
                   xmlns:panes="clr-namespace:TitheSync.Core.ViewModels.Panes;assembly=TitheSync.Core"
+                  xmlns:paymentForm="clr-namespace:TitheSync.UI.Forms.Payments"
                   xmlns:payments="clr-namespace:TitheSync.Core.ViewModels.Payments;assembly=TitheSync.Core"
                   xmlns:viewModels="clr-namespace:TitheSync.Core.ViewModels;assembly=TitheSync.Core"
                   xmlns:views="clr-namespace:MvvmCross.Platforms.Wpf.Views;assembly=MvvmCross.Platforms.Wpf"
@@ -75,6 +76,31 @@
         <DataTemplate DataType="{x:Type members:MemberUpdateFormViewModel}">
             <memberForm:MemberUpdateForm />
         </DataTemplate>
+
+        <DataTemplate DataType="{x:Type members:MemberDeleteFormViewModel}">
+            <memberForm:MemberDeleteForm />
+        </DataTemplate>
+
+        <DataTemplate DataType="{x:Type payments:PaymentCreateFormViewModel}">
+            <paymentForm:PaymentCreateForm />
+        </DataTemplate>
+
+        <DataTemplate DataType="{x:Type payments:PaymentUpdateFormViewModel}">
+            <paymentForm:PaymentUpdateForm />
+        </DataTemplate>
+
+        <DataTemplate DataType="{x:Type payments:PaymentDeleteFormViewModel}">
+            <paymentForm:PaymentDeleteForm />
+        </DataTemplate>
+
+        <DataTemplate DataType="{x:Type payments:PaymentDetailsFormViewModel}">
+            <paymentForm:PaymentDetailsForm />
+        </DataTemplate>
+        <DataTemplate DataType="{x:Type payments:BatchPaymentFormViewModel}">
+            <paymentForm:BatchPaymentForm />
+        </DataTemplate>
+
+
     </views:MvxWpfView.Resources>
 
     <!--  Main container with rounded corners  -->
@@ -152,6 +178,7 @@
                                                             Icon="{DynamicResource Dashboard}"
                                                             IconWidth="16"
                                                             IndicatorBrush="{DynamicResource PrimaryBlueColor}"
+                                                            IsSelected="True"
                                                             Text="Dashboard" />
                                 </Button>
 
@@ -208,7 +235,7 @@
                                                             Icon="{DynamicResource Settings}"
                                                             IconWidth="16"
                                                             IndicatorBrush="{DynamicResource PrimaryBlueColor}"
-                                                            Text="Setting" />
+                                                            Text="Settings" />
                                 </Button>
                             </StackPanel>
 
