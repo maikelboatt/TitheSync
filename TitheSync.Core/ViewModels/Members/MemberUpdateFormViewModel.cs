@@ -10,7 +10,10 @@ using TitheSync.Domain.Models;
 
 namespace TitheSync.Core.ViewModels.Members
 {
-    public class MemberUpdateFormViewModel:MvxViewModel<int>, IMemberUpdateFormViewModel
+    /// <summary>
+    ///     ViewModel for updating a member's information in the application.
+    /// </summary>
+    public class MemberUpdateFormViewModel:MvxViewModel<int>, IMemberUpdateFormViewModel, INotifyDataErrorInfo
     {
         private readonly ILogger<MemberCreateFormViewModel> _logger;
         private readonly IMemberStore _memberStore;
@@ -27,6 +30,12 @@ namespace TitheSync.Core.ViewModels.Members
         private int _memberId;
         private OrganizationEnum _organization;
 
+        /// <summary>
+        ///     Initializes a new instance of the <see cref="MemberUpdateFormViewModel" /> class.
+        /// </summary>
+        /// <param name="modalNavigationStore" >The modal navigation store for managing navigation.</param>
+        /// <param name="memberStore" >The member store for accessing member data.</param>
+        /// <param name="logger" >The logger for logging information and errors.</param>
         public MemberUpdateFormViewModel( IModalNavigationStore modalNavigationStore, IMemberStore memberStore, ILogger<MemberCreateFormViewModel> logger )
         {
             _modalNavigationStore = modalNavigationStore;
@@ -40,21 +49,32 @@ namespace TitheSync.Core.ViewModels.Members
             CancelRecordCommand = new MvxCommand(ExecuteCancelRecord);
         }
 
+        /// <summary>
+        ///     Handles the event when validation errors change.
+        /// </summary>
+        /// <param name="sender" >The source of the event.</param>
+        /// <param name="e" >The event data.</param>
         private void ValidatorOnErrorsChanged( object? sender, DataErrorsChangedEventArgs e )
         {
             RaisePropertyChanged(nameof(HasErrors));
             RaisePropertyChanged(nameof(CanSubmit));
         }
 
-        private bool CanSubmit() => !_validator.HasErrors;
+        #region LifeCycle
 
-
+        /// <summary>
+        ///     Prepares the ViewModel with the specified parameter.
+        /// </summary>
+        /// <param name="parameter" >The member ID to prepare the ViewModel with.</param>
         public override void Prepare( int parameter )
         {
             _logger.LogInformation("Preparing MemberUpdateFormViewModel with parameter: {Parameter}", parameter);
             _memberId = parameter;
         }
 
+        /// <summary>
+        ///     Initializes the ViewModel asynchronously.
+        /// </summary>
         public override async Task Initialize()
         {
             await base.Initialize();
@@ -64,15 +84,28 @@ namespace TitheSync.Core.ViewModels.Members
                 _logger.LogError("Member with ID {MemberId} not found", _memberId);
                 return;
             }
-
             PopulateFormFields(member);
         }
 
+        #endregion
+
         #region Validation
 
+        /// <summary>
+        ///     Gets the validation errors for a specific property.
+        /// </summary>
+        /// <param name="propertyName" >The name of the property to get errors for.</param>
+        /// <returns>An enumerable of validation errors.</returns>
         public IEnumerable GetErrors( string propertyName ) => _validator.GetErrors(propertyName);
 
+        /// <summary>
+        ///     Gets a value indicating whether the form has validation errors.
+        /// </summary>
         public bool HasErrors => _validator.HasErrors;
+
+        /// <summary>
+        ///     Occurs when validation errors change.
+        /// </summary>
         public event EventHandler<DataErrorsChangedEventArgs> ErrorsChanged
         {
             add => _validator.ErrorsChanged += value;
@@ -83,18 +116,28 @@ namespace TitheSync.Core.ViewModels.Members
 
         #region Methods
 
+        /// <summary>
+        ///     Cancels the record update and closes the modal.
+        /// </summary>
         private void ExecuteCancelRecord() => _modalNavigationStore.Close();
 
+        /// <summary>
+        ///     Submits the updated member record asynchronously.
+        /// </summary>
+        /// <param name="arg" >The cancellation token for the operation.</param>
         private async Task ExecuteSubmitRecord( CancellationToken arg )
         {
-            ValidateFields();
             if (_validator.HasErrors) return;
 
             Member member = GetMemberFromFields();
-            await _memberStore.AddMemberAsync(member, arg);
+            await _memberStore.UpdateMemberAsync(member, arg);
             _modalNavigationStore.Close();
         }
 
+        /// <summary>
+        ///     Populates the form fields with the data from the specified member.
+        /// </summary>
+        /// <param name="member" >The member to populate the form fields with.</param>
         private void PopulateFormFields( Member member )
         {
             _firstName = member.FirstName;
@@ -107,8 +150,12 @@ namespace TitheSync.Core.ViewModels.Members
             _bibleClass = member.BibleClass;
         }
 
+        /// <summary>
+        ///     Creates a new member object from the current form fields.
+        /// </summary>
+        /// <returns>A new <see cref="Member" /> object.</returns>
         private Member GetMemberFromFields() => new(
-            1,
+            _memberId,
             FirstName,
             LastName,
             Contact,
@@ -118,28 +165,33 @@ namespace TitheSync.Core.ViewModels.Members
             Organization,
             BibleClass);
 
-        private void ValidateFields()
-        {
-            _validator.Validate(nameof(FirstName), FirstName);
-            _validator.Validate(nameof(LastName), LastName);
-            _validator.Validate(nameof(Contact), Contact);
-            _validator.Validate(nameof(Address), Address);
-            _validator.Validate(nameof(Gender), Gender);
-            _validator.Validate(nameof(Organization), Organization);
-            _validator.Validate(nameof(BibleClass), BibleClass);
-        }
-
         #endregion
 
         #region Commands
 
+        /// <summary>
+        ///     Gets the command for submitting the record.
+        /// </summary>
         public IMvxAsyncCommand SubmitRecordCommand { get; }
+
+        /// <summary>
+        ///     Gets the command for canceling the record update.
+        /// </summary>
         public IMvxCommand CancelRecordCommand { get; }
 
         #endregion
 
         #region Properties
 
+        /// <summary>
+        ///     Determines whether the form can be submitted.
+        /// </summary>
+        /// <returns>True if the form can be submitted; otherwise, false.</returns>
+        private bool CanSubmit() => !_validator.HasErrors;
+
+        /// <summary>
+        ///     Gets or sets the address of the member.
+        /// </summary>
         public string Address
         {
             get => _address;
@@ -147,11 +199,15 @@ namespace TitheSync.Core.ViewModels.Members
             {
                 if (value == _address) return;
                 _address = value ?? throw new ArgumentNullException(nameof(value));
-                _validator.Validate(nameof(Address), _address);
+                _validator.Validate(_address);
                 RaisePropertyChanged(() => Address);
                 SubmitRecordCommand.RaiseCanExecuteChanged();
             }
         }
+
+        /// <summary>
+        ///     Gets or sets the Bible class of the member.
+        /// </summary>
         public BibleClassEnum BibleClass
         {
             get => _bibleClass;
@@ -159,12 +215,15 @@ namespace TitheSync.Core.ViewModels.Members
             {
                 if (value == _bibleClass) return;
                 _bibleClass = value;
-                _validator.Validate(nameof(BibleClass), _bibleClass);
+                _validator.Validate(_bibleClass);
                 RaisePropertyChanged(() => BibleClass);
                 SubmitRecordCommand.RaiseCanExecuteChanged();
-
             }
         }
+
+        /// <summary>
+        ///     Gets or sets the contact information of the member.
+        /// </summary>
         public string Contact
         {
             get => _contact;
@@ -172,11 +231,15 @@ namespace TitheSync.Core.ViewModels.Members
             {
                 if (value == _contact) return;
                 _contact = value ?? throw new ArgumentNullException(nameof(value));
-                _validator.Validate(nameof(Contact), _contact);
+                _validator.Validate(_contact);
                 RaisePropertyChanged(() => Contact);
                 SubmitRecordCommand.RaiseCanExecuteChanged();
             }
         }
+
+        /// <summary>
+        ///     Gets or sets the first name of the member.
+        /// </summary>
         public string FirstName
         {
             get => _firstName;
@@ -184,11 +247,15 @@ namespace TitheSync.Core.ViewModels.Members
             {
                 if (value == _firstName) return;
                 _firstName = value ?? throw new ArgumentNullException(nameof(value));
-                _validator.Validate(nameof(FirstName), _firstName);
+                _validator.Validate(_firstName);
                 RaisePropertyChanged(() => FirstName);
                 SubmitRecordCommand.RaiseCanExecuteChanged();
             }
         }
+
+        /// <summary>
+        ///     Gets or sets the gender of the member.
+        /// </summary>
         public string Gender
         {
             get => _gender;
@@ -196,12 +263,15 @@ namespace TitheSync.Core.ViewModels.Members
             {
                 if (value == _gender) return;
                 _gender = value ?? throw new ArgumentNullException(nameof(value));
-                _validator.Validate(nameof(Gender), _gender);
+                _validator.Validate(_gender);
                 RaisePropertyChanged(() => Gender);
                 SubmitRecordCommand.RaiseCanExecuteChanged();
-
             }
         }
+
+        /// <summary>
+        ///     Gets or sets a value indicating whether the member is a leader.
+        /// </summary>
         public bool IsLeader
         {
             get => _isLeader;
@@ -209,11 +279,15 @@ namespace TitheSync.Core.ViewModels.Members
             {
                 if (value == _isLeader) return;
                 _isLeader = value;
-                _validator.Validate(nameof(IsLeader), _isLeader);
+                _validator.Validate(_isLeader);
                 RaisePropertyChanged(() => IsLeader);
                 SubmitRecordCommand.RaiseCanExecuteChanged();
             }
         }
+
+        /// <summary>
+        ///     Gets or sets the last name of the member.
+        /// </summary>
         public string LastName
         {
             get => _lastName;
@@ -221,11 +295,15 @@ namespace TitheSync.Core.ViewModels.Members
             {
                 if (value == _lastName) return;
                 _lastName = value ?? throw new ArgumentNullException(nameof(value));
-                _validator.Validate(nameof(LastName), _lastName);
+                _validator.Validate(_lastName);
                 RaisePropertyChanged(() => LastName);
                 SubmitRecordCommand.RaiseCanExecuteChanged();
             }
         }
+
+        /// <summary>
+        ///     Gets or sets the organization of the member.
+        /// </summary>
         public OrganizationEnum Organization
         {
             get => _organization;
@@ -233,13 +311,20 @@ namespace TitheSync.Core.ViewModels.Members
             {
                 if (value == _organization) return;
                 _organization = value;
-                _validator.Validate(nameof(Organization), _organization);
+                _validator.Validate(_organization);
                 RaisePropertyChanged(() => Organization);
                 SubmitRecordCommand.RaiseCanExecuteChanged();
             }
         }
 
+        /// <summary>
+        ///     Gets the available organizations for selection.
+        /// </summary>
         public IEnumerable<OrganizationEnum> AvailableOrganizations { get; } = Enum.GetValues<OrganizationEnum>();
+
+        /// <summary>
+        ///     Gets the available Bible classes for selection.
+        /// </summary>
         public IEnumerable<BibleClassEnum> AvailableBibleClasses { get; } = Enum.GetValues<BibleClassEnum>();
 
         #endregion

@@ -1,6 +1,8 @@
-﻿namespace TitheSync.Core.ViewModels.Members
+﻿using MvvmCross.ViewModels;
+
+namespace TitheSync.Core.ViewModels.Members
 {
-    public interface IMemberUpdateFormViewModel
+    public interface IMemberUpdateFormViewModel:IMvxViewModel
     {
     }
 }

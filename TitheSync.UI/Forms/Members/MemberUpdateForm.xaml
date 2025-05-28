@@ -5,32 +5,46 @@
                   xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
                   xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
                   xmlns:resources="clr-namespace:TitheSync.UI.Resources"
+                  xmlns:viewmodels="clr-namespace:TitheSync.Core.ViewModels.Members;assembly=TitheSync.Core"
                   xmlns:views="clr-namespace:MvvmCross.Platforms.Wpf.Views;assembly=MvvmCross.Platforms.Wpf"
+                  d:DataContext="{d:DesignInstance Type=viewmodels:MemberUpdateFormViewModel}"
                   d:DesignHeight="auto"
                   d:DesignWidth="auto"
                   FontFamily="Raleway"
                   mc:Ignorable="d">
+    <!--
+        Border: Provides a background for the form using a dynamic resource for the tertiary background color.
+    -->
     <Border Background="{DynamicResource TertiaryBackgroundColor}">
         <Grid Margin="30,20">
+            <!--
+                Grid.RowDefinitions: Defines two rows - one for the header and one for the input elements.
+            -->
             <Grid.RowDefinitions>
                 <RowDefinition Height="auto" />
                 <RowDefinition Height="*" />
             </Grid.RowDefinitions>
 
-            <!--  Header  -->
+            <!--
+                Header: Displays the form title with a centered text and an icon.
+            -->
             <TextBlock Grid.Row="0"
                        FontWeight="SemiBold"
                        Foreground="{DynamicResource TertiaryTextColor}"
                        Text="Update Existing Member"
                        TextAlignment="Center">
                 <iconPacks:PackIconMaterial VerticalAlignment="Center"
-                                            Kind="AccountPlusOutline"
+                                            Kind="AccountEditOutline"
                                             Style="{DynamicResource FormButtonIcon}" />
             </TextBlock>
 
-
-            <!--  Input Elements  -->
+            <!--
+                Input Elements: Contains all input fields and controls for the form.
+            -->
             <Grid Grid.Row="1">
+                <!--
+                    Grid.RowDefinitions: Defines rows for each input field or control.
+                -->
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto" />
                     <RowDefinition Height="Auto" />
@@ -39,33 +53,44 @@
                     <RowDefinition Height="Auto" />
                 </Grid.RowDefinitions>
 
+                <!--
+                    Grid.ColumnDefinitions: Defines two columns for input fields and controls.
+                -->
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*" />
                     <ColumnDefinition Width="*" />
                 </Grid.ColumnDefinitions>
 
-                <!--  //Firstname  -->
+                <!--
+                    Firstname: Input field for the member's first name.
+                -->
                 <resources:CustomTextBox Grid.Row="0"
                                          Grid.Column="0"
                                          Data="{Binding FirstName, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay, ValidatesOnDataErrors=True, NotifyOnValidationError=True}"
                                          Description="FirstName"
                                          Placeholder="John" />
 
-                <!--  //Lastname  -->
+                <!--
+                    Lastname: Input field for the member's last name.
+                -->
                 <resources:CustomTextBox Grid.Row="0"
                                          Grid.Column="1"
                                          Data="{Binding LastName, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay, ValidatesOnDataErrors=True, NotifyOnValidationError=True}"
                                          Description="LastName"
                                          Placeholder="Doe" />
 
-                <!--  //Contact  -->
+                <!--
+                    Contact: Input field for the member's contact number.
+                -->
                 <resources:CustomTextBox Grid.Row="1"
                                          Grid.Column="0"
                                          Data="{Binding Contact, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay, ValidatesOnDataErrors=True, NotifyOnValidationError=True}"
                                          Description="Contact"
                                          Placeholder="0200000000" />
 
-                <!--  //Gender  -->
+                <!--
+                    Gender: Radio buttons for selecting the member's gender.
+                -->
                 <StackPanel Grid.Row="1"
                             Grid.Column="1"
                             Margin="15,7"
@@ -84,15 +109,18 @@
                     </StackPanel>
                 </StackPanel>
 
-                <!--  //Address  -->
+                <!--
+                    Address: Input field for the member's address.
+                -->
                 <resources:CustomTextBox Grid.Row="2"
                                          Grid.Column="0"
                                          Data="{Binding Address, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay, ValidatesOnDataErrors=True, NotifyOnValidationError=True}"
                                          Description="Address"
                                          Placeholder="123 Main St" />
 
-
-                <!--  //IsLeader  -->
+                <!--
+                    IsLeader: Radio buttons for indicating if the member is a leader.
+                -->
                 <StackPanel Grid.Row="2"
                             Grid.Column="1"
                             Margin="15,7"
@@ -110,34 +138,44 @@
                                      IsChecked="{Binding IsLeader, Mode=TwoWay, Converter={StaticResource RadioButtonConverter}, ConverterParameter=False}" />
                     </StackPanel>
                 </StackPanel>
-                <!--  // Organization  -->
+
+                <!--
+                    Organization: Dropdown for selecting the member's organization.
+                -->
                 <resources:CustomComboBox Grid.Row="3"
                                           Grid.Column="0"
                                           ChosenValue="{Binding Organization, Mode=TwoWay}"
                                           Data="{Binding AvailableOrganizations}"
                                           Placeholder="Organization" />
 
-                <!--  // Bible Class  -->
+                <!--
+                    Bible Class: Dropdown for selecting the member's Bible class.
+                -->
                 <resources:CustomComboBox Grid.Row="3"
                                           Grid.Column="1"
                                           ChosenValue="{Binding BibleClass, Mode=TwoWay}"
                                           Data="{Binding AvailableBibleClasses}"
                                           Placeholder="Bible Class" />
 
-
-                <!--  //Cancel Button  -->
+                <!--
+                    Cancel Button: Button to cancel the form submission.
+                -->
                 <Button Grid.Row="4"
                         Grid.Column="0"
                         Command="{Binding CancelRecordCommand}"
                         Content="Cancel"
+                        FontFamily="Cinzel Decorative"
                         IsCancel="True"
                         Style="{StaticResource CancelButton}" />
 
-                <!--  //Submit Button  -->
+                <!--
+                    Submit Button: Button to submit the form data.
+                -->
                 <Button Grid.Row="4"
                         Grid.Column="1"
                         Command="{Binding SubmitRecordCommand}"
                         Content="Submit"
+                        FontFamily="Cinzel Decorative"
                         IsDefault="True"
                         Style="{StaticResource SuccessButton}" />
             </Grid>
