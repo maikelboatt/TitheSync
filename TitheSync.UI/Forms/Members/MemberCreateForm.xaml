@@ -4,22 +4,28 @@
                   xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
                   xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
                   xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-                  xmlns:members="clr-namespace:TitheSync.Core.ViewModels.Members;assembly=TitheSync.Core"
                   xmlns:resources="clr-namespace:TitheSync.UI.Resources"
+                  xmlns:viewmodels="clr-namespace:TitheSync.Core.ViewModels.Members;assembly=TitheSync.Core"
                   xmlns:views="clr-namespace:MvvmCross.Platforms.Wpf.Views;assembly=MvvmCross.Platforms.Wpf"
-                  d:DataContext="{d:DesignInstance Type=members:MemberCreateFormViewModel}"
+                  d:DataContext="{d:DesignInstance Type=viewmodels:MemberCreateFormViewModel}"
                   d:DesignHeight="auto"
                   d:DesignWidth="auto"
                   FontFamily="Raleway"
                   mc:Ignorable="d">
+    <!--
+        Main container for the Member Create Form.
+        Provides a styled border and layout for the form elements.
+    -->
     <Border Background="{DynamicResource TertiaryBackgroundColor}">
         <Grid Margin="30,20">
+            <!--  Define the layout with two rows: header and input elements  -->
             <Grid.RowDefinitions>
                 <RowDefinition Height="auto" />
                 <RowDefinition Height="*" />
             </Grid.RowDefinitions>
 
-            <!--  Header  -->
+            <!--  Header Section  -->
+            <!--  Displays the form title and an icon  -->
             <TextBlock Grid.Row="0"
                        FontWeight="SemiBold"
                        Foreground="{DynamicResource TertiaryTextColor}"
@@ -30,11 +36,10 @@
                                             Style="{DynamicResource FormButtonIcon}" />
             </TextBlock>
 
-
-            <!--  Input Elements  -->
+            <!--  Input Elements Section  -->
             <Grid Grid.Row="1">
+                <!--  Define rows for each input field and buttons  -->
                 <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto" />
                     <RowDefinition Height="Auto" />
                     <RowDefinition Height="Auto" />
                     <RowDefinition Height="Auto" />
@@ -42,33 +47,38 @@
                     <RowDefinition Height="Auto" />
                 </Grid.RowDefinitions>
 
+                <!--  Define two columns for input fields  -->
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*" />
                     <ColumnDefinition Width="*" />
                 </Grid.ColumnDefinitions>
 
-                <!--  //Firstname  -->
+                <!--  First Name Input  -->
+                <!--  Custom text box for entering the first name  -->
                 <resources:CustomTextBox Grid.Row="0"
                                          Grid.Column="0"
                                          Data="{Binding FirstName, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay, ValidatesOnDataErrors=True, NotifyOnValidationError=True}"
                                          Description="FirstName"
                                          Placeholder="John" />
 
-                <!--  //Lastname  -->
+                <!--  Last Name Input  -->
+                <!--  Custom text box for entering the last name  -->
                 <resources:CustomTextBox Grid.Row="0"
                                          Grid.Column="1"
                                          Data="{Binding LastName, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay, ValidatesOnDataErrors=True, NotifyOnValidationError=True}"
                                          Description="LastName"
                                          Placeholder="Doe" />
 
-                <!--  //Contact  -->
+                <!--  Contact Input  -->
+                <!--  Custom text box for entering the contact number  -->
                 <resources:CustomTextBox Grid.Row="1"
                                          Grid.Column="0"
                                          Data="{Binding Contact, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay, ValidatesOnDataErrors=True, NotifyOnValidationError=True}"
                                          Description="Contact"
                                          Placeholder="0200000000" />
 
-                <!--  //Gender  -->
+                <!--  Gender Selection  -->
+                <!--  Radio buttons for selecting gender  -->
                 <StackPanel Grid.Row="1"
                             Grid.Column="1"
                             Margin="15,7"
@@ -87,15 +97,16 @@
                     </StackPanel>
                 </StackPanel>
 
-                <!--  //Address  -->
+                <!--  Address Input  -->
+                <!--  Custom text box for entering the address  -->
                 <resources:CustomTextBox Grid.Row="2"
                                          Grid.Column="0"
                                          Data="{Binding Address, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay, ValidatesOnDataErrors=True, NotifyOnValidationError=True}"
                                          Description="Address"
                                          Placeholder="123 Main St" />
 
-
-                <!--  //IsLeader  -->
+                <!--  Is Leader Selection  -->
+                <!--  Radio buttons for selecting if the member is a leader  -->
                 <StackPanel Grid.Row="2"
                             Grid.Column="1"
                             Margin="15,7"
@@ -113,45 +124,42 @@
                                      IsChecked="{Binding IsLeader, Mode=TwoWay, Converter={StaticResource RadioButtonConverter}, ConverterParameter=False}" />
                     </StackPanel>
                 </StackPanel>
-                <!--  // Organization  -->
+
+                <!--  Organization Selection  -->
+                <!--  Custom combo box for selecting an organization  -->
                 <resources:CustomComboBox Grid.Row="3"
                                           Grid.Column="0"
                                           ChosenValue="{Binding Organization, Mode=TwoWay}"
                                           Data="{Binding AvailableOrganizations}"
                                           Placeholder="Organization" />
 
-                <!--  // Bible Class  -->
+                <!--  Bible Class Selection  -->
+                <!--  Custom combo box for selecting a Bible class  -->
                 <resources:CustomComboBox Grid.Row="3"
                                           Grid.Column="1"
                                           ChosenValue="{Binding BibleClass, Mode=TwoWay}"
                                           Data="{Binding AvailableBibleClasses}"
                                           Placeholder="Bible Class" />
 
-
-                <!--  //Cancel Button  -->
+                <!--  Cancel Button  -->
+                <!--  Button to cancel the form submission  -->
                 <Button Grid.Row="4"
                         Grid.Column="0"
                         Command="{Binding CancelRecordCommand}"
                         Content="Cancel"
+                        FontFamily="Cinzel Decorative"
                         IsCancel="True"
                         Style="{StaticResource CancelButton}" />
 
-                <!--  //Submit Button  -->
+                <!--  Submit Button  -->
+                <!--  Button to submit the form  -->
                 <Button Grid.Row="4"
                         Grid.Column="1"
                         Command="{Binding SubmitRecordCommand}"
                         Content="Submit"
+                        FontFamily="Cinzel Decorative"
                         IsDefault="True"
                         Style="{StaticResource SuccessButton}" />
-
-                <TextBox Grid.Row="5"
-                         Grid.Column="0"
-                         Text="{Binding FirstName, UpdateSourceTrigger=PropertyChanged, ValidatesOnNotifyDataErrors=True}" />
-                <TextBlock Grid.Row="5"
-                           Grid.Column="1"
-                           FontSize="12"
-                           Foreground="Red"
-                           Text="{Binding (Validation.Errors)[0].ErrorContent, RelativeSource={RelativeSource Mode=Self}}" />
 
             </Grid>
         </Grid>
