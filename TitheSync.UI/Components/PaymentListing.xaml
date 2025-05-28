@@ -2,15 +2,164 @@
                   xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                   xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                   xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+                  xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
+                  xmlns:loadingSpinnerControl="clr-namespace:LoadingSpinnerControl;assembly=LoadingSpinnerControl"
                   xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+                  xmlns:payments="clr-namespace:TitheSync.Core.ViewModels.Payments;assembly=TitheSync.Core"
                   xmlns:views="clr-namespace:MvvmCross.Platforms.Wpf.Views;assembly=MvvmCross.Platforms.Wpf"
+                  d:DataContext="{d:DesignInstance d:Type=payments:PaymentListingViewModel,
+                                                   IsDesignTimeCreatable=True}"
                   d:DesignHeight="auto"
                   d:DesignWidth="auto"
                   FontFamily="Raleway"
                   mc:Ignorable="d">
+    <views:MvxWpfView.Resources>
+        <BooleanToVisibilityConverter x:Key="ToVisibilityConverter" />
+    </views:MvxWpfView.Resources>
+    <!--  Main container grid for the Payment Listing UI  -->
     <Grid>
-        <TextBlock Padding="0,30"
-                   HorizontalAlignment="Center"
-                   Text="Welcome to the Payment Listing" />
+        <!--  Loading spinner displayed when data is being loaded  -->
+        <loadingSpinnerControl:LoadingSpinner Diameter="100"
+                                              IsLoading="{Binding IsLoading}"
+                                              Thickness="3" />
+
+        <!--  StackPanel displayed with a loading message when data is being loaded  -->
+        <StackPanel VerticalAlignment="Center" Visibility="{Binding IsLoading, Converter={StaticResource ToVisibilityConverter}, UpdateSourceTrigger=PropertyChanged}">
+            <TextBlock Margin="0,10"
+                       VerticalAlignment="Top"
+                       FontFamily="Amita"
+                       Text="Loading Payments from database...."
+                       TextAlignment="Center" />
+        </StackPanel>
+
+
+        <!--  Grid displayed when data loading is complete  -->
+        <Grid Visibility="{Binding IsLoading, Converter={StaticResource InverseBooleanToVisibilityConverter}, ConverterParameter=true, UpdateSourceTrigger=PropertyChanged}">
+            <Grid Margin="3">
+                <!--  Row definitions for the header and content sections  -->
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="50" />
+                    <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
+
+                <!--  Header section containing search and action buttons  -->
+                <Grid Grid.Row="0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition />
+                        <ColumnDefinition />
+                        <ColumnDefinition />
+                    </Grid.ColumnDefinitions>
+
+                    <!--  Search bar with an icon  -->
+                    <StackPanel Margin="15,0,0,0"
+                                VerticalAlignment="Center"
+                                Orientation="Horizontal">
+                        <TextBox Width="200"
+                                 Margin="0,0,-10,0"
+                                 Style="{DynamicResource TextBoxStyle}"
+                                 Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}" />
+                        <TextBox Width="40"
+                                 Margin="0,0,-27,0"
+                                 BorderThickness="0,2,2,2"
+                                 Focusable="False"
+                                 Style="{DynamicResource TextBoxStyle}" />
+                        <iconPacks:PackIconMaterial VerticalAlignment="Center"
+                                                    Kind="AccountSearchOutline"
+                                                    Style="{DynamicResource IconButtonIcon}" />
+                    </StackPanel>
+
+                    <!--  Button to open the batch payment dialog  -->
+                    <Button Grid.Column="1"
+                            Width="100"
+                            Margin="30,0"
+                            HorizontalAlignment="Right"
+                            Command="{Binding OpenBatchPaymentDialogAsyncCommand}"
+                            IsDefault="True"
+                            Style="{DynamicResource CreateBtn}">
+                        <iconPacks:PackIconMaterial Kind="AccountMultiplePlus" Style="{StaticResource IconButtonIcon}" />
+                    </Button>
+
+                </Grid>
+
+                <!--  DataGrid displaying the list of members  -->
+                <DataGrid Grid.Row="1"
+                          Background="{DynamicResource SecondaryBackgroundColor}"
+                          CellStyle="{StaticResource DataGridCellStyle1}"
+                          ColumnHeaderStyle="{StaticResource DataGridColumnHeaderStyle1}"
+                          ItemsSource="{Binding AggregatedPayments, UpdateSourceTrigger=PropertyChanged}"
+                          RowStyle="{StaticResource DataGridRowStyle1}"
+                          Style="{DynamicResource DataGridStyle1}"
+                          VerticalScrollBarVisibility="Auto">
+                    <DataGrid.Columns>
+                        <!--  Column for selecting members using a checkbox  -->
+                        <DataGridTemplateColumn Width="Auto" Header="Select">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <CheckBox IsChecked="{Binding IsSelected, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+
+                        <!--  Column displaying the first name of member associated with payment  -->
+                        <DataGridTextColumn Width="*"
+                                            Binding="{Binding MemberName}"
+                                            CanUserResize="False"
+                                            Header="First Name"
+                                            IsReadOnly="True" />
+
+                        <!--  Column indicating if the last name of member associated with payment  -->
+                        <DataGridTextColumn Width="*"
+                                            Binding="{Binding LastName}"
+                                            CanUserResize="False"
+                                            Header="Last Name"
+                                            IsReadOnly="True" />
+
+                        <!--  Column displaying the payment amount  -->
+                        <DataGridTextColumn Width="*"
+                                            Binding="{Binding TotalAmount, StringFormat='₵{0:N2}'}"
+                                            CanUserResize="False"
+                                            Header="Amount Paid"
+                                            IsReadOnly="True" />
+
+                        <!--  Column displaying the payment date  -->
+                        <DataGridTextColumn Width="*"
+                                            Binding="{Binding CurrentMonth, Converter={StaticResource LongDateConverter}, StringFormat='{}{0:dd/MM/yyyy}'}"
+                                            CanUserResize="False"
+                                            Header="Payment Date "
+                                            IsReadOnly="True" />
+
+                        <!--  Column containing operation buttons for each payment  -->
+                        <DataGridTemplateColumn Width="auto"
+                                                Header="Operations"
+                                                IsReadOnly="True">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <StackPanel Orientation="Horizontal">
+
+                                        <!--  Button to open the payment add dialog for a payment  -->
+                                        <Button Margin="0,0,5,0"
+                                                Command="{Binding RelativeSource={RelativeSource AncestorType={x:Type UserControl}}, Path=DataContext.OpenAddDialogAsyncCommand}"
+                                                CommandParameter="{Binding MemberId}"
+                                                Style="{DynamicResource CreateBtn}">
+                                            <iconPacks:PackIconMaterial Kind="CashPlus" Style="{StaticResource IconButtonIcon}" />
+                                        </Button>
+
+                                        <!--  Button to open the details dialog for a payment  -->
+                                        <Button Margin="0,0,5,0"
+                                                Command="{Binding RelativeSource={RelativeSource AncestorType={x:Type UserControl}}, Path=DataContext.OpenDetailsDialogAsyncCommand}"
+                                                CommandParameter="{Binding MemberId}"
+                                                IsDefault="True"
+                                                Style="{DynamicResource EditBtn}">
+                                            <iconPacks:PackIconMaterial Kind="OpenInNew" Style="{StaticResource IconButtonIcon}" />
+                                        </Button>
+
+                                    </StackPanel>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+                    </DataGrid.Columns>
+                </DataGrid>
+            </Grid>
+        </Grid>
     </Grid>
 </views:MvxWpfView>
