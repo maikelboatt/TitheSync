@@ -4,9 +4,12 @@ using MvvmCross.ViewModels;
 using System.Collections.Specialized;
 using System.Windows;
 using TitheSync.Core.Controls;
+using TitheSync.Core.Parameters;
 using TitheSync.Core.Stores;
+using TitheSync.Core.ViewModels.Payments;
+using TitheSync.Domain.Enums;
 using TitheSync.Domain.Models;
-using TitheSync.Domain.Services;
+using TitheSync.Service.Services;
 
 namespace TitheSync.Core.ViewModels.Members
 {
@@ -15,11 +18,6 @@ namespace TitheSync.Core.ViewModels.Members
     /// </summary>
     public class MemberListingViewModel:MvxViewModel, IMemberListingViewModel
     {
-        /// <summary>
-        ///     A cancellation token source to manage cancellation of asynchronous operations
-        /// </summary>
-        private readonly CancellationTokenSource _cancellationTokenSource = new();
-
         /// <summary>
         ///     Logger instance for logging messages and errors
         /// </summary>
@@ -30,12 +28,20 @@ namespace TitheSync.Core.ViewModels.Members
         /// </summary>
         private readonly IMemberStore _memberStore;
 
+        /// <summary>
+        ///     Service for displaying message boxes
+        /// </summary>
         private readonly IMessageService _messageService;
 
         /// <summary>
         ///     Control for managing modal navigation, such as opening and closing dialogs.
         /// </summary>
         private readonly IModalNavigationControl _modalNavigationControl;
+
+        /// <summary>
+        ///     A cancellation token source to manage cancellation of asynchronous operations
+        /// </summary>
+        private CancellationTokenSource _cancellationTokenSource;
 
         /// <summary>
         ///     Indicates whether the ViewModel is currently performing a loading operation.
@@ -82,7 +88,7 @@ namespace TitheSync.Core.ViewModels.Members
                 OpenAddDialogAsyncCommand = new MvxCommand(ExecuteOpenAddDialog);
                 OpenUpdateDialogAsyncCommand = new MvxCommand<int>(ExecuteOpenUpdateDialog);
                 OpenDeleteDialogAsyncCommand = new MvxCommand<int>(ExecuteOpenDeleteDialog);
-                OpenDetailsDialogAsyncCommand = new MvxCommand<int>(ExecuteOpenDetailsDialog);
+                OpenAddMemberPaymentDialogAsyncCommand = new MvxCommand<int>(ExecuteOpenAddMemberPaymentDialog);
                 OpenBatchPaymentDialogAsyncCommand = new MvxCommand<List<Member>>(ExecuteOpenBatchPaymentDialog);
 
             }
@@ -103,8 +109,10 @@ namespace TitheSync.Core.ViewModels.Members
         /// <returns>A task representing the asynchronous operation.</returns>
         public override async Task Initialize()
         {
+            _cancellationTokenSource?.CancelAsync();
+            _cancellationTokenSource = new CancellationTokenSource();
+            await LoadMembersAsync(_cancellationTokenSource.Token);
             await base.Initialize();
-            await LoadMembersAsync();
         }
 
 
@@ -119,6 +127,21 @@ namespace TitheSync.Core.ViewModels.Members
             _members.CollectionChanged -= MembersOnCollectionChanged;
             _memberStore.OnMemberAdded -= MemberStoreOnOnMemberAdded;
             base.ViewDestroy(viewFinishing);
+        }
+
+        /// <summary>
+        ///     Handles the logic when the view is disappearing.
+        ///     Cancels any ongoing operations and disposes of the cancellation token source.
+        /// </summary>
+        public override void ViewDisappearing()
+        {
+            if (!_cancellationTokenSource.IsCancellationRequested)
+            {
+                _cancellationTokenSource.Cancel();
+                _cancellationTokenSource.Dispose();
+                _cancellationTokenSource = null;
+            }
+            base.ViewDisappearing();
         }
 
         #endregion
@@ -138,7 +161,7 @@ namespace TitheSync.Core.ViewModels.Members
 
         /// <summary>
         ///     Event handler for when a new member is added to the member store.
-        ///     Adds the new member to the local members collection.
+        ///     Adds the new member to the local-members collection.
         /// </summary>
         /// <param name="member" >The member that was added.</param>
         private void MemberStoreOnOnMemberAdded( Member member )
@@ -149,6 +172,30 @@ namespace TitheSync.Core.ViewModels.Members
         #endregion
 
         #region Properties
+
+        public IEnumerable<Member> DummyMembers =>
+        [
+            new(1, "John", "Doe", "1234567890", "Male", true, "123 Main St", OrganizationEnum.MensFellowship, BibleClassEnum.ProfDanso),
+            new(2, "Jane", "Smith", "0987654321", "Female", false, "456 Elm St", OrganizationEnum.WomensFellowship, BibleClassEnum.MrLartey),
+            new(3, "Michael", "Brown", "1112223333", "Male", false, "789 Oak St", OrganizationEnum.Choir, BibleClassEnum.EmeliaAkrofi),
+            new(4, "Emily", "Davis", "4445556666", "Female", true, "321 Pine St", OrganizationEnum.Suwma, BibleClassEnum.AbrahamDadzie),
+            new(5, "Chris", "Wilson", "7778889999", "Male", false, "654 Maple St", OrganizationEnum.YouthFellowship, BibleClassEnum.AtoPrempeh),
+            new(6, "Sarah", "Taylor", "1231231234", "Female", false, "987 Cedar St", OrganizationEnum.SingingBand, BibleClassEnum.MichaelKumi),
+            new(7, "David", "Anderson", "4564564567", "Male", true, "159 Birch St", OrganizationEnum.GirlsFellowship, BibleClassEnum.JacobBiney),
+            new(8, "Laura", "Thomas", "7897897890", "Female", false, "753 Walnut St", OrganizationEnum.BoysAndGirlsBrigade, BibleClassEnum.AuntyAggie),
+            new(9, "James", "Moore", "3213213210", "Male", false, "852 Spruce St", OrganizationEnum.MensFellowship, BibleClassEnum.ProfDanso),
+            new(10, "Anna", "Jackson", "6546546543", "Female", true, "951 Fir St", OrganizationEnum.WomensFellowship, BibleClassEnum.MrLartey),
+            new(11, "Robert", "White", "9879879876", "Male", false, "147 Ash St", OrganizationEnum.Choir, BibleClassEnum.EmeliaAkrofi),
+            new(12, "Sophia", "Harris", "2582582589", "Female", false, "369 Willow St", OrganizationEnum.Suwma, BibleClassEnum.AbrahamDadzie),
+            new(13, "Daniel", "Martin", "7417417412", "Male", true, "753 Poplar St", OrganizationEnum.YouthFellowship, BibleClassEnum.AtoPrempeh),
+            new(14, "Olivia", "Thompson", "8528528523", "Female", false, "159 Redwood St", OrganizationEnum.SingingBand, BibleClassEnum.MichaelKumi),
+            new(15, "Matthew", "Garcia", "9639639634", "Male", false, "357 Cypress St", OrganizationEnum.GirlsFellowship, BibleClassEnum.JacobBiney),
+            new(16, "Isabella", "Martinez", "1471471475", "Female", true, "951 Palm St", OrganizationEnum.BoysAndGirlsBrigade, BibleClassEnum.AuntyAggie),
+            new(17, "Andrew", "Robinson", "3693693696", "Male", false, "753 Magnolia St", OrganizationEnum.MensFellowship, BibleClassEnum.ProfDanso),
+            new(18, "Mia", "Clark", "2582582587", "Female", false, "159 Dogwood St", OrganizationEnum.WomensFellowship, BibleClassEnum.MrLartey),
+            new(19, "Joshua", "Rodriguez", "7417417418", "Male", true, "357 Cherry St", OrganizationEnum.Choir, BibleClassEnum.EmeliaAkrofi),
+            new(20, "Emma", "Lewis", "8528528529", "Female", false, "951 Beech St", OrganizationEnum.Suwma, BibleClassEnum.AbrahamDadzie)
+        ];
 
         /// <summary>
         ///     Gets the collection of members.
@@ -180,7 +227,7 @@ namespace TitheSync.Core.ViewModels.Members
         /// <summary>
         ///     Gets the list of members that are currently selected.
         /// </summary>
-        public List<Member> SelectedMembers => [..Members.Where(m => m.IsSelected)];
+        private List<Member> SelectedMembers => [..Members.Where(m => m.IsSelected)];
 
         #endregion
 
@@ -204,7 +251,7 @@ namespace TitheSync.Core.ViewModels.Members
         /// <summary>
         ///     Command to open the dialog for viewing details of a member.
         /// </summary>
-        public IMvxCommand<int> OpenDetailsDialogAsyncCommand { get; }
+        public IMvxCommand<int> OpenAddMemberPaymentDialogAsyncCommand { get; }
 
         /// <summary>
         ///     Command to open the dialog for making batch payments
@@ -218,29 +265,32 @@ namespace TitheSync.Core.ViewModels.Members
         /// <summary>
         ///     Asynchronously loads the members from the member store.
         /// </summary>
+        /// <param name="cancellationToken" >The token to manage cancellation of the LoadMembersAsync</param>
         /// <returns>A task representing the asynchronous operation.</returns>
-        private async Task LoadMembersAsync()
+        private async Task LoadMembersAsync( CancellationToken cancellationToken )
         {
+            if (IsLoading) return;
             IsLoading = true;
             try
             {
                 // Simulate loading members
                 // await Task.Delay(3000, _cancellationTokenSource.Token); // Example delay
 
-                _members.Clear();
-                await _memberStore.LoadMemberAsync(_cancellationTokenSource.Token);
-
-                // Add loaded members to the collection
-                foreach (Member member in _memberStore.Members)
-                {
-                    _members.Add(member);
-                }
-
-                UpdateView();
+                // _members.Clear();
+                //
+                // await _memberStore.LoadMemberAsync(cancellationToken);
+                // // Add loaded members to the collection
+                // foreach (Member member in _memberStore.Members)
+                // {
+                //     cancellationToken.ThrowIfCancellationRequested();
+                //     _members.Add(member);
+                // }
+                //
+                // await RaisePropertyChanged(() => Members);
             }
             catch (OperationCanceledException)
             {
-                _logger.LogInformation("LoadMembersAsync operation was canceled.");
+                _logger.LogInformation("Loading members was canceled.");
             }
             catch (Exception ex)
             {
@@ -256,6 +306,7 @@ namespace TitheSync.Core.ViewModels.Members
         {
             // Update the view with the loaded members
             RaisePropertyChanged(() => Members);
+            RaisePropertyChanged(() => SelectedMembers);
         }
 
         /// <summary>
@@ -281,14 +332,22 @@ namespace TitheSync.Core.ViewModels.Members
         /// </summary>
         /// <param name="id" >The ID of the member to delete.</param>
         /// <returns>A task representing the asynchronous operation.</returns>
-        private void ExecuteOpenDeleteDialog( int id ) => throw new NotImplementedException();
+        private void ExecuteOpenDeleteDialog( int id ) => _modalNavigationControl.PopUp<MemberDeleteFormViewModel>(id);
 
         /// <summary>
-        ///     Executes the logic to open the details dialog for a member.
+        ///     Executes the logic to add payments for a member.
         /// </summary>
         /// <param name="id" >The ID of the member.</param>
         /// <returns>A task representing the asynchronous operation.</returns>
-        private void ExecuteOpenDetailsDialog( int id ) => throw new NotImplementedException();
+        private void ExecuteOpenAddMemberPaymentDialog( int id )
+        {
+            NavigationParameter parameter = new()
+            {
+                Id = id,
+                CallingViewModel = GetType()
+            };
+            _modalNavigationControl.PopUp<PaymentCreateFormViewModel>(parameter);
+        }
 
         /// <summary>
         ///     Executes the logic to open the batch payment dialog.
@@ -302,7 +361,7 @@ namespace TitheSync.Core.ViewModels.Members
             {
                 _messageService.Show("Please select one or more members for batch payment", "Notification", MessageBoxButton.OK, MessageBoxImage.Exclamation);
             }
-            // _modalNavigationControl.PopUp<BatchPaymentFormViewModel>(selected);
+            _modalNavigationControl.PopUp<BatchPaymentFormViewModel>(selected);
         }
 
         #endregion

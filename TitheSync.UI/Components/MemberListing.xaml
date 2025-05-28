@@ -7,7 +7,8 @@
                   xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
                   xmlns:members="clr-namespace:TitheSync.Core.ViewModels.Members;assembly=TitheSync.Core"
                   xmlns:views="clr-namespace:MvvmCross.Platforms.Wpf.Views;assembly=MvvmCross.Platforms.Wpf"
-                  d:DataContext="{d:DesignInstance Type=members:MemberListingViewModel}"
+                  d:DataContext="{d:DesignInstance Type=members:MemberListingViewModel,
+                                                   IsDesignTimeCreatable=True}"
                   d:DesignHeight="auto"
                   d:DesignWidth="auto"
                   FontFamily="Raleway"
@@ -74,7 +75,7 @@
                             Command="{Binding OpenBatchPaymentDialogAsyncCommand}"
                             IsDefault="True"
                             Style="{DynamicResource CreateBtn}">
-                        <iconPacks:PackIconMaterial Kind="AccountMultiplePlus" Style="{StaticResource IconButtonIcon}" />
+                        <iconPacks:PackIconMaterial Kind="CashMultiple" Style="{StaticResource IconButtonIcon}" />
                     </Button>
 
                     <!--  Button to open the Add member dialog  -->
@@ -94,7 +95,7 @@
                           Background="{DynamicResource SecondaryBackgroundColor}"
                           CellStyle="{StaticResource DataGridCellStyle1}"
                           ColumnHeaderStyle="{StaticResource DataGridColumnHeaderStyle1}"
-                          ItemsSource="{Binding Members, UpdateSourceTrigger=PropertyChanged}"
+                          ItemsSource="{Binding DummyMembers, UpdateSourceTrigger=PropertyChanged}"
                           RowStyle="{StaticResource DataGridRowStyle1}"
                           Style="{DynamicResource DataGridStyle1}"
                           VerticalScrollBarVisibility="Auto">
@@ -173,11 +174,11 @@
                                     <StackPanel Orientation="Horizontal">
                                         <!--  Button to open the details dialog for a member  -->
                                         <Button Margin="0,0,5,0"
-                                                Command="{Binding RelativeSource={RelativeSource AncestorType={x:Type UserControl}}, Path=DataContext.OpenDetailsDialogAsyncCommand}"
+                                                Command="{Binding RelativeSource={RelativeSource AncestorType={x:Type UserControl}}, Path=DataContext.OpenAddMemberPaymentDialogAsyncCommand}"
                                                 CommandParameter="{Binding MemberId}"
                                                 IsDefault="True"
                                                 Style="{DynamicResource CreateBtn}">
-                                            <iconPacks:PackIconMaterial Kind="OpenInNew" Style="{StaticResource IconButtonIcon}" />
+                                            <iconPacks:PackIconMaterial Kind="CashPlus" Style="{StaticResource IconButtonIcon}" />
                                         </Button>
 
                                         <!--  Button to open the update dialog for a member  -->
