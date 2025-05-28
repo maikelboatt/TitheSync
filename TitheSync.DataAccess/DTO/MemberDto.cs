@@ -40,10 +40,10 @@ namespace TitheSync.DataAccess.DTO
         public string FirstName { get; init; }
         public string LastName { get; init; }
         public string Contact { get; init; }
-        public string Gender { get; init; }
         public bool IsLeader { get; init; }
         public string Address { get; init; }
         public OrganizationEnum Organization { get; init; }
         public BibleClassEnum BibleClass { get; init; }
+        public string Gender { get; init; }
     }
 }
