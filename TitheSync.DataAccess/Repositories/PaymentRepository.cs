@@ -2,8 +2,7 @@
 using TitheSync.DataAccess.DatabaseAccess;
 using TitheSync.DataAccess.DTO;
 using TitheSync.Domain.Models;
-using TitheSync.Domain.Repositories;
-using TitheSync.Domain.Services;
+using TitheSync.Infrastructure.Services;
 
 namespace TitheSync.DataAccess.Repositories
 {
@@ -58,6 +57,25 @@ namespace TitheSync.DataAccess.Repositories
             }
         }
 
+        public async Task<IEnumerable<PaymentWithName>> GetPaymentsWithNamesAsync()
+        {
+            try
+            {
+                IEnumerable<PaymentWithNameDto> result = await _databaseExecutionExceptionHandlingService.ExecuteWithExceptionHandlingAsync(
+                    "sp.Payment_GetAllWithNames",
+                    new { },
+                    async () => await _dataAccess.QueryAsync<PaymentWithNameDto, dynamic>("sp.Payment_GetAllWithNames", new { })
+                );
+                return result.Select(MapToPaymentWithName);
+
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, "Error retrieving payments with names");
+                throw;
+            }
+        }
+
         /// <summary>
         ///     Retrieves a payment by its unique identifier.
         /// </summary>
@@ -99,7 +117,7 @@ namespace TitheSync.DataAccess.Repositories
         /// <param name="payment" >The <see cref="Payment" /> object to add.</param>
         /// <exception cref="ArgumentNullException" >Thrown when the <paramref name="payment" /> is null.</exception>
         /// <exception cref="Exception" >Thrown when an error occurs during data insertion.</exception>
-        public async Task AddPaymentAsync( Payment payment )
+        public async Task AddPaymentAsync( PaymentWithName payment )
         {
             try
             {
@@ -110,7 +128,7 @@ namespace TitheSync.DataAccess.Repositories
                     new { },
                     async () =>
                     {
-                        PaymentDto record = MapToPaymentDto(payment);
+                        PaymentWithNameDto record = MapToPaymentWithNameDto(payment);
                         await _dataAccess.CommandAsync(
                             "sp.Payment_Add",
                             new
@@ -143,7 +161,7 @@ namespace TitheSync.DataAccess.Repositories
         /// <param name="payment" >The <see cref="Payment" /> object to update.</param>
         /// <exception cref="ArgumentNullException" >Thrown when the <paramref name="payment" /> is null.</exception>
         /// <exception cref="Exception" >Thrown when an error occurs during data update.</exception>
-        public async Task UpdatePaymentAsync( Payment payment )
+        public async Task UpdatePaymentAsync( PaymentWithName payment )
         {
             try
             {
@@ -154,8 +172,16 @@ namespace TitheSync.DataAccess.Repositories
                     new { },
                     async () =>
                     {
-                        PaymentDto record = MapToPaymentDto(payment);
-                        await _dataAccess.CommandAsync("sp.Payment_Update", record);
+                        PaymentWithNameDto record = MapToPaymentWithNameDto(payment);
+                        await _dataAccess.CommandAsync(
+                            "sp.Payment_Update",
+                            new
+                            {
+                                record.PaymentId,
+                                record.Amount,
+                                record.DatePaid,
+                                record.PaymentMemberId
+                            });
                         return true; // Dummy return for Task<bool>
                     }
                 );
@@ -224,15 +250,31 @@ namespace TitheSync.DataAccess.Repositories
         );
 
         /// <summary>
-        ///     Maps a <see cref="Payment" /> object to a <see cref="PaymentDto" /> object.
+        ///     Maps a <see cref="PaymentWithNameDto" /> object to a <see cref="PaymentWithName" /> object.
         /// </summary>
-        /// <param name="payment" > The <see cref="Payment" /> object.</param>
-        /// <returns>A <see cref="PaymentDto" /> object.</returns>
-        private PaymentDto MapToPaymentDto( Payment payment ) => new(
+        /// <param name="dto" >The <see cref="PaymentWithNameDto" /> object to map.</param>
+        /// <returns>A <see cref="PaymentWithName" /> object.</returns>
+        private PaymentWithName MapToPaymentWithName( PaymentWithNameDto dto ) => new(
+            dto.PaymentId,
+            dto.PaymentMemberId,
+            dto.Amount,
+            _dateConverterService.ConvertToDateOnly(dto.DatePaid),
+            dto.FirstName,
+            dto.LastName
+        );
+
+        /// <summary>
+        ///     Maps a <see cref="PaymentWithName" /> object to a <see cref="PaymentWithNameDto" /> object.
+        /// </summary>
+        /// <param name="payment" >The <see cref="PaymentWithName" /> object to map.</param>
+        /// <returns>A <see cref="PaymentWithNameDto" /> object.</returns>
+        private PaymentWithNameDto MapToPaymentWithNameDto( PaymentWithName payment ) => new(
             payment.PaymentId,
             payment.PaymentMemberId,
             payment.Amount,
-            _dateConverterService.ConvertToDateTime(payment.DatePaid)
+            _dateConverterService.ConvertToDateTime(payment.DatePaid),
+            payment.FirstName,
+            payment.LastName
         );
     }
 }
