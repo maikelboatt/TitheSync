@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
-VisualStudioVersion = 17.13.35828.75 d17.13
+VisualStudioVersion = 17.13.35828.75
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TitheSync.UI", "TitheSync.UI\TitheSync.UI.csproj", "{E61DFD54-2E81-438A-B6DE-32A066B06268}"
 EndProject
@@ -12,6 +12,10 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TitheSync.DataAccess", "TitheSync.DataAccess\TitheSync.DataAccess.csproj", "{A2D66740-7ACF-4687-9C41-18C51ED5DCD5}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ModalDialogControl", "ModalDialogControl\ModalDialogControl.csproj", "{43D2E574-91FA-4168-98BC-AE1D4949C3DE}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TitheSync.Service", "TitheSync.Service\TitheSync.Service.csproj", "{B24EC1B6-307F-4DD5-9A0D-97B4AB7196D0}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TitheSync.Infrastructure", "TitheSync.Infrastructure\TitheSync.Infrastructure.csproj", "{54C2B4DC-ABE7-4C84-BE6A-11E35D98F84C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -39,6 +43,14 @@ Global
 		{43D2E574-91FA-4168-98BC-AE1D4949C3DE}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{43D2E574-91FA-4168-98BC-AE1D4949C3DE}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{43D2E574-91FA-4168-98BC-AE1D4949C3DE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B24EC1B6-307F-4DD5-9A0D-97B4AB7196D0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B24EC1B6-307F-4DD5-9A0D-97B4AB7196D0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B24EC1B6-307F-4DD5-9A0D-97B4AB7196D0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B24EC1B6-307F-4DD5-9A0D-97B4AB7196D0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{54C2B4DC-ABE7-4C84-BE6A-11E35D98F84C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{54C2B4DC-ABE7-4C84-BE6A-11E35D98F84C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{54C2B4DC-ABE7-4C84-BE6A-11E35D98F84C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{54C2B4DC-ABE7-4C84-BE6A-11E35D98F84C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
