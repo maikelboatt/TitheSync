@@ -1,4 +1,5 @@
 ﻿using MvvmCross.ViewModels;
+using TitheSync.Core.Parameters;
 using TitheSync.Core.Stores;
 using TitheSync.Domain.Models;
 
@@ -30,6 +31,17 @@ namespace TitheSync.Core.Controls
         public void PopUp<TViewModel>( List<Member> selectedMembers ) where TViewModel : IMvxViewModel
         {
             MvxViewModel viewModel = viewModelFactory(typeof(TViewModel), selectedMembers);
+            modalNavigationStore.CurrentModalViewModel = viewModel;
+        }
+
+        /// <summary>
+        ///     Displays a modal popup with the specified view model type and a navigation parameter.
+        /// </summary>
+        /// <param name="navigationParameter" > The parameter to pass to the view model.</param>
+        /// <typeparam name="TViewModel" >The type of the view model to display.</typeparam>
+        public void PopUp<TViewModel>( NavigationParameter navigationParameter ) where TViewModel : IMvxViewModel
+        {
+            MvxViewModel viewModel = viewModelFactory(typeof(TViewModel), navigationParameter);
             modalNavigationStore.CurrentModalViewModel = viewModel;
         }
     }
