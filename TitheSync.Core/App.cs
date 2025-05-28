@@ -10,7 +10,8 @@ using TitheSync.Core.Factory;
 using TitheSync.Core.ViewModels;
 using TitheSync.DataAccess.DatabaseAccess;
 using TitheSync.DataAccess.Repositories;
-using TitheSync.Domain.Repositories;
+using TitheSync.Infrastructure.Services;
+using TitheSync.Service.Services;
 
 namespace TitheSync.Core
 {
@@ -46,7 +47,8 @@ namespace TitheSync.Core
             {
                 GetType().Assembly,
                 typeof(IMemberRepository).Assembly,
-                typeof(MemberRepository).Assembly
+                typeof(IMemberService).Assembly,
+                typeof(IDateConverterService).Assembly
             };
 
             // Register all types ending with "ViewModel" in the assembly as dynamic types
