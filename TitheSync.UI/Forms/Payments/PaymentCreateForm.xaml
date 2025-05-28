@@ -1,0 +1,120 @@
+﻿<views:MvxWpfView x:Class="TitheSync.UI.Forms.Payments.PaymentCreateForm"
+                  xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                  xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                  xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+                  xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
+                  xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+                  xmlns:payments="clr-namespace:TitheSync.Core.ViewModels.Payments;assembly=TitheSync.Core"
+                  xmlns:resources="clr-namespace:TitheSync.UI.Resources"
+                  xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+                  xmlns:views="clr-namespace:MvvmCross.Platforms.Wpf.Views;assembly=MvvmCross.Platforms.Wpf"
+                  d:DataContext="{d:DesignInstance Type=payments:PaymentCreateFormViewModel,
+                                                   IsDesignTimeCreatable=True}"
+                  d:DesignHeight="auto"
+                  d:DesignWidth="auto"
+                  FontFamily="Raleway"
+                  mc:Ignorable="d">
+    <!--
+        Main container for the Payment Create Form.
+        Provides a styled border and layout for the form elements.
+    -->
+    <Border Background="{DynamicResource TertiaryBackgroundColor}">
+        <Grid Margin="30,20">
+            <!--  Define the layout with two rows: header and input elements  -->
+            <Grid.RowDefinitions>
+                <RowDefinition Height="auto" />
+                <RowDefinition Height="auto" />
+                <RowDefinition Height="auto" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+
+            <!--  Header Section  -->
+            <!--  Displays the form title and an icon  -->
+            <TextBlock Grid.Row="0"
+                       FontWeight="SemiBold"
+                       Foreground="{DynamicResource TertiaryTextColor}"
+                       Text="Add New Payment"
+                       TextAlignment="Center">
+                <iconPacks:PackIconMaterial VerticalAlignment="Center"
+                                            Kind="CashPlus"
+                                            Style="{DynamicResource FormButtonIcon}" />
+            </TextBlock>
+
+            <!--  Name of the member making payment  -->
+            <TextBlock Grid.Row="1"
+                       Margin="10,4"
+                       Foreground="{DynamicResource TertiaryTextColor}"
+                       Text="{Binding FullName}"
+                       TextAlignment="left" />
+
+            <!--  Birth Date  -->
+            <StackPanel Grid.Row="2" Margin="20,0,0,0">
+                <TextBlock FontSize="13"
+                           Foreground="#97a5b4"
+                           Text="Date" />
+
+                <StackPanel HorizontalAlignment="Left" Orientation="Horizontal">
+                    <ui:CalendarDatePicker x:Name="CalendarDatePicker"
+                                           Margin="0,0,0,0"
+                                           VerticalAlignment="Center"
+                                           Content="Pick the payment date"
+                                           Date="{Binding DatePaid, Mode=TwoWay}"
+                                           IsTodayHighlighted="True"
+                                           Style="{StaticResource CancelButton}" />
+
+                    <ui:TextBlock x:Name="CalendarDate"
+                                  Margin="10"
+                                  VerticalAlignment="Center"
+                                  FontSize="20"
+                                  Text="{Binding ElementName=CalendarDatePicker, Path=Date}" />
+                </StackPanel>
+
+            </StackPanel>
+
+            <!--  Input Elements Section  -->
+            <Grid Grid.Row="3">
+                <!--  Define rows for each input field and buttons  -->
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+
+                <!--  Define two columns for input fields  -->
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+
+                <!--  Amount Input  -->
+                <!--  Custom text box for entering the payment amount  -->
+                <resources:CustomTextBox Grid.Row="0"
+                                         Grid.Column="0"
+                                         Data="{Binding Amount, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay, ValidatesOnDataErrors=True, NotifyOnValidationError=True}"
+                                         Description="Amount"
+                                         Placeholder="₵175" />
+
+
+                <!--  Cancel Button  -->
+                <!--  Button to cancel the form submission  -->
+                <Button Grid.Row="1"
+                        Grid.Column="0"
+                        Command="{Binding CancelRecordCommand}"
+                        Content="Cancel"
+                        FontFamily="Cinzel Decorative"
+                        IsCancel="True"
+                        Style="{StaticResource CancelButton}" />
+
+                <!--  Submit Button  -->
+                <!--  Button to submit the form  -->
+                <Button Grid.Row="1"
+                        Grid.Column="1"
+                        Command="{Binding SubmitRecordCommand}"
+                        Content="Submit"
+                        FontFamily="Cinzel Decorative"
+                        IsDefault="True"
+                        Style="{StaticResource SuccessButton}" />
+
+            </Grid>
+        </Grid>
+    </Border>
+</views:MvxWpfView>
