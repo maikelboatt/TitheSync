@@ -29,6 +29,8 @@
             <resources:InverseBooleanToVisibilityConverter x:Key="InverseBooleanToVisibilityConverter" />
             <resources:InverseBooleanConverter x:Key="InverseBooleanConverter" />
             <resources:RadioButtonConverter x:Key="RadioButtonConverter" />
+            <resources:ShortDateConverter x:Key="ShortDateConverter" />
+            <resources:LongDateConverter x:Key="LongDateConverter" />
         </ResourceDictionary>
     </views:MvxApplication.Resources>
 </views:MvxApplication>
