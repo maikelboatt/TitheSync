@@ -1,5 +1,7 @@
 ﻿using System.Collections;
 using System.ComponentModel;
+using System.Runtime.CompilerServices;
+using TitheSync.Domain.Models;
 
 namespace TitheSync.Core.Validation
 {
@@ -11,12 +13,12 @@ namespace TitheSync.Core.Validation
         /// <summary>
         ///     Stores validation errors for properties.
         /// </summary>
-        private readonly Dictionary<string, List<string>> _errors = new();
+        public readonly Dictionary<string, List<string>> Errors = new();
 
         /// <summary>
         ///     Indicates whether there are any validation errors.
         /// </summary>
-        public bool HasErrors => _errors.Count != 0;
+        public bool HasErrors => Errors.Count != 0;
 
         /// <summary>
         ///     Event triggered when the validation errors for a property change.
@@ -30,37 +32,10 @@ namespace TitheSync.Core.Validation
         /// <returns>An enumerable of error messages, or null if no errors exist for the property.</returns>
         public IEnumerable GetErrors( string? propertyName )
         {
-            if (string.IsNullOrEmpty(propertyName) || !_errors.TryGetValue(propertyName, out List<string>? value))
+            if (string.IsNullOrEmpty(propertyName) || !Errors.TryGetValue(propertyName, out List<string>? value))
                 return null;
 
             return value;
-        }
-
-        /// <summary>
-        ///     Validates the value of a specified property and updates the error collection.
-        /// </summary>
-        /// <param name="propertyName" >The name of the property to validate.</param>
-        /// <param name="value" >The value of the property to validate.</param>
-        public void Validate( string propertyName, object value )
-        {
-            _errors.Remove(propertyName);
-
-            List<string> errors = [];
-
-            switch (value)
-            {
-                case string strValue when string.IsNullOrWhiteSpace(strValue):
-                    errors.Add($"{propertyName} cannot be empty.");
-                    break;
-                case null:
-                    errors.Add($"{propertyName} is required.");
-                    break;
-            }
-
-            if (errors.Count != 0)
-                _errors[propertyName] = errors;
-
-            OnErrorsChanged(propertyName);
         }
 
         /// <summary>
@@ -71,5 +46,76 @@ namespace TitheSync.Core.Validation
         {
             ErrorsChanged?.Invoke(this, new DataErrorsChangedEventArgs(propertyName));
         }
+
+        #region Validation Methods
+
+        /// <summary>
+        ///     Validates the value of a specified property and updates the error collection.
+        /// </summary>
+        /// <param name="propertyName" >The name of the property to validate.</param>
+        /// <param name="value" >The value of the property to validate.</param>
+        public void Validate( object value, [CallerMemberName] string propertyName = "" )
+        {
+
+            switch (propertyName)
+            {
+                case nameof(Member.FirstName):
+                case nameof(Member.LastName):
+                case nameof(Member.Gender):
+                case nameof(Member.Address):
+                case nameof(Member.Contact):
+                    ValidateStringProperty((string)value, propertyName, "Field cannot be empty", 3, 30);
+                    break;
+                case nameof(Member.Organization):
+                case nameof(Member.BibleClass):
+                    ValidateEnumProperty(value, propertyName);
+                    break;
+            }
+
+        }
+
+        private void ValidateStringProperty( string value, string propertyName, string errorMessage, int minLength, int maxLength )
+        {
+            ClearError(propertyName); // Clear previous errors for the property
+            if (string.IsNullOrWhiteSpace(value))
+            {
+                AddError(propertyName, errorMessage);
+            }
+            else if (value.Length < minLength || value.Length > maxLength)
+            {
+                AddError(propertyName, $"{propertyName} must be between {minLength} and {maxLength} characters.");
+            }
+        }
+
+        private void ValidateEnumProperty( object value, string propertyName )
+        {
+            ClearError(propertyName); // Clear previous errors for the property
+            if (value == null || !Enum.IsDefined(value.GetType(), value))
+            {
+                AddError(propertyName, $"{propertyName} must be selected.");
+            }
+        }
+
+        #endregion
+
+        #region Error Mutation
+
+        private void AddError( string propertyName, string error )
+        {
+            if (!Errors.ContainsKey(propertyName))
+                Errors[propertyName] = [];
+
+            Errors[propertyName].Add(error);
+            OnErrorsChanged(propertyName);
+        }
+
+        private void ClearError( string propertyName )
+        {
+            if (!Errors.ContainsKey(propertyName)) return;
+            Errors.Remove(propertyName);
+            OnErrorsChanged(propertyName);
+        }
+
+        #endregion
     }
 }
