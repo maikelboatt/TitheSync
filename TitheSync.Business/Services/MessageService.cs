@@ -1,6 +1,6 @@
 ﻿using System.Windows;
 
-namespace TitheSync.Service.Services
+namespace TitheSync.Business.Services
 {
     public class MessageService:IMessageService
     {
