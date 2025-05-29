@@ -1,7 +1,7 @@
 ﻿using TitheSync.DataAccess.Repositories;
 using TitheSync.Domain.Models;
 
-namespace TitheSync.Service.Services
+namespace TitheSync.Business.Services.Members
 {
     /// <summary>
     ///     Service for managing members.
