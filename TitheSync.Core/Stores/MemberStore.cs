@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
+using TitheSync.Business.Services.Members;
 using TitheSync.Domain.Models;
-using TitheSync.Service.Services;
 
 namespace TitheSync.Core.Stores
 {
