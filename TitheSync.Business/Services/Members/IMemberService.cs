@@ -1,6 +1,6 @@
 ﻿using TitheSync.Domain.Models;
 
-namespace TitheSync.Service.Services
+namespace TitheSync.Business.Services.Members
 {
     public interface IMemberService
     {
