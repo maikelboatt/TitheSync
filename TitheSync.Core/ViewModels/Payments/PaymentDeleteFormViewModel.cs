@@ -2,10 +2,10 @@
 using MvvmCross.Commands;
 using MvvmCross.ViewModels;
 using System.Windows;
+using TitheSync.Business.Services;
 using TitheSync.Core.Stores;
 using TitheSync.Domain.Models;
 using TitheSync.Infrastructure.Services;
-using TitheSync.Service.Services;
 
 namespace TitheSync.Core.ViewModels.Payments
 {
