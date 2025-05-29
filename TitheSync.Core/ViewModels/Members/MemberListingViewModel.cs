@@ -3,13 +3,13 @@ using MvvmCross.Commands;
 using MvvmCross.ViewModels;
 using System.Collections.Specialized;
 using System.Windows;
+using TitheSync.Business.Services;
 using TitheSync.Core.Controls;
 using TitheSync.Core.Parameters;
 using TitheSync.Core.Stores;
 using TitheSync.Core.ViewModels.Payments;
 using TitheSync.Domain.Enums;
 using TitheSync.Domain.Models;
-using TitheSync.Service.Services;
 
 namespace TitheSync.Core.ViewModels.Members
 {
