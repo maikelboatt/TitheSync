@@ -2,10 +2,12 @@
 using MvvmCross.Commands;
 using MvvmCross.ViewModels;
 using System.Collections.Specialized;
+using TitheSync.ApplicationState.Stores.Members;
+using TitheSync.ApplicationState.Stores.Payments;
+using TitheSync.Business.Services.Payments;
 using TitheSync.Core.Controls;
 using TitheSync.Core.Models;
 using TitheSync.Core.Parameters;
-using TitheSync.Core.Stores;
 using TitheSync.Domain.Models;
 using TitheSync.Infrastructure.Services;
 
@@ -26,6 +28,8 @@ namespace TitheSync.Core.ViewModels.Payments
         private readonly IMemberStore _memberStore;
 
         private readonly IModalNavigationControl _modalNavigationControl;
+
+        private readonly IPaymentService _paymentService;
 
         /// <summary>
         ///     Store for managing payment data.
@@ -53,6 +57,7 @@ namespace TitheSync.Core.ViewModels.Payments
         /// <summary>
         ///     Initializes a new instance of the <see cref="PaymentListingViewModel" /> class.
         /// </summary>
+        /// <param name="paymentService" >The payment service to load all payments from the repository.</param>
         /// <param name="paymentStore" >The payment store to manage payment data.</param>
         /// <param name="memberStore" >The member store to manage members</param>
         /// <param name="logger" >The logger instance for logging.</param>
@@ -62,13 +67,16 @@ namespace TitheSync.Core.ViewModels.Payments
         ///     Thrown when <paramref name="paymentStore" /> or <paramref name="logger" /> is
         ///     null.
         /// </exception>
-        public PaymentListingViewModel( IPaymentStore paymentStore, IMemberStore memberStore, ILogger<PaymentListingViewModel> logger, IModalNavigationControl modalNavigationControl,
+        public PaymentListingViewModel( IPaymentService paymentService, IPaymentStore paymentStore, IMemberStore memberStore, ILogger<PaymentListingViewModel> logger,
+            IModalNavigationControl modalNavigationControl,
             IDateConverterService dateConverterService )
         {
-            _memberStore = memberStore;
             try
             {
+                _paymentService = paymentService ?? throw new ArgumentNullException(nameof(paymentService));
                 _paymentStore = paymentStore ?? throw new ArgumentNullException(nameof(paymentStore));
+                _memberStore = memberStore ?? throw new ArgumentNullException(nameof(memberStore));
+                ;
                 _logger = logger ?? throw new ArgumentNullException(nameof(logger));
                 _modalNavigationControl = modalNavigationControl ?? throw new ArgumentNullException(nameof(modalNavigationControl));
                 _dateConverterService = dateConverterService ?? throw new ArgumentNullException(nameof(dateConverterService));
@@ -230,17 +238,16 @@ namespace TitheSync.Core.ViewModels.Payments
             try
             {
                 // Simulate loading members
-                await Task.Delay(3000, _cancellationTokenSource.Token); // Example delay
+                // await Task.Delay(3000, _cancellationTokenSource.Token); // Example delay
 
                 _payments.Clear();
-                await _paymentStore.LoadPaymentWithNamesAsync(_cancellationTokenSource.Token);
-                // await _memberStore.LoadMemberAsync(_cancellationTokenSource.Token);
+                await _paymentService.GetPaymentsWithNamesAsync(cancellationToken);
 
                 // Add loaded payments to the collection
-                // foreach (PaymentWithName payment in _paymentStore.PaymentWithNames)
-                // {
-                //     _payments.Add(payment);
-                // }
+                foreach (PaymentWithName payment in _paymentStore.PaymentWithNames)
+                {
+                    _payments.Add(payment);
+                }
 
                 UpdateAggregatedPayments();
                 await RaisePropertyChanged(() => Payments);
