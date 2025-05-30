@@ -1,6 +1,6 @@
 ﻿using MvvmCross.ViewModels;
 
-namespace TitheSync.Core.Stores
+namespace TitheSync.ApplicationState.Stores
 {
     public interface IModalNavigationStore
     {

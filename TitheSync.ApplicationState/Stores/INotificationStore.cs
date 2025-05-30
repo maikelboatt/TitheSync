@@ -1,6 +1,6 @@
-﻿using TitheSync.Core.Models;
+﻿using TitheSync.Infrastructure.Models;
 
-namespace TitheSync.Core.Stores
+namespace TitheSync.ApplicationState.Stores
 {
     public interface INotificationStore
     {
