@@ -1,32 +1,37 @@
 ﻿using Microsoft.Extensions.Logging;
-using TitheSync.Business.Services.Members;
 using TitheSync.Domain.Models;
 
-namespace TitheSync.Core.Stores
+namespace TitheSync.ApplicationState.Stores.Members
 {
     /// <summary>
     ///     Represents a store for managing members, providing thread-safe access and operations.
     /// </summary>
     public class MemberStore:IMemberStore
     {
+        /// <summary>
+        ///     Lock for thread-safe read/write operations on the members list.
+        /// </summary>
         private readonly ReaderWriterLockSlim _lock = new();
+
+        /// <summary>
+        ///     Logger instance for logging store operations.
+        /// </summary>
         private readonly ILogger<MemberStore> _logger;
+
+        /// <summary>
+        ///     Internal list of members.
+        /// </summary>
         private readonly List<Member> _members = [];
-        private readonly IMemberService _memberService;
 
         /// <summary>
         ///     Initializes a new instance of the <see cref="MemberStore" /> class.
         /// </summary>
-        /// <param name="memberService" >The service used to manage members.</param>
         /// <param name="logger" >The logger instance for logging store operations.</param>
         /// <exception cref="ArgumentNullException" >
-        ///     Thrown when the <paramref name="memberService" /> and or
-        ///     <seealso cref="logger" /> is null.
+        ///     Thrown when the <paramref name="logger" /> is null.
         /// </exception>
-        public MemberStore( IMemberService memberService, ILogger<MemberStore> logger )
+        public MemberStore( ILogger<MemberStore> logger )
         {
-            // Validate the member service
-            _memberService = memberService ?? throw new ArgumentNullException(nameof(memberService));
             // Initialize the logger
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
@@ -76,15 +81,14 @@ namespace TitheSync.Core.Stores
         public event Action? OnMembersLoaded;
 
         /// <summary>
-        ///     Loads members asynchronously from the member service.
+        ///     Loads a collection of members into the store, replacing any existing members.
         /// </summary>
+        /// <param name="members" >The collection of members to load.</param>
         /// <param name="cancellationToken" >A token to monitor for cancellation requests.</param>
-        public async Task LoadMemberAsync( CancellationToken cancellationToken = default )
+        public void GetMembers( IEnumerable<Member> members, CancellationToken cancellationToken = default )
         {
             try
             {
-                IEnumerable<Member> members = await _memberService.GetMembersAsync();
-
                 _lock.EnterWriteLock();
                 try
                 {
@@ -106,14 +110,32 @@ namespace TitheSync.Core.Stores
         }
 
         /// <summary>
-        ///     Adds a new member asynchronously.
+        ///     Retrieves a member by their unique ID in a thread-safe manner.
+        /// </summary>
+        /// <param name="memberId" >The unique identifier of the member to retrieve.</param>
+        /// <returns>
+        ///     The <see cref="Member" /> with the specified ID, or <c>null</c> if not found.
+        /// </returns>
+        public Member? GetMemberById( int memberId )
+        {
+            _lock.EnterReadLock();
+            try
+            {
+                return _members.FirstOrDefault(m => m.MemberId == memberId);
+            }
+            finally
+            {
+                _lock.ExitReadLock();
+            }
+        }
+
+        /// <summary>
+        ///     Adds a new member to the store in a thread-safe manner.
         /// </summary>
         /// <param name="member" >The member to add.</param>
         /// <param name="cancellationToken" >A token to monitor for cancellation requests.</param>
-        public async Task AddMemberAsync( Member member, CancellationToken cancellationToken = default )
+        public void AddMember( Member member, CancellationToken cancellationToken = default )
         {
-            await _memberService.AddMemberAsync(member);
-
             _lock.EnterWriteLock();
             try
             {
@@ -128,14 +150,12 @@ namespace TitheSync.Core.Stores
         }
 
         /// <summary>
-        ///     Updates an existing member asynchronously.
+        ///     Updates an existing member in the store in a thread-safe manner.
         /// </summary>
         /// <param name="member" >The member to update.</param>
         /// <param name="cancellationToken" >A token to monitor for cancellation requests.</param>
-        public async Task UpdateMemberAsync( Member member, CancellationToken cancellationToken = default )
+        public void UpdateMember( Member member, CancellationToken cancellationToken = default )
         {
-            await _memberService.UpdateMemberAsync(member);
-
             _lock.EnterWriteLock();
             try
             {
@@ -153,23 +173,19 @@ namespace TitheSync.Core.Stores
         }
 
         /// <summary>
-        ///     Deletes a member asynchronously by their ID.
+        ///     Deletes a member from the store by their ID in a thread-safe manner.
         /// </summary>
         /// <param name="memberId" >The ID of the member to delete.</param>
         /// <param name="cancellationToken" >A token to monitor for cancellation requests.</param>
-        public async Task DeleteMemberAsync( int memberId, CancellationToken cancellationToken = default )
+        public void DeleteMember( int memberId, CancellationToken cancellationToken = default )
         {
-            await _memberService.DeleteMemberAsync(memberId);
-
             _lock.EnterWriteLock();
             try
             {
                 Member? member = _members.FirstOrDefault(m => m.MemberId == memberId);
-                if (member != null)
-                {
-                    _members.Remove(member);
-                    OnMemberDeleted?.Invoke(member);
-                }
+                if (member == null) return;
+                _members.Remove(member);
+                OnMemberDeleted?.Invoke(member);
             }
             finally
             {

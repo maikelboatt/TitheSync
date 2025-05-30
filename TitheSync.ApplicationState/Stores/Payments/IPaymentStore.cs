@@ -1,56 +1,41 @@
 ﻿using TitheSync.Domain.Models;
 
-namespace TitheSync.Core.Stores
+namespace TitheSync.ApplicationState.Stores.Payments
 {
     public interface IPaymentStore
     {
-        /// <summary>
-        ///     Gets the collection of payments.
-        /// </summary>
-        IEnumerable<Payment> Payments { get; }
-
         /// <summary>
         ///     Gets a read-only list of payments with associated names.
         /// </summary>
         IReadOnlyList<PaymentWithName> PaymentWithNames { get; }
 
-        /// <summary>
-        ///     Gets all payments made by a specific member.
-        /// </summary>
-        IReadOnlyList<PaymentWithName> PaymentByMember { get; }
 
         /// <summary>
         ///     Loads the collection of payments asynchronously.
         /// </summary>
         /// <param name="cancellationToken" >A token to cancel the operation.</param>
-        Task LoadPaymentAsync( CancellationToken cancellationToken = default );
-
-        /// <summary>
-        ///     Loads the collection of payments asynchronously.
-        /// </summary>
-        /// <param name="cancellationToken" >A token to cancel the operation.</param>
-        Task LoadPaymentWithNamesAsync( CancellationToken cancellationToken = default );
+        void GetPaymentsWithNames( IEnumerable<PaymentWithName> payments, CancellationToken cancellationToken = default );
 
         /// <summary>
         ///     Adds a new payment to the collection asynchronously.
         /// </summary>
         /// <param name="payment" >The payment to add.</param>
         /// <param name="cancellationToken" >A token to cancel the operation.</param>
-        Task AddPaymentAsync( PaymentWithName payment, CancellationToken cancellationToken = default );
+        void AddPayment( PaymentWithName payment, CancellationToken cancellationToken = default );
 
         /// <summary>
         ///     Updates an existing payment in the collection asynchronously.
         /// </summary>
         /// <param name="payment" >The payment to update.</param>
         /// <param name="cancellationToken" >A token to cancel the operation.</param>
-        Task UpdatePaymentAsync( PaymentWithName payment, CancellationToken cancellationToken = default );
+        void UpdatePayment( PaymentWithName payment, CancellationToken cancellationToken = default );
 
         /// <summary>
         ///     Deletes a payment from the collection asynchronously by their ID.
         /// </summary>
         /// <param name="paymentId" >The ID of the payment to delete.</param>
         /// <param name="cancellationToken" >A token to cancel the operation.</param>
-        Task DeletePaymentAsync( int paymentId, CancellationToken cancellationToken = default );
+        void DeletePayment( int paymentId, CancellationToken cancellationToken = default );
 
 
         /// <summary>
@@ -59,7 +44,7 @@ namespace TitheSync.Core.Stores
         /// <param name="paymentId" >The ID of the payment to retrieve the member for.</param>
         /// <param name="cancellationToken" >A token to cancel the operation.</param>
         /// <returns>The member associated with the specified payment ID, or null if not found.</returns>
-        PaymentWithName? GetMemberByPaymentId( int paymentId, CancellationToken cancellationToken = default );
+        PaymentWithName? GetPaymentById( int paymentId, CancellationToken cancellationToken = default );
 
         /// <summary>
         ///     Retrieves all payments associated with a specific member ID asynchronously.
