@@ -1,6 +1,6 @@
 ﻿using MvvmCross.ViewModels;
+using TitheSync.ApplicationState.Stores;
 using TitheSync.Core.Parameters;
-using TitheSync.Core.Stores;
 using TitheSync.Domain.Models;
 
 namespace TitheSync.Core.Controls
