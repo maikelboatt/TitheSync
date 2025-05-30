@@ -2,8 +2,9 @@
 using MvvmCross.Commands;
 using MvvmCross.ViewModels;
 using System.Windows;
+using TitheSync.ApplicationState.Stores;
 using TitheSync.Business.Services;
-using TitheSync.Core.Stores;
+using TitheSync.Business.Services.Members;
 using TitheSync.Domain.Enums;
 using TitheSync.Domain.Models;
 
@@ -11,7 +12,7 @@ namespace TitheSync.Core.ViewModels.Members
 {
     public class MemberDeleteFormViewModel(
         IModalNavigationStore modalNavigationStore,
-        IMemberStore memberStore,
+        IMemberService memberService,
         ILogger<MemberCreateFormViewModel> logger,
         IMessageService messageService )
         :MvxViewModel<int>, IMemberDeleteFormViewModel
@@ -45,7 +46,7 @@ namespace TitheSync.Core.ViewModels.Members
         public override async Task Initialize()
         {
             await base.Initialize();
-            Member? member = memberStore.Members.FirstOrDefault(m => m.MemberId == _memberId);
+            Member? member = memberService.GetMemberById(_memberId);
             if (member == null)
             {
                 logger.LogError("Member with ID {MemberId} not found", _memberId);
@@ -81,7 +82,7 @@ namespace TitheSync.Core.ViewModels.Members
         /// <param name="cancellationToken" ></param>
         private async Task OnDeleteConfirm( CancellationToken cancellationToken )
         {
-            await memberStore.DeleteMemberAsync(_memberId, cancellationToken);
+            await memberService.DeleteMemberAsync(_memberId, cancellationToken);
             modalNavigationStore.Close();
         }
 
