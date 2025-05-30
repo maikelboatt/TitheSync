@@ -3,11 +3,12 @@ using MvvmCross.Commands;
 using MvvmCross.ViewModels;
 using System.Collections;
 using System.ComponentModel;
-using TitheSync.Core.Models;
-using TitheSync.Core.Stores;
+using TitheSync.ApplicationState.Stores;
+using TitheSync.Business.Services.Members;
 using TitheSync.Core.Validation;
 using TitheSync.Domain.Enums;
 using TitheSync.Domain.Models;
+using TitheSync.Infrastructure.Models;
 
 namespace TitheSync.Core.ViewModels.Members
 {
@@ -19,7 +20,7 @@ namespace TitheSync.Core.ViewModels.Members
     public class MemberCreateFormViewModel:MvxViewModel<int>, IMemberCreateFormViewModel, INotifyDataErrorInfo
     {
         private readonly ILogger<MemberCreateFormViewModel> _logger;
-        private readonly IMemberStore _memberStore;
+        private readonly IMemberService _memberService;
         private readonly IModalNavigationStore _modalNavigationStore;
         private readonly INotificationStore _notificationStore;
         private readonly MemberRecordValidation _validator = new();
@@ -37,14 +38,14 @@ namespace TitheSync.Core.ViewModels.Members
         ///     Initializes a new instance of the <see cref="MemberCreateFormViewModel" /> class.
         /// </summary>
         /// <param name="modalNavigationStore" >The modal navigation store for managing navigation.</param>
-        /// <param name="memberStore" >The member store for managing member data.</param>
+        /// <param name="memberService" >The service that will handle the creation of new members</param>
         /// <param name="logger" >The logger for logging information.</param>
         /// <param name="notificationStore" >The notification store for managing notifications.</param>
-        public MemberCreateFormViewModel( IModalNavigationStore modalNavigationStore, IMemberStore memberStore, ILogger<MemberCreateFormViewModel> logger,
+        public MemberCreateFormViewModel( IModalNavigationStore modalNavigationStore, IMemberService memberService, ILogger<MemberCreateFormViewModel> logger,
             INotificationStore notificationStore )
         {
             _modalNavigationStore = modalNavigationStore;
-            _memberStore = memberStore;
+            _memberService = memberService;
             _logger = logger;
             _notificationStore = notificationStore;
 
@@ -107,7 +108,7 @@ namespace TitheSync.Core.ViewModels.Members
             if (_validator.HasErrors) return;
 
             Member member = GetMemberFromFields();
-            await _memberStore.AddMemberAsync(member, cancellationToken);
+            await _memberService.AddMemberAsync(member, cancellationToken);
             _notificationStore.AddNotification(
                 new Notification
                 {
