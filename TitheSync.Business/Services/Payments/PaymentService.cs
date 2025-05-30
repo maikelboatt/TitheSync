@@ -75,8 +75,9 @@ namespace TitheSync.Business.Services.Payments
         ///     Retrieves all payments for a specific member from the payment store.
         /// </summary>
         /// <param name="memberId" >The ID of the member whose payments to retrieve.</param>
+        /// <param name="cancellationToken" >A cancellation token to observe while waiting for the task to complete.</param>
         /// <returns>A collection of payments with names for the specified member.</returns>
-        public IEnumerable<PaymentWithName> GetPaymentsByMemberId( int memberId ) => _paymentStore.GetPaymentsByMemberId(memberId);
+        public IEnumerable<PaymentWithName> GetPaymentsByMemberId( int memberId, CancellationToken cancellationToken ) => _paymentStore.GetPaymentsByMemberId(memberId, cancellationToken);
 
         /// <summary>
         ///     Adds a new payment asynchronously to the repository and updates the payment store.

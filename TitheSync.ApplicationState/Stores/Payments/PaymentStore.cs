@@ -151,10 +151,11 @@ namespace TitheSync.ApplicationState.Stores.Payments
         ///     Retrieves all payments associated with a specific member ID asynchronously.
         /// </summary>
         /// <param name="memberId" >The ID of the member whose payments are to be retrieved.</param>
+        /// <param name="cancellationToken" ></param>
         /// <returns>
         ///     A collection of <see cref="PaymentWithName" /> objects associated with the specified member ID.
         /// </returns>
-        public IEnumerable<PaymentWithName> GetPaymentsByMemberId( int memberId )
+        public IEnumerable<PaymentWithName> GetPaymentsByMemberId( int memberId, CancellationToken cancellationToken = default )
         {
             return
             [

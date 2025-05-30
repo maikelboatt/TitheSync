@@ -26,8 +26,9 @@ namespace TitheSync.Business.Services.Payments
         ///     Retrieves all payments associated with a specific member.
         /// </summary>
         /// <param name="memberId" >The ID of the member whose payments to retrieve.</param>
+        /// <param name="cancellationToken" >A token ot cancel the asynchronous operation.</param>
         /// <returns>A collection of payments with member names.</returns>
-        IEnumerable<PaymentWithName> GetPaymentsByMemberId( int memberId );
+        IEnumerable<PaymentWithName> GetPaymentsByMemberId( int memberId, CancellationToken cancellationToken );
 
         /// <summary>
         ///     Adds a new payment asynchronously.

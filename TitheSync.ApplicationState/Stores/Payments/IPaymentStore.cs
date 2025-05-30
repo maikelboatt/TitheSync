@@ -50,11 +50,12 @@ namespace TitheSync.ApplicationState.Stores.Payments
         ///     Retrieves all payments associated with a specific member ID asynchronously.
         /// </summary>
         /// <param name="memberId" >The ID of the member whose payments are to be retrieved.</param>
+        /// <param name="cancellationToken" >A token to cancel the operation.</param>
         /// <returns>
         ///     A task that represents the asynchronous operation.The task result contains a collection of
         ///     <see cref="PaymentWithName" /> objects associated with the specified member ID.
         /// </returns>
-        IEnumerable<PaymentWithName> GetPaymentsByMemberId( int memberId );
+        IEnumerable<PaymentWithName> GetPaymentsByMemberId( int memberId, CancellationToken cancellationToken );
 
         /// <summary>
         ///     Event triggered when payments are changed.
