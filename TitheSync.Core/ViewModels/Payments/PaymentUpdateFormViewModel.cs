@@ -3,7 +3,8 @@ using MvvmCross.Commands;
 using MvvmCross.ViewModels;
 using System.Collections;
 using System.ComponentModel;
-using TitheSync.Core.Stores;
+using TitheSync.ApplicationState.Stores;
+using TitheSync.Business.Services.Payments;
 using TitheSync.Core.Validation;
 using TitheSync.Domain.Models;
 using TitheSync.Infrastructure.Services;
@@ -15,7 +16,7 @@ namespace TitheSync.Core.ViewModels.Payments
         private readonly IDateConverterService _dateConverterService;
         private readonly ILogger<PaymentCreateFormViewModel> _logger;
         private readonly IModalNavigationStore _modalNavigationStore;
-        private readonly IPaymentStore _paymentStore;
+        private readonly IPaymentService _paymentService;
         private readonly PaymentRecordValidation _validator = new();
         private decimal _amount;
         private DateTime _datePaid;
@@ -27,14 +28,14 @@ namespace TitheSync.Core.ViewModels.Payments
         ///     Initializes a new instance of the <see cref="PaymentCreateFormViewModel" /> class.
         /// </summary>
         /// <param name="modalNavigationStore" >The modal navigation store for managing navigation.</param>
-        /// <param name="paymentStore" >The member store for managing member data.</param>
+        /// <param name="paymentService" >The payment service to handle updating an existing record.</param>
         /// <param name="logger" >The logger for logging information.</param>
         /// <param name="dateConverterService" >The service for converting date objects.</param>
-        public PaymentUpdateFormViewModel( IModalNavigationStore modalNavigationStore, IPaymentStore paymentStore, ILogger<PaymentCreateFormViewModel> logger,
+        public PaymentUpdateFormViewModel( IModalNavigationStore modalNavigationStore, IPaymentService paymentService, ILogger<PaymentCreateFormViewModel> logger,
             IDateConverterService dateConverterService )
         {
             _modalNavigationStore = modalNavigationStore;
-            _paymentStore = paymentStore;
+            _paymentService = paymentService;
             _logger = logger;
             _dateConverterService = dateConverterService;
 
@@ -104,7 +105,7 @@ namespace TitheSync.Core.ViewModels.Payments
         public override async Task Initialize()
         {
             await base.Initialize();
-            PaymentWithName? payment = _paymentStore.PaymentWithNames.FirstOrDefault(p => p.PaymentId == _paymentId);
+            PaymentWithName? payment = _paymentService.GetPaymentByIdAsync(_paymentId);
             if (payment == null)
             {
                 _logger.LogWarning("Payment with ID {PaymentId} not found", _paymentId);
@@ -168,7 +169,7 @@ namespace TitheSync.Core.ViewModels.Payments
             if (_validator.HasErrors) return;
 
             PaymentWithName payment = GetPaymentFromFields();
-            await _paymentStore.UpdatePaymentAsync(payment, cancellationToken);
+            await _paymentService.UpdatePaymentAsync(payment, cancellationToken);
 
             _modalNavigationStore.Close();
         }
