@@ -95,7 +95,7 @@
                           Background="{DynamicResource SecondaryBackgroundColor}"
                           CellStyle="{StaticResource DataGridCellStyle1}"
                           ColumnHeaderStyle="{StaticResource DataGridColumnHeaderStyle1}"
-                          ItemsSource="{Binding DummyMembers, UpdateSourceTrigger=PropertyChanged}"
+                          ItemsSource="{Binding Members, UpdateSourceTrigger=PropertyChanged}"
                           RowStyle="{StaticResource DataGridRowStyle1}"
                           Style="{DynamicResource DataGridStyle1}"
                           VerticalScrollBarVisibility="Auto">
