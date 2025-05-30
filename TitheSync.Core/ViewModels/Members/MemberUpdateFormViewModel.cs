@@ -3,7 +3,8 @@ using MvvmCross.Commands;
 using MvvmCross.ViewModels;
 using System.Collections;
 using System.ComponentModel;
-using TitheSync.Core.Stores;
+using TitheSync.ApplicationState.Stores;
+using TitheSync.Business.Services.Members;
 using TitheSync.Core.Validation;
 using TitheSync.Domain.Enums;
 using TitheSync.Domain.Models;
@@ -16,7 +17,7 @@ namespace TitheSync.Core.ViewModels.Members
     public class MemberUpdateFormViewModel:MvxViewModel<int>, IMemberUpdateFormViewModel, INotifyDataErrorInfo
     {
         private readonly ILogger<MemberCreateFormViewModel> _logger;
-        private readonly IMemberStore _memberStore;
+        private readonly IMemberService _memberService;
         private readonly IModalNavigationStore _modalNavigationStore;
         private readonly MemberRecordValidation _validator = new();
         private string _address = string.Empty;
@@ -34,12 +35,12 @@ namespace TitheSync.Core.ViewModels.Members
         ///     Initializes a new instance of the <see cref="MemberUpdateFormViewModel" /> class.
         /// </summary>
         /// <param name="modalNavigationStore" >The modal navigation store for managing navigation.</param>
-        /// <param name="memberStore" >The member store for accessing member data.</param>
+        /// <param name="memberService" >The member service to handle the update operation.</param>
         /// <param name="logger" >The logger for logging information and errors.</param>
-        public MemberUpdateFormViewModel( IModalNavigationStore modalNavigationStore, IMemberStore memberStore, ILogger<MemberCreateFormViewModel> logger )
+        public MemberUpdateFormViewModel( IModalNavigationStore modalNavigationStore, IMemberService memberService, ILogger<MemberCreateFormViewModel> logger )
         {
             _modalNavigationStore = modalNavigationStore;
-            _memberStore = memberStore;
+            _memberService = memberService;
             _logger = logger;
 
             _validator.ErrorsChanged += ValidatorOnErrorsChanged;
@@ -78,7 +79,7 @@ namespace TitheSync.Core.ViewModels.Members
         public override async Task Initialize()
         {
             await base.Initialize();
-            Member? member = _memberStore.Members.FirstOrDefault(m => m.MemberId == _memberId);
+            Member? member = _memberService.GetMemberById(_memberId);
             if (member == null)
             {
                 _logger.LogError("Member with ID {MemberId} not found", _memberId);
@@ -130,7 +131,7 @@ namespace TitheSync.Core.ViewModels.Members
             if (_validator.HasErrors) return;
 
             Member member = GetMemberFromFields();
-            await _memberStore.UpdateMemberAsync(member, arg);
+            await _memberService.UpdateMemberAsync(member, arg);
             _modalNavigationStore.Close();
         }
 
