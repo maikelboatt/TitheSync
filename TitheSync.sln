@@ -17,6 +17,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TitheSync.Infrastructure", 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TitheSync.Business", "TitheSync.Business\TitheSync.Business.csproj", "{877BB5CE-7CA1-475D-8423-D1A7E404770F}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TitheSync.ApplicationState", "TitheSync.ApplicationState\TitheSync.ApplicationState.csproj", "{BA27E63A-0517-447E-8381-E0A2D95EA4B3}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -51,6 +53,10 @@ Global
 		{877BB5CE-7CA1-475D-8423-D1A7E404770F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{877BB5CE-7CA1-475D-8423-D1A7E404770F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{877BB5CE-7CA1-475D-8423-D1A7E404770F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BA27E63A-0517-447E-8381-E0A2D95EA4B3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BA27E63A-0517-447E-8381-E0A2D95EA4B3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BA27E63A-0517-447E-8381-E0A2D95EA4B3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BA27E63A-0517-447E-8381-E0A2D95EA4B3}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
