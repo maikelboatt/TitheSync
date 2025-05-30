@@ -1,7 +1,7 @@
 ﻿using MvvmCross.Commands;
 using MvvmCross.ViewModels;
+using TitheSync.ApplicationState.Stores;
 using TitheSync.Core.Factory;
-using TitheSync.Core.Stores;
 
 namespace TitheSync.Core.ViewModels
 {
