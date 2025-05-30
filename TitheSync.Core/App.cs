@@ -5,6 +5,7 @@ using MvvmCross.Exceptions;
 using MvvmCross.IoC;
 using MvvmCross.ViewModels;
 using System.Reflection;
+using TitheSync.ApplicationState.Stores;
 using TitheSync.Business.Services.Members;
 using TitheSync.Core.Controls;
 using TitheSync.Core.Factory;
@@ -46,8 +47,9 @@ namespace TitheSync.Core
             Assembly[] assemblies =
             {
                 GetType().Assembly,
-                typeof(IMemberRepository).Assembly,
                 typeof(IMemberService).Assembly,
+                typeof(IModalNavigationStore).Assembly,
+                typeof(IMemberRepository).Assembly,
                 typeof(IDateConverterService).Assembly
             };
 
