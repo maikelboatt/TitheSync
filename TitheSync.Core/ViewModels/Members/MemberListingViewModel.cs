@@ -3,10 +3,11 @@ using MvvmCross.Commands;
 using MvvmCross.ViewModels;
 using System.Collections.Specialized;
 using System.Windows;
+using TitheSync.ApplicationState.Stores.Members;
 using TitheSync.Business.Services;
+using TitheSync.Business.Services.Members;
 using TitheSync.Core.Controls;
 using TitheSync.Core.Parameters;
-using TitheSync.Core.Stores;
 using TitheSync.Core.ViewModels.Payments;
 using TitheSync.Domain.Enums;
 using TitheSync.Domain.Models;
@@ -22,6 +23,8 @@ namespace TitheSync.Core.ViewModels.Members
         ///     Logger instance for logging messages and errors
         /// </summary>
         private readonly ILogger<MemberListingViewModel> _logger;
+
+        private readonly IMemberService _memberService;
 
         /// <summary>
         ///     Store for managing member data
@@ -59,6 +62,7 @@ namespace TitheSync.Core.ViewModels.Members
         /// <summary>
         ///     Initializes a new instance of the <see cref="MemberListingViewModel" /> class.
         /// </summary>
+        /// <param name="memberService" >The service to load all members from the repository</param>
         /// <param name="memberStore" >The member store to retrieve members from.</param>
         /// <param name="logger" >The logger instance for logging errors and information.</param>
         /// <param name="modalNavigationControl" >The control to popup modals</param>
@@ -68,11 +72,13 @@ namespace TitheSync.Core.ViewModels.Members
         ///     null.
         /// </exception>
         /// .
-        public MemberListingViewModel( IMemberStore memberStore, ILogger<MemberListingViewModel> logger, IModalNavigationControl modalNavigationControl, IMessageService messageService )
+        public MemberListingViewModel( IMemberService memberService, IMemberStore memberStore, ILogger<MemberListingViewModel> logger, IModalNavigationControl modalNavigationControl,
+            IMessageService messageService )
         {
             try
             {
                 _memberStore = memberStore ?? throw new ArgumentNullException(nameof(memberStore));
+                _memberService = memberService ?? throw new ArgumentNullException(nameof(memberService));
                 _logger = logger ?? throw new ArgumentNullException(nameof(logger));
                 _modalNavigationControl = modalNavigationControl ?? throw new ArgumentNullException(nameof(modalNavigationControl));
                 _messageService = messageService ?? throw new ArgumentNullException(nameof(messageService));
@@ -82,6 +88,7 @@ namespace TitheSync.Core.ViewModels.Members
                 _members.CollectionChanged += MembersOnCollectionChanged;
 
                 _memberStore.OnMemberAdded += MemberStoreOnOnMemberAdded;
+                _memberStore.OnMemberDeleted += MemberStoreOnOnMemberDeleted;
 
 
                 // Initialize commands
@@ -167,6 +174,16 @@ namespace TitheSync.Core.ViewModels.Members
         private void MemberStoreOnOnMemberAdded( Member member )
         {
             _members.Add(member);
+        }
+
+        /// <summary>
+        ///     Event handler for when a member is deleted from the member store.
+        ///     Removes the member from the local-members collection.
+        /// </summary>
+        /// <param name="member" >The member that was removed.</param>
+        private void MemberStoreOnOnMemberDeleted( Member member )
+        {
+            _members.Remove(member);
         }
 
         #endregion
@@ -276,17 +293,16 @@ namespace TitheSync.Core.ViewModels.Members
                 // Simulate loading members
                 // await Task.Delay(3000, _cancellationTokenSource.Token); // Example delay
 
-                // _members.Clear();
-                //
-                // await _memberStore.LoadMemberAsync(cancellationToken);
-                // // Add loaded members to the collection
-                // foreach (Member member in _memberStore.Members)
-                // {
-                //     cancellationToken.ThrowIfCancellationRequested();
-                //     _members.Add(member);
-                // }
-                //
-                // await RaisePropertyChanged(() => Members);
+                _members.Clear();
+                await _memberService.GetMembersAsync(cancellationToken);
+                // Add loaded members to the collection
+                foreach (Member member in _memberStore.Members)
+                {
+                    cancellationToken.ThrowIfCancellationRequested();
+                    _members.Add(member);
+                }
+
+                await RaisePropertyChanged(() => Members);
             }
             catch (OperationCanceledException)
             {
