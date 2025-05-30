@@ -2,8 +2,9 @@
 using MvvmCross.Commands;
 using MvvmCross.ViewModels;
 using System.Windows;
+using TitheSync.ApplicationState.Stores;
 using TitheSync.Business.Services;
-using TitheSync.Core.Stores;
+using TitheSync.Business.Services.Payments;
 using TitheSync.Domain.Models;
 using TitheSync.Infrastructure.Services;
 
@@ -13,12 +14,12 @@ namespace TitheSync.Core.ViewModels.Payments
     ///     Initializes a new instance of the <see cref="PaymentCreateFormViewModel" /> class.
     /// </summary>
     /// <param name="modalNavigationStore" >The modal navigation store for managing navigation.</param>
-    /// <param name="paymentStore" >The payment store for managing payment data.</param>
+    /// <param name="paymentService" >The service to handle payment deletion.</param>
     /// <param name="logger" >The logger for logging information.</param>
     /// <param name="dateConverterService" >The service for converting date objects.</param>
     public class PaymentDeleteFormViewModel(
         IModalNavigationStore modalNavigationStore,
-        IPaymentStore paymentStore,
+        IPaymentService paymentService,
         ILogger<PaymentCreateFormViewModel> logger,
         IDateConverterService dateConverterService,
         IMessageService messageService ):MvxViewModel<int>, IPaymentDeleteFormViewModel
@@ -60,7 +61,7 @@ namespace TitheSync.Core.ViewModels.Payments
         public override async Task Initialize()
         {
             await base.Initialize();
-            PaymentWithName? payment = paymentStore.PaymentWithNames.FirstOrDefault(p => p.PaymentId == _paymentId);
+            PaymentWithName? payment = paymentService.GetPaymentByIdAsync(_paymentId);
             if (payment == null)
             {
                 logger.LogWarning("Payment with ID {PaymentId} not found", _paymentId);
@@ -117,7 +118,7 @@ namespace TitheSync.Core.ViewModels.Payments
         /// <param name="cancellationToken" ></param>
         private async Task OnDeleteConfirm( CancellationToken cancellationToken )
         {
-            await paymentStore.DeletePaymentAsync(_paymentId, cancellationToken);
+            await paymentService.DeletePaymentAsync(_paymentId, cancellationToken);
             modalNavigationStore.Close();
         }
 
