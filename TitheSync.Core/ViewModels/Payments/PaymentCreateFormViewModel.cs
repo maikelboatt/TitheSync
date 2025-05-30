@@ -3,12 +3,13 @@ using MvvmCross.Commands;
 using MvvmCross.ViewModels;
 using System.Collections;
 using System.ComponentModel;
-using TitheSync.Core.Models;
+using TitheSync.ApplicationState.Stores;
+using TitheSync.ApplicationState.Stores.Members;
+using TitheSync.Business.Services.Payments;
 using TitheSync.Core.Parameters;
-using TitheSync.Core.Stores;
 using TitheSync.Core.Validation;
-using TitheSync.Core.ViewModels.Members;
 using TitheSync.Domain.Models;
+using TitheSync.Infrastructure.Models;
 using TitheSync.Infrastructure.Services;
 
 namespace TitheSync.Core.ViewModels.Payments
@@ -20,28 +21,28 @@ namespace TitheSync.Core.ViewModels.Payments
         private readonly IMemberStore _memberStore;
         private readonly IModalNavigationStore _modalNavigationStore;
         private readonly INotificationStore _notificationStore;
-        private readonly IPaymentStore _paymentStore;
+        private readonly IPaymentService _paymentService;
         private readonly PaymentRecordValidation _validator = new();
         private decimal _amount;
         private DateTime _datePaid;
         private int _memberId;
-        private int _paymentId;
 
 
         /// <summary>
         ///     Initializes a new instance of the <see cref="PaymentCreateFormViewModel" /> class.
         /// </summary>
         /// <param name="modalNavigationStore" >The modal navigation store for managing navigation.</param>
-        /// <param name="paymentStore" >The payment store for managing payment data.</param>
+        /// <param name="paymentService" >The payment service for handling the creation of payments.</param>
         /// <param name="memberStore" >The member store for managing member data.</param>
         /// <param name="logger" >The logger for logging information.</param>
         /// <param name="dateConverterService" >The service for converting date objects.</param>
         /// <param name="notificationStore" >The notification store to manage notifications.</param>
-        public PaymentCreateFormViewModel( IModalNavigationStore modalNavigationStore, IPaymentStore paymentStore, IMemberStore memberStore, ILogger<PaymentCreateFormViewModel> logger,
+        public PaymentCreateFormViewModel( IModalNavigationStore modalNavigationStore, IPaymentService paymentService, IMemberStore memberStore,
+            ILogger<PaymentCreateFormViewModel> logger,
             IDateConverterService dateConverterService, INotificationStore notificationStore )
         {
             _modalNavigationStore = modalNavigationStore;
-            _paymentStore = paymentStore;
+            _paymentService = paymentService;
             _memberStore = memberStore;
             _logger = logger;
             _dateConverterService = dateConverterService;
@@ -119,23 +120,8 @@ namespace TitheSync.Core.ViewModels.Payments
         /// </param>
         public override void Prepare( NavigationParameter parameter )
         {
-            if (parameter.CallingViewModel == typeof(MemberListingViewModel) || parameter.CallingViewModel == typeof(PaymentDetailsFormViewModel) ||
-                parameter.CallingViewModel == typeof(PaymentListingViewModel))
-            {
-                _memberId = parameter.Id;
-                _logger.LogInformation("Preparing PaymentCreateFormViewModel from {CallingViewModel} with member ID: {MemberId}", parameter.CallingViewModel.Name, _memberId);
-            }
-            else if (parameter.CallingViewModel == typeof(PaymentListingViewModel))
-            {
-                PaymentWithName? payment = _paymentStore.PaymentWithNames.FirstOrDefault(p => p.PaymentId == parameter.Id);
-                if (payment == null)
-                {
-                    _logger.LogWarning("Payment with ID {PaymentId} not found", _paymentId);
-                    return;
-                }
-                _memberId = payment.PaymentMemberId;
-                _logger.LogInformation("Preparing PaymentCreateFormViewModel from {CallingViewModel} with payment ID: {PaymentId}", parameter.CallingViewModel?.Name, _memberId);
-            }
+            _memberId = parameter.Id;
+            _logger.LogInformation("Preparing PaymentCreateFormViewModel from {CallingViewModel} with member ID: {MemberId}", parameter.CallingViewModel.Name, _memberId);
         }
 
 
@@ -203,7 +189,7 @@ namespace TitheSync.Core.ViewModels.Payments
             if (_validator.HasErrors) return;
 
             PaymentWithName payment = GetPaymentFromFields();
-            await _paymentStore.AddPaymentAsync(payment, cancellationToken);
+            await _paymentService.AddPaymentAsync(payment, cancellationToken);
 
             _notificationStore.AddNotification(
                 new Notification
