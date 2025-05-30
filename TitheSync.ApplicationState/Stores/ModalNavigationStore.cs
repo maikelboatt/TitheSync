@@ -1,6 +1,6 @@
 ﻿using MvvmCross.ViewModels;
 
-namespace TitheSync.Core.Stores
+namespace TitheSync.ApplicationState.Stores
 {
     /// <summary>
     ///     Manages the navigation for modal view models.
