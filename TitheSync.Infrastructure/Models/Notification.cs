@@ -1,4 +1,4 @@
-﻿namespace TitheSync.Core.Models
+﻿namespace TitheSync.Infrastructure.Models
 {
     /// <summary>
     ///     Represents a notification with a title, message, timestamp, and type.
