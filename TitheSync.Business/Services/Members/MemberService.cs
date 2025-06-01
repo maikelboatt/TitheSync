@@ -52,8 +52,9 @@ namespace TitheSync.Business.Services.Members
         /// <returns>A task representing the asynchronous operation.</returns>
         public async Task AddMemberAsync( Member member, CancellationToken cancellationToken = default )
         {
-            await _memberRepository.AddMemberAsync(member);
-            _memberStore.AddMember(member, cancellationToken);
+            int uniqueId = await _memberRepository.AddMemberAsync(member);
+            Member memberWithCorrectId = _memberStore.CreateMemberWithCorrectMemberId(uniqueId, member);
+            _memberStore.AddMember(memberWithCorrectId, cancellationToken);
         }
 
         /// <summary>
