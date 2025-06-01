@@ -58,6 +58,15 @@ namespace TitheSync.ApplicationState.Stores.Payments
         IEnumerable<PaymentWithName> GetPaymentsByMemberId( int memberId, CancellationToken cancellationToken );
 
         /// <summary>
+        ///     Creates a <see cref="Payment" /> instance with the correct payment ID based on the provided
+        ///     <see cref="PaymentWithName" /> and member ID.
+        /// </summary>
+        /// <param name="paymentId" >The ID of the member associated with the payment.</param>
+        /// <param name="paymentWithName" >The payment with name information to use for creation.</param>
+        /// <returns>A <see cref="Payment" /> object with the correct payment ID set.</returns>
+        PaymentWithName CreatePaymentWithCorrectPaymentId( int paymentId, PaymentWithName paymentWithName );
+
+        /// <summary>
         ///     Event triggered when payments are changed.
         /// </summary>
         event Action<Payment> OnPaymentsChanged;
