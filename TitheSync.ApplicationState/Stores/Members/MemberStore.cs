@@ -56,6 +56,21 @@ namespace TitheSync.ApplicationState.Stores.Members
         }
 
         /// <summary>
+        ///     Creates a new <see cref="Member" /> instance with the specified member ID,
+        ///     copying the remaining properties from the provided member.
+        /// </summary>
+        /// <param name="memberId" >The member ID to assign to the new member.</param>
+        /// <param name="member" >The member whose properties will be copied.</param>
+        /// <returns>A new <see cref="Member" /> with the specified member ID and copied properties.</returns>
+        public Member CreateMemberWithCorrectMemberId( int memberId, Member member )
+        {
+            ArgumentNullException.ThrowIfNull(member);
+
+            return new Member(memberId, member.FirstName, member.LastName, member.Contact, member.Gender, member.IsLeader, member.Address, member.Organization, member.BibleClass);
+
+        }
+
+        /// <summary>
         ///     Event triggered when members are changed.
         /// </summary>
         public event Action<Member>? OnMembersChanged;

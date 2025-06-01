@@ -48,6 +48,15 @@ namespace TitheSync.ApplicationState.Stores.Members
         void DeleteMember( int memberId, CancellationToken cancellationToken = default );
 
         /// <summary>
+        ///     Creates a new <see cref="Member" /> instance with the specified member ID,
+        ///     copying the remaining properties from the provided member.
+        /// </summary>
+        /// <param name="memberId" >The member ID to assign to the new member.</param>
+        /// <param name="member" >The member whose properties will be copied.</param>
+        /// <returns>A new <see cref="Member" /> with the specified member ID and copied properties.</returns>
+        Member CreateMemberWithCorrectMemberId( int memberId, Member member );
+
+        /// <summary>
         ///     Event triggered when members are changed.
         /// </summary>
         event Action<Member> OnMembersChanged;
