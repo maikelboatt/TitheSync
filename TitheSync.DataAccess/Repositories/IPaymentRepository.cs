@@ -34,7 +34,7 @@ namespace TitheSync.DataAccess.Repositories
         /// </summary>
         /// <param name="payment" >The payment to add.</param>
         /// <returns>A task that represents the asynchronous operation.</returns>
-        Task AddPaymentAsync( PaymentWithName payment );
+        Task<int> AddPaymentAsync( PaymentWithName payment );
 
         /// <summary>
         ///     Updates an existing payment in the repository asynchronously.

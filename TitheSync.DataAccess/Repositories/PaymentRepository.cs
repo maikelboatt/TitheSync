@@ -117,29 +117,27 @@ namespace TitheSync.DataAccess.Repositories
         /// <param name="payment" >The <see cref="Payment" /> object to add.</param>
         /// <exception cref="ArgumentNullException" >Thrown when the <paramref name="payment" /> is null.</exception>
         /// <exception cref="Exception" >Thrown when an error occurs during data insertion.</exception>
-        public async Task AddPaymentAsync( PaymentWithName payment )
+        public async Task<int> AddPaymentAsync( PaymentWithName payment )
         {
             try
             {
                 ArgumentNullException.ThrowIfNull(payment);
+                PaymentWithNameDto record = MapToPaymentWithNameDto(payment);
 
-                await _databaseExecutionExceptionHandlingService.ExecuteWithExceptionHandlingAsync(
+                IEnumerable<int> result = await _databaseExecutionExceptionHandlingService.ExecuteWithExceptionHandlingAsync(
                     "sp.Payment_Add",
                     new { },
                     async () =>
-                    {
-                        PaymentWithNameDto record = MapToPaymentWithNameDto(payment);
-                        await _dataAccess.CommandAsync(
+                        await _dataAccess.QueryAsync<int, dynamic>(
                             "sp.Payment_Add",
                             new
                             {
                                 record.Amount,
                                 record.DatePaid,
                                 record.PaymentMemberId
-                            });
-                        return true; // Dummy return for Task<bool>
-                    }
+                            })
                 );
+                return result.First();
             }
             catch (ArgumentNullException e)
             {
