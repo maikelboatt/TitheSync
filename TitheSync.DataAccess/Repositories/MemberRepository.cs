@@ -73,37 +73,44 @@ namespace TitheSync.DataAccess.Repositories
             return result.Select(MapToMember).FirstOrDefault();
         }
 
+
         /// <summary>
         ///     Adds a new member to the data store.
         /// </summary>
-        /// <param name="member" >The <see cref="Member" /> object to add.</param>
-        /// <exception cref="ArgumentNullException" >Thrown when the provided member is null.</exception>
-        public async Task AddMemberAsync( Member member )
+        /// <param name="member" >
+        ///     The <see cref="Member" /> object to add.
+        /// </param>
+        /// <returns>
+        ///     The unique identifier of the newly added member.
+        /// </returns>
+        /// <exception cref="ArgumentNullException" >
+        ///     Thrown when the provided <paramref name="member" /> is null.
+        /// </exception>
+        public async Task<int> AddMemberAsync( Member member )
         {
             ArgumentNullException.ThrowIfNull(member);
 
-            await _databaseExecutionExceptionHandlingService.ExecuteWithExceptionHandlingAsync(
+            MemberDto record = MapToMemberDto(member);
+
+            IEnumerable<int> result = await _databaseExecutionExceptionHandlingService.ExecuteWithExceptionHandlingAsync(
                 "sp.Member_Add",
-                new { },
-                async () =>
-                {
-                    MemberDto record = MapToMemberDto(member);
-                    await _dataAccess.CommandAsync(
-                        "sp.Member_Add",
-                        new
-                        {
-                            record.FirstName,
-                            record.LastName,
-                            record.Contact,
-                            record.IsLeader,
-                            record.Address,
-                            record.Organization,
-                            record.BibleClass,
-                            record.Gender
-                        });
-                    return true; // Dummy return for Task<bool>
-                }
+                null!, // No need to pass parameters here
+                async () => await _dataAccess.QueryAsync<int, dynamic>(
+                    "sp.Member_Add",
+                    new
+                    {
+                        record.FirstName,
+                        record.LastName,
+                        record.Contact,
+                        record.IsLeader,
+                        record.Address,
+                        record.Organization,
+                        record.BibleClass,
+                        record.Gender
+                    })
             );
+
+            return result.First();
         }
 
         /// <summary>

@@ -25,7 +25,7 @@ namespace TitheSync.DataAccess.Repositories
         /// </summary>
         /// <param name="member" >The member to add.</param>
         /// <returns>A task that represents the asynchronous operation.</returns>
-        Task AddMemberAsync( Member member );
+        Task<int> AddMemberAsync( Member member );
 
         /// <summary>
         ///     Updates an existing member asynchronously.
