@@ -87,8 +87,9 @@ namespace TitheSync.Business.Services.Payments
         /// <returns>A task representing the asynchronous operation.</returns>
         public async Task AddPaymentAsync( PaymentWithName payment, CancellationToken cancellationToken = default )
         {
-            await _paymentRepository.AddPaymentAsync(payment);
-            _paymentStore.AddPayment(payment, cancellationToken);
+            int uniqueId = await _paymentRepository.AddPaymentAsync(payment);
+            PaymentWithName paymentWithCorrectId = _paymentStore.CreatePaymentWithCorrectPaymentId(uniqueId, payment);
+            _paymentStore.AddPayment(paymentWithCorrectId, cancellationToken);
         }
 
         /// <summary>
