@@ -89,6 +89,7 @@ namespace TitheSync.Core.ViewModels.Members
 
                 _memberStore.OnMemberAdded += MemberStoreOnOnMemberAdded;
                 _memberStore.OnMemberDeleted += MemberStoreOnOnMemberDeleted;
+                _memberStore.OnMemberUpdated += MemberStoreOnOnMemberUpdated;
 
 
                 // Initialize commands
@@ -171,9 +172,22 @@ namespace TitheSync.Core.ViewModels.Members
         ///     Adds the new member to the local-members collection.
         /// </summary>
         /// <param name="member" >The member that was added.</param>
-        private void MemberStoreOnOnMemberAdded( Member member )
+        private void MemberStoreOnOnMemberAdded( Member member ) => _members.Add(member);
+
+        /// <summary>
+        ///     Handles the event when a member is updated in the member store.
+        ///     Updates the corresponding member in the local collection if it exists,
+        ///     and raises a property changed notification for the Members property.
+        /// </summary>
+        /// <param name="member" >The updated member object.</param>
+        private void MemberStoreOnOnMemberUpdated( Member member )
         {
-            _members.Add(member);
+            // Update the member in the local collection if it exists
+            // I could use IndexOf
+            int index = _members.ToList().FindIndex(m => m.MemberId == member.MemberId);
+            if (index < 0) return;
+            _members[index] = member;
+            RaisePropertyChanged(() => Members);
         }
 
         /// <summary>
@@ -181,10 +195,7 @@ namespace TitheSync.Core.ViewModels.Members
         ///     Removes the member from the local-members collection.
         /// </summary>
         /// <param name="member" >The member that was removed.</param>
-        private void MemberStoreOnOnMemberDeleted( Member member )
-        {
-            _members.Remove(member);
-        }
+        private void MemberStoreOnOnMemberDeleted( Member member ) => _members.Remove(member);
 
         #endregion
 
