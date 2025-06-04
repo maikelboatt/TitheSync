@@ -8,9 +8,59 @@
                   d:DesignWidth="auto"
                   FontFamily="Raleway"
                   mc:Ignorable="d">
-    <Grid>
-        <TextBlock Padding="0,30"
+    <Grid Margin="20,20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="15" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <TextBlock Grid.Row="0"
                    HorizontalAlignment="Center"
-                   Text="Welcome to the Settings Listing" />
+                   FontFamily="Open Sans"
+                   Foreground="{DynamicResource TertiaryTextColor}"
+                   Text="Appearance" />
+
+        <Border Grid.Row="1"
+                Width="400"
+                Height="45"
+                Margin="20,0"
+                HorizontalAlignment="Center"
+                Background="{DynamicResource TertiaryBackgroundColor}"
+                CornerRadius="18">
+            <StackPanel Orientation="Vertical">
+                <!--  Start Theme Switcher  -->
+                <StackPanel Margin="20,10"
+                            HorizontalAlignment="Right"
+                            Orientation="Horizontal">
+                    <StackPanel HorizontalAlignment="Left" VerticalAlignment="Center">
+                        <TextBlock Margin="5,0,30,0"
+                                   Foreground="{DynamicResource TertiaryTextColor}"
+                                   Text="Switch between Light and Dark mode" />
+                    </StackPanel>
+                    <Path Width="16"
+                          Height="16"
+                          VerticalAlignment="Center"
+                          Data="{DynamicResource Sun}"
+                          Fill="{DynamicResource PrimaryYellowColor}"
+                          Stretch="UniformToFill" />
+                    <ToggleButton x:Name="Themes"
+                                  Margin="10,0,10,0"
+                                  HorizontalAlignment="Right"
+                                  Click="Themes_Click"
+                                  IsChecked="False"
+                                  Style="{DynamicResource ToggleButtonStyle}" />
+                    <Path Width="16"
+                          Height="16"
+                          VerticalAlignment="Center"
+                          Data="{DynamicResource Moon}"
+                          Fill="{DynamicResource PrimaryWhiteColor}"
+                          Stretch="Fill" />
+                </StackPanel>
+
+                <Separator Margin="5,5" Background="{DynamicResource PrimaryBackgroundColor}" />
+
+            </StackPanel>
+        </Border>
+        <!--  End Theme Switcher  -->
     </Grid>
 </views:MvxWpfView>
