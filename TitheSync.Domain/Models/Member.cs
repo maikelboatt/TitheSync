@@ -75,7 +75,31 @@ namespace TitheSync.Domain.Models
         /// </summary>
         public bool IsSelected { get; set; } = false;
 
+        /// <summary>
+        ///     Returns a string that represents the current member.
+        /// </summary>
         public override string ToString() =>
             $"MemberId: {MemberId}, Firstname: {FirstName}, Lastname: {LastName}, Contact: {Contact}, IsLeader: {IsLeader}, Address: {Address}, Organization: {Organization}, BibleClass: {BibleClass}";
+
+        /// <summary>
+        ///     Determines whether the specified object is equal to the current member.
+        /// </summary>
+        /// <param name="obj" >The object to compare with the current member.</param>
+        /// <returns>
+        ///     true if the specified object is a Member and has the same MemberId; otherwise, false.
+        /// </returns>
+        public override bool Equals( object? obj )
+        {
+            if (obj is not Member other)
+                return false;
+
+            return MemberId == other.MemberId;
+        }
+
+        /// <summary>
+        ///     Returns a hash code for the current member.
+        /// </summary>
+        /// <returns>A hash code for the current member.</returns>
+        public override int GetHashCode() => MemberId.GetHashCode();
     }
 }
