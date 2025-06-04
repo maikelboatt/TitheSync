@@ -84,7 +84,11 @@ namespace TitheSync.Core.ViewModels.Payments
                 _payments = new MvxObservableCollection<PaymentWithName>(_paymentStore.PaymentWithNames);
 
                 _payments.CollectionChanged += PaymentsOnCollectionChanged;
+
+                // Subscribe to payment store events
                 _paymentStore.OnPaymentAdded += PaymentStoreOnOnPaymentAdded;
+                _paymentStore.OnPaymentUpdated += PaymentStoreOnOnPaymentUpdatedPaymentStoreOnOnPaymentUpdated;
+                _paymentStore.OnPaymentDeleted += PaymentStoreOnOnPaymentDeleted;
 
                 // Initialize commands
                 OpenAddDialogAsyncCommand = new MvxCommand<int>(ExecuteOpenAddDialog);
@@ -98,6 +102,7 @@ namespace TitheSync.Core.ViewModels.Payments
                 throw;
             }
         }
+
 
         #region LifeCycle
 
@@ -160,6 +165,23 @@ namespace TitheSync.Core.ViewModels.Payments
         /// </summary>
         /// <param name="payment" >The payment that was added.</param>
         private void PaymentStoreOnOnPaymentAdded( PaymentWithName payment ) => _payments.Add(payment);
+
+        private void PaymentStoreOnOnPaymentUpdatedPaymentStoreOnOnPaymentUpdated( PaymentWithName payment )
+        {
+            int index = _payments.IndexOf(payment);
+            if (index >= 0)
+            {
+                _payments[index] = payment;
+                UpdateAggregatedPayments();
+                RaisePropertyChanged(() => Payments);
+            }
+            else
+            {
+                _logger.LogWarning("Payment with ID {PaymentId} not found in the collection.", payment.PaymentId);
+            }
+        }
+
+        private void PaymentStoreOnOnPaymentDeleted( PaymentWithName payment ) => _payments.Remove(payment);
 
         #endregion
 
