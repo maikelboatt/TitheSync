@@ -28,7 +28,31 @@
         /// </summary>
         public string LastName { get; init; } = LastName;
 
+        /// <summary>
+        ///     Returns a string that represents the current <see cref="PaymentWithName" />.
+        /// </summary>
         public override string ToString() =>
             $"{nameof(PaymentId)}: {PaymentId}, {nameof(PaymentMemberId)}: {PaymentMemberId}, {nameof(FirstName)}: {FirstName}, {nameof(LastName)}: {LastName}, {nameof(Amount)}: {Amount}, {nameof(DatePaid)}: {DatePaid}";
+
+        /// <summary>
+        ///     Determines whether the specified object is equal to the current <see cref="Payment" />.
+        /// </summary>
+        /// <param name="obj" >The object to compare with the current <see cref="Payment" />.</param>
+        /// <returns><c>true</c> if the specified object is equal to the current <see cref="Payment" />; otherwise, <c>false</c>.</returns>
+        public override bool Equals( object? obj )
+        {
+            if (obj is not Payment other)
+            {
+                return false;
+            }
+
+            return PaymentId == other.PaymentId;
+        }
+
+        /// <summary>
+        ///     Returns a hash code for the current <see cref="Payment" />.
+        /// </summary>
+        /// <returns>A hash code for the current <see cref="Payment" />.</returns>
+        public override int GetHashCode() => PaymentId.GetHashCode();
     }
 }
