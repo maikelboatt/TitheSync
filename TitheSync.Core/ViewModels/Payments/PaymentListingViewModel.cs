@@ -326,7 +326,8 @@ namespace TitheSync.Core.ViewModels.Payments
                                                       .Select(g => new AggregatedPayment
                                                       {
                                                           MemberId = g.Key,
-                                                          MemberName = $"{g.First().FirstName} {g.First().LastName}",
+                                                          FirstName = g.First().FirstName,
+                                                          LastName = g.First().LastName,
                                                           TotalAmount = g.Sum(p => p.Amount),
                                                           CurrentMonth = GetMonthName(currentMonth)
                                                       })
