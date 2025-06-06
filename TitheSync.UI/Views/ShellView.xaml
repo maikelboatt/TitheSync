@@ -175,7 +175,7 @@
                                     <customs:NavigationItem VerticalAlignment="Center"
                                                             CommandName="{Binding NavigateToDashboardCommand}"
                                                             GroupName="MenuItem"
-                                                            Icon="{DynamicResource Dashboard}"
+                                                            Icon="{DynamicResource Chart}"
                                                             IconWidth="16"
                                                             IndicatorBrush="{DynamicResource PrimaryBlueColor}"
                                                             IsSelected="True"
@@ -218,7 +218,7 @@
                                     <customs:NavigationItem VerticalAlignment="Center"
                                                             CommandName="{Binding NavigateToNotificationCommand}"
                                                             GroupName="MenuItem"
-                                                            Icon="{DynamicResource Notification}"
+                                                            Icon="{DynamicResource NotificationBell}"
                                                             IconWidth="16"
                                                             IndicatorBrush="{DynamicResource PrimaryBlueColor}"
                                                             Text="Notifications" />
