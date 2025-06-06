@@ -181,7 +181,13 @@ namespace TitheSync.Core.ViewModels.Payments
             _datePaid = _dateConverterService.ConvertToDateTime(payment.DatePaid);
         }
 
-        private PaymentWithName GetPaymentFromFields() => new(_paymentId, _memberId, Amount, _dateConverterService.ConvertToDateOnly(DatePaid), string.Empty, string.Empty);
+        private PaymentWithName GetPaymentFromFields()
+        {
+            PaymentWithName? result = _paymentService.GetPaymentByIdAsync(_paymentId);
+            return result is not null
+                ? new PaymentWithName(_paymentId, _memberId, Amount, _dateConverterService.ConvertToDateOnly(DatePaid), result.FirstName, result.LastName)
+                : new PaymentWithName(_paymentId, _memberId, Amount, _dateConverterService.ConvertToDateOnly(DatePaid), string.Empty, string.Empty);
+        }
 
         #endregion
 
