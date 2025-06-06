@@ -183,11 +183,16 @@ namespace TitheSync.Core.ViewModels.Members
         private void MemberStoreOnOnMemberUpdated( Member member )
         {
             // Update the member in the local collection if it exists
-            // I could use IndexOf
-            int index = _members.ToList().FindIndex(m => m.MemberId == member.MemberId);
-            if (index < 0) return;
-            _members[index] = member;
-            RaisePropertyChanged(() => Members);
+            int index = _members.IndexOf(member);
+            if (index >= 0)
+            {
+                _members.RemoveAt(index);
+                _members.Insert(index, member);
+            }
+            else
+            {
+                _logger.LogWarning("Member with ID {MemberId} not found in local collection for update.", member.MemberId);
+            }
         }
 
         /// <summary>
