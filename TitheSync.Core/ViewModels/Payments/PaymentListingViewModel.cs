@@ -164,7 +164,17 @@ namespace TitheSync.Core.ViewModels.Payments
         ///     Adds the new payment to the local-payments collection.
         /// </summary>
         /// <param name="payment" >The payment that was added.</param>
-        private void PaymentStoreOnOnPaymentAdded( PaymentWithName payment ) => _payments.Add(payment);
+        private void PaymentStoreOnOnPaymentAdded( PaymentWithName payment )
+        {
+
+            // Remove any existing payment for the same PaymentId (or use a composite key if needed)
+            PaymentWithName? existing = _payments.FirstOrDefault(p => p.PaymentId == payment.PaymentId);
+            if (existing != null)
+                _payments.Remove(existing);
+
+            _payments.Add(payment);
+            UpdateAggregatedPayments();
+        }
 
         private void PaymentStoreOnOnPaymentUpdatedPaymentStoreOnOnPaymentUpdated( PaymentWithName payment )
         {
@@ -181,7 +191,11 @@ namespace TitheSync.Core.ViewModels.Payments
             }
         }
 
-        private void PaymentStoreOnOnPaymentDeleted( PaymentWithName payment ) => _payments.Remove(payment);
+        private void PaymentStoreOnOnPaymentDeleted( PaymentWithName payment )
+        {
+            _payments.Remove(payment);
+            UpdateAggregatedPayments();
+        }
 
         #endregion
 
@@ -222,26 +236,6 @@ namespace TitheSync.Core.ViewModels.Payments
                 _aggregatedPayments = value;
                 RaisePropertyChanged(() => AggregatedPayments);
             }
-        }
-
-        private string GetMonthName( int month )
-        {
-            return month switch
-            {
-                1  => "January",
-                2  => "February",
-                3  => "March",
-                4  => "April",
-                5  => "May",
-                6  => "June",
-                7  => "July",
-                8  => "August",
-                9  => "September",
-                10 => "October",
-                11 => "November",
-                12 => "December",
-                _  => "Invalid Month"
-            };
         }
 
         #endregion
@@ -319,21 +313,28 @@ namespace TitheSync.Core.ViewModels.Payments
         {
             int currentMonth = DateTime.Now.Month;
             int currentYear = DateTime.Now.Year;
+            string monthName = _paymentService.GetMonthName(currentMonth);
 
             List<AggregatedPayment> groupedPayments = _payments
-                                                      .Where(p => p.DatePaid.Month == currentMonth && p.DatePaid.Year == currentYear) // Filter by current month and year
-                                                      .GroupBy(p => p.PaymentMemberId)
+                                                      .Where(p => p.DatePaid.Month == currentMonth && p.DatePaid.Year == currentYear)
+                                                      .GroupBy(p => new
+                                                      {
+                                                          p.PaymentMemberId,
+                                                          p.DatePaid.Month,
+                                                          p.DatePaid.Year
+                                                      })
                                                       .Select(g => new AggregatedPayment
                                                       {
-                                                          MemberId = g.Key,
+                                                          MemberId = g.Key.PaymentMemberId,
                                                           FirstName = g.First().FirstName,
                                                           LastName = g.First().LastName,
                                                           TotalAmount = g.Sum(p => p.Amount),
-                                                          CurrentMonth = GetMonthName(currentMonth)
+                                                          CurrentMonth = _paymentService.GetMonthName(g.Key.Month)
                                                       })
                                                       .ToList();
 
             AggregatedPayments = new MvxObservableCollection<AggregatedPayment>(groupedPayments);
+            RaisePropertyChanged(() => AggregatedPayments);
         }
 
         #endregion
