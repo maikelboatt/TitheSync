@@ -1,5 +1,4 @@
-﻿using TitheSync.ApplicationState.Stores.Members;
-using TitheSync.ApplicationState.Stores.Payments;
+﻿using TitheSync.ApplicationState.Stores.Payments;
 using TitheSync.DataAccess.Repositories;
 using TitheSync.Domain.Models;
 
@@ -11,16 +10,6 @@ namespace TitheSync.Business.Services.Payments
     /// </summary>
     public class PaymentService:IPaymentService
     {
-        /// <summary>
-        ///     Repository for accessing member data.
-        /// </summary>
-        private readonly IMemberRepository _memberRepository;
-
-        /// <summary>
-        ///     Store for managing member state in the application.
-        /// </summary>
-        private readonly IMemberStore _memberStore;
-
         /// <summary>
         ///     Repository for accessing payment data.
         /// </summary>
@@ -36,18 +25,12 @@ namespace TitheSync.Business.Services.Payments
         /// </summary>
         /// <param name="paymentRepository" >The payment repository for data access.</param>
         /// <param name="paymentStore" >The payment store for application state management.</param>
-        /// <param name="memberStore" >The member store for application state management.</param>
-        /// <param name="memberRepository" >The member repository for data access.</param>
         public PaymentService(
             IPaymentRepository paymentRepository,
-            IPaymentStore paymentStore,
-            IMemberStore memberStore,
-            IMemberRepository memberRepository )
+            IPaymentStore paymentStore )
         {
             _paymentRepository = paymentRepository;
             _paymentStore = paymentStore;
-            _memberStore = memberStore;
-            _memberRepository = memberRepository;
         }
 
         /// <summary>
@@ -60,8 +43,6 @@ namespace TitheSync.Business.Services.Payments
         {
             IEnumerable<PaymentWithName> payments = await _paymentRepository.GetPaymentsWithNamesAsync();
             _paymentStore.GetPaymentsWithNames(payments, cancellationToken);
-            IEnumerable<Member> members = await _memberRepository.GetMembersAsync();
-            _memberStore.GetMembers(members, cancellationToken);
         }
 
         /// <summary>
@@ -70,6 +51,31 @@ namespace TitheSync.Business.Services.Payments
         /// <param name="paymentId" >The ID of the payment to retrieve.</param>
         /// <returns>The payment with the specified ID, or null if not found.</returns>
         public PaymentWithName? GetPaymentByIdAsync( int paymentId ) => _paymentStore.GetPaymentById(paymentId);
+
+        /// <summary>
+        ///     Returns the name of the month corresponding to the given month number.
+        /// </summary>
+        /// <param name="monthNumber" >The number of the month (1 for January, 12 for December).</param>
+        /// <returns>The name of the month, or an empty string if the number is invalid.</returns>
+        public string GetMonthName( int monthNumber )
+        {
+            return monthNumber switch
+            {
+                1  => "January",
+                2  => "February",
+                3  => "March",
+                4  => "April",
+                5  => "May",
+                6  => "June",
+                7  => "July",
+                8  => "August",
+                9  => "September",
+                10 => "October",
+                11 => "November",
+                12 => "December",
+                _  => "Invalid Month"
+            };
+        }
 
         /// <summary>
         ///     Retrieves all payments for a specific member from the payment store.
