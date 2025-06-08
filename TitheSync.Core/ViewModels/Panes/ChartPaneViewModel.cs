@@ -1,216 +1,142 @@
-﻿using LiveCharts;
-using LiveCharts.Defaults;
+﻿using LiveChartsCore;
+using LiveChartsCore.SkiaSharpView;
 using MvvmCross.ViewModels;
 using TitheSync.ApplicationState.Stores.Members;
+using TitheSync.ApplicationState.Stores.Payments;
 using TitheSync.Business.Services.Members;
+using TitheSync.Business.Services.Payments;
+using TitheSync.Domain.Enums;
+using TitheSync.Domain.Models;
 
 namespace TitheSync.Core.ViewModels.Panes
 {
+    /// <summary>
+    ///     ViewModel for displaying a chart pane with tithe payment summaries by Bible class.
+    /// </summary>
     public class ChartPaneViewModel:MvxViewModel
     {
-        private readonly double _abrahamDadzie = 14d;
-        private readonly double _atoPrempeh = 15d;
-        private readonly double _auntyAggie = 12d;
-        private readonly double _emeliaAkrofi = 20d;
-        private readonly double _jacobBiney = 10d;
         private readonly IMemberService _memberService;
         private readonly IMemberStore _memberStore;
-        private readonly double _michaelKumi = 18d;
-        private readonly double _mrLartey = 22d;
-        private readonly double _profDanso = 25d;
-
-        private IChartValues _abrahamDadzieValues;
-        private IChartValues _atoPrempehValues;
-        private IChartValues _auntyAggieValues;
-        private IChartValues _emeliaAkrofiValues;
-
+        private readonly IPaymentService _paymentService;
+        private readonly IPaymentStore _paymentStore;
         private bool _isLoading;
+        private IEnumerable<string> _messages;
 
-        private IChartValues _jacobBineyValues;
-        private IChartValues _michaelKumiValues;
-        private IChartValues _mrLarteyValues;
-        private IChartValues _profDansoValues;
+        private ISeries[] _series;
 
-        public ChartPaneViewModel( IMemberService memberService, IMemberStore memberStore )
+        /// <summary>
+        ///     Initializes a new instance of the <see cref="ChartPaneViewModel" /> class.
+        /// </summary>
+        /// <param name="memberService" >Service for member operations.</param>
+        /// <param name="paymentService" >Service for payment operations.</param>
+        /// <param name="memberStore" >Store for member data.</param>
+        /// <param name="paymentStore" >Store for payment data.</param>
+        public ChartPaneViewModel(
+            IMemberService memberService,
+            IPaymentService paymentService,
+            IMemberStore memberStore,
+            IPaymentStore paymentStore )
         {
             _memberService = memberService;
+            _paymentService = paymentService;
             _memberStore = memberStore;
-            _abrahamDadzieValues = new ChartValues<ObservableValue> { new(_abrahamDadzie) };
-            _atoPrempehValues = new ChartValues<ObservableValue> { new(_atoPrempeh) };
-            _auntyAggieValues = new ChartValues<ObservableValue> { new(_auntyAggie) };
-            _emeliaAkrofiValues = new ChartValues<ObservableValue> { new(_emeliaAkrofi) };
-            _jacobBineyValues = new ChartValues<ObservableValue> { new(_jacobBiney) };
-            _michaelKumiValues = new ChartValues<ObservableValue> { new(_michaelKumi) };
-            _mrLarteyValues = new ChartValues<ObservableValue> { new(_mrLartey) };
-            _profDansoValues = new ChartValues<ObservableValue> { new(_profDanso) };
+            _paymentStore = paymentStore;
         }
 
-        public Func<ChartPoint, string> PointLabel { get; set; }
+        /// <summary>
+        ///     Gets the summary messages for the chart.
+        /// </summary>
+        public IEnumerable<string> Messages
+        {
+            get => _messages;
+            private set => SetProperty(ref _messages, value);
+        }
+
+        /// <summary>
+        ///     Gets or sets the chart series data.
+        /// </summary>
+        public ISeries[] Series
+        {
+            get => _series;
+            set => SetProperty(ref _series, value);
+        }
+
+        /// <summary>
+        ///     Gets or sets a value indicating whether data is loading.
+        /// </summary>
         public bool IsLoading
         {
             get => _isLoading;
             set => SetProperty(ref _isLoading, value);
         }
 
-
-        public override void Prepare()
-        {
-            SetupPieChart();
-            base.Prepare();
-        }
-
+        /// <summary>
+        ///     Initializes the ViewModel by loading members and payments, updating the chart, and setting summary messages.
+        /// </summary>
         public override async Task Initialize()
         {
-            IsLoading = true;
-            try
-            {
-                await Task.Delay(3000);
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e);
-                throw;
-            }
-            IsLoading = false;
-
+            // Load members and payments from the database
+            await _memberService.GetMembersAsync();
+            await _paymentService.GetPaymentsWithNamesAsync();
+            IEnumerable<(BibleClassEnum BibleClass, decimal TotalAmount)> totals = GetTotalPaymentsByBibleClass();
+            IEnumerable<(BibleClassEnum BibleClass, decimal TotalAmount)> totalsByClass = totals.ToList();
+            UpdateSeries(totalsByClass);
+            Messages = GetTotalsSummaryLines(totalsByClass);
             await base.Initialize();
         }
 
-        private void SetupPieChart()
+        /// <summary>
+        ///     Updates the chart series based on the totals by Bible class.
+        /// </summary>
+        /// <param name="totalsByClass" >The totals by Bible class.</param>
+        private void UpdateSeries( IEnumerable<(BibleClassEnum BibleClass, decimal TotalAmount)> totalsByClass )
         {
-
-            PointLabel = point => $"{point.Y} ({point.Participation:P})";
+            Series = totalsByClass
+                     .Select(x => new PieSeries<decimal>
+                     {
+                         Values = [x.TotalAmount],
+                         Name = x.BibleClass.ToString()
+                     })
+                     .Cast<ISeries>()
+                     .ToArray();
         }
 
-        #region Chart Values
-
-        // public IChartValues ProfDansoValues
-        // {
-        //     get
-        //     {
-        //         ObservableValue count = new(_profDanso);
-        //         return new ChartValues<ObservableValue>([count]);
-        //     }
-        //     set => SetProperty(ref _profDansoValues, value);
-        // }
-        //
-        // public IChartValues MrLarteyValues
-        // {
-        //     get
-        //     {
-        //         ObservableValue count = new(_mrLartey);
-        //         return new ChartValues<ObservableValue>([count]);
-        //     }
-        //     set => SetProperty(ref _mrLarteyValues, value);
-        // }
-        //
-        // public IChartValues MichaelKumiValues
-        // {
-        //     get
-        //     {
-        //         ObservableValue count = new(_michaelKumi);
-        //         return new ChartValues<ObservableValue>([count]);
-        //     }
-        //     set => SetProperty(ref _michaelKumiValues, value);
-        // }
-        //
-        // public IChartValues JacobBineyValues
-        // {
-        //     get
-        //     {
-        //         ObservableValue count = new(_jacobBiney);
-        //         return new ChartValues<ObservableValue>([count]);
-        //     }
-        //     set => SetProperty(ref _jacobBineyValues, value);
-        // }
-        //
-        // public IChartValues EmeliaAkrofiValues
-        // {
-        //     get
-        //     {
-        //         ObservableValue count = new(_emeliaAkrofi);
-        //         return new ChartValues<ObservableValue>([count]);
-        //     }
-        //     set => SetProperty(ref _emeliaAkrofiValues, value);
-        // }
-        //
-        // public IChartValues AuntyAggieValues
-        // {
-        //     get
-        //     {
-        //         ObservableValue count = new(_auntyAggie);
-        //         return new ChartValues<ObservableValue>([count]);
-        //     }
-        //     set => SetProperty(ref _auntyAggieValues, value);
-        // }
-        //
-        // public IChartValues AtoPrempehValues
-        // {
-        //     get
-        //     {
-        //         ObservableValue count = new(_atoPrempeh);
-        //         return new ChartValues<ObservableValue>([count]);
-        //     }
-        //     set => SetProperty(ref _atoPrempehValues, value);
-        // }
-        //
-        // public IChartValues AbrahamDadzieValues
-        // {
-        //     get
-        //     {
-        //         ObservableValue count = new(_abrahamDadzie);
-        //         return new ChartValues<ObservableValue>([count]);
-        //     }
-        //     set => SetProperty(ref _abrahamDadzieValues, value);
-        // }
-        public IChartValues ProfDansoValues
+        /// <summary>
+        ///     Generates summary lines for each Bible class and its total amount.
+        /// </summary>
+        /// <param name="totals" >The totals by Bible class.</param>
+        /// <returns>Enumerable of summary strings.</returns>
+        private IEnumerable<string> GetTotalsSummaryLines( IEnumerable<(BibleClassEnum BibleClass, decimal TotalAmount)> totals )
         {
-            get => _profDansoValues;
-            set => SetProperty(ref _profDansoValues, value);
+            return totals.Select(x => $"{x.BibleClass}: ₵{x.TotalAmount:N2}");
         }
 
-        public IChartValues MrLarteyValues
+        /// <summary>
+        ///     Calculates the total payments grouped by Bible class.
+        /// </summary>
+        /// <returns>Enumerable of tuples containing Bible class and total amount.</returns>
+        private IEnumerable<(BibleClassEnum BibleClass, decimal TotalAmount)> GetTotalPaymentsByBibleClass()
         {
-            get => _mrLarteyValues;
-            set => SetProperty(ref _mrLarteyValues, value);
-        }
+            IsLoading = true;
+            IEnumerable<Member> members = _memberStore.Members;
+            IReadOnlyList<PaymentWithName> payments = _paymentStore.PaymentWithNames;
 
-        public IChartValues MichaelKumiValues
-        {
-            get => _michaelKumiValues;
-            set => SetProperty(ref _michaelKumiValues, value);
-        }
+            IEnumerable<(BibleClassEnum BibleClass, decimal TotalAmount)> totalsByClass = members
+                                                                                          .GroupJoin(
+                                                                                              payments,
+                                                                                              member => member.MemberId,
+                                                                                              payment => payment.PaymentMemberId,
+                                                                                              ( member, memberPayments ) => new
+                                                                                              {
+                                                                                                  member.BibleClass,
+                                                                                                  TotalAmount = memberPayments.Sum(p => p.Amount)
+                                                                                              }
+                                                                                          )
+                                                                                          .GroupBy(x => x.BibleClass)
+                                                                                          .Select(g => (BibleClass: g.Key, TotalAmount: g.Sum(x => x.TotalAmount)));
 
-        public IChartValues JacobBineyValues
-        {
-            get => _jacobBineyValues;
-            set => SetProperty(ref _jacobBineyValues, value);
+            IsLoading = false;
+            return totalsByClass;
         }
-
-        public IChartValues EmeliaAkrofiValues
-        {
-            get => _emeliaAkrofiValues;
-            set => SetProperty(ref _emeliaAkrofiValues, value);
-        }
-
-        public IChartValues AuntyAggieValues
-        {
-            get => _auntyAggieValues;
-            set => SetProperty(ref _auntyAggieValues, value);
-        }
-
-        public IChartValues AtoPrempehValues
-        {
-            get => _atoPrempehValues;
-            set => SetProperty(ref _atoPrempehValues, value);
-        }
-
-        public IChartValues AbrahamDadzieValues
-        {
-            get => _abrahamDadzieValues;
-            set => SetProperty(ref _abrahamDadzieValues, value);
-        }
-
-        #endregion
     }
 }
