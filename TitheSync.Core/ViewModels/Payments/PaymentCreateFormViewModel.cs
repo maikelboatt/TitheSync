@@ -5,6 +5,7 @@ using System.Collections;
 using System.ComponentModel;
 using TitheSync.ApplicationState.Stores;
 using TitheSync.ApplicationState.Stores.Members;
+using TitheSync.Business.Services.Members;
 using TitheSync.Business.Services.Payments;
 using TitheSync.Core.Parameters;
 using TitheSync.Core.Validation;
@@ -18,6 +19,7 @@ namespace TitheSync.Core.ViewModels.Payments
     {
         private readonly IDateConverterService _dateConverterService;
         private readonly ILogger<PaymentCreateFormViewModel> _logger;
+        private readonly IMemberService _memberService;
         private readonly IMemberStore _memberStore;
         private readonly IModalNavigationStore _modalNavigationStore;
         private readonly INotificationStore _notificationStore;
@@ -34,16 +36,18 @@ namespace TitheSync.Core.ViewModels.Payments
         /// <param name="modalNavigationStore" >The modal navigation store for managing navigation.</param>
         /// <param name="paymentService" >The payment service for handling the creation of payments.</param>
         /// <param name="memberStore" >The member store for managing member data.</param>
+        /// <param name="memberService" >The member service for handling the creation of members</param>
         /// <param name="logger" >The logger for logging information.</param>
         /// <param name="dateConverterService" >The service for converting date objects.</param>
         /// <param name="notificationStore" >The notification store to manage notifications.</param>
-        public PaymentCreateFormViewModel( IModalNavigationStore modalNavigationStore, IPaymentService paymentService, IMemberStore memberStore,
+        public PaymentCreateFormViewModel( IModalNavigationStore modalNavigationStore, IPaymentService paymentService, IMemberStore memberStore, IMemberService memberService,
             ILogger<PaymentCreateFormViewModel> logger,
             IDateConverterService dateConverterService, INotificationStore notificationStore )
         {
             _modalNavigationStore = modalNavigationStore;
             _paymentService = paymentService;
             _memberStore = memberStore;
+            _memberService = memberService;
             _logger = logger;
             _dateConverterService = dateConverterService;
             _notificationStore = notificationStore;
@@ -204,7 +208,13 @@ namespace TitheSync.Core.ViewModels.Payments
             _modalNavigationStore.Close();
         }
 
-        private PaymentWithName GetPaymentFromFields() => new(1, _memberId, Amount, _dateConverterService.ConvertToDateOnly(DatePaid), string.Empty, string.Empty);
+        private PaymentWithName GetPaymentFromFields()
+        {
+            Member? result = _memberService.GetMemberById(_memberId);
+            return result is not null
+                ? new PaymentWithName(1, _memberId, Amount, _dateConverterService.ConvertToDateOnly(DatePaid), result.FirstName, result.LastName)
+                : new PaymentWithName(1, _memberId, Amount, _dateConverterService.ConvertToDateOnly(DatePaid), string.Empty, string.Empty);
+        }
 
         #endregion
 
