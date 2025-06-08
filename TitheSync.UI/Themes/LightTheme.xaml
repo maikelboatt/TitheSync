@@ -1,8 +1,12 @@
-﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:painting="clr-namespace:LiveChartsCore.SkiaSharpView.Painting;assembly=LiveChartsCore.SkiaSharpView">
     <!--  Background Colors  -->
     <SolidColorBrush x:Key="PrimaryBackgroundColor" Color="#C0C9EA" />
     <SolidColorBrush x:Key="SecondaryBackgroundColor" Color="#EDF4FF" />
     <SolidColorBrush x:Key="TertiaryBackgroundColor" Color="#FFFFFF" />
+
+    <painting:SolidColorPaint x:Key="LegendTextPaint" Color="#FF5C5C" />
 
     <!--  System Colors  -->
     <!--  Typography Colors  -->
