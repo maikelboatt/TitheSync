@@ -23,6 +23,13 @@ namespace TitheSync.Business.Services.Payments
         PaymentWithName? GetPaymentByIdAsync( int paymentId );
 
         /// <summary>
+        ///     Returns the name of the month corresponding to the given month number.
+        /// </summary>
+        /// <param name="monthNumber" >The number of the month (1 for January, 12 for December).</param>
+        /// <returns>The name of the month, or an empty string if the number is invalid.</returns>
+        string GetMonthName( int monthNumber );
+
+        /// <summary>
         ///     Retrieves all payments associated with a specific member.
         /// </summary>
         /// <param name="memberId" >The ID of the member whose payments to retrieve.</param>
