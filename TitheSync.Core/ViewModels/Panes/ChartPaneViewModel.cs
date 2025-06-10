@@ -1,12 +1,8 @@
 ﻿using LiveChartsCore;
 using LiveChartsCore.SkiaSharpView;
 using MvvmCross.ViewModels;
-using TitheSync.ApplicationState.Stores.Members;
-using TitheSync.ApplicationState.Stores.Payments;
-using TitheSync.Business.Services.Members;
-using TitheSync.Business.Services.Payments;
+using TitheSync.Business.Services.Reports;
 using TitheSync.Domain.Enums;
-using TitheSync.Domain.Models;
 
 namespace TitheSync.Core.ViewModels.Panes
 {
@@ -15,32 +11,60 @@ namespace TitheSync.Core.ViewModels.Panes
     /// </summary>
     public class ChartPaneViewModel:MvxViewModel
     {
-        private readonly IMemberService _memberService;
-        private readonly IMemberStore _memberStore;
-        private readonly IPaymentService _paymentService;
-        private readonly IPaymentStore _paymentStore;
+        /// <summary>
+        ///     Service for generating reports.
+        /// </summary>
+        private readonly IReportingService _reportingService;
+
+        /// <summary>
+        ///     Stores totals for Bible classes over different periods (Quarterly, SemiAnnual, Yearly).
+        /// </summary>
+        private (IEnumerable<(BibleClassEnum BibleClass, string Period, decimal TotalAmount)> Quarterly,
+            IEnumerable<(BibleClassEnum BibleClass, string Period, decimal TotalAmount)> SemiAnnual,
+            IEnumerable<(BibleClassEnum BibleClass, string Period, decimal TotalAmount)> Yearly) _classOverPeriodTotals;
+
+        /// <summary>
+        ///     Indicates whether data is currently loading.
+        /// </summary>
         private bool _isLoading;
+
+        /// <summary>
+        ///     Stores summary messages for the chart.
+        /// </summary>
         private IEnumerable<string> _messages;
 
+        /// <summary>
+        ///     Stores quarterly totals by Bible class.
+        /// </summary>
+        private IEnumerable<(BibleClassEnum BibleClass, string Period, decimal TotalAmount)> _quarterlyTotals;
+
+        /// <summary>
+        ///     Stores semi-annual totals by Bible class.
+        /// </summary>
+        private IEnumerable<(BibleClassEnum BibleClass, string Period, decimal TotalAmount)> _semiAnnualTotals;
+
+        /// <summary>
+        ///     Stores the chart series data.
+        /// </summary>
         private ISeries[] _series;
+
+        /// <summary>
+        ///     Stores the top ten payers in the current quarter.
+        /// </summary>
+        private IEnumerable<(string Fullname, decimal TotalAmount)> _topTenPayersInCurrentQuarter;
+
+        /// <summary>
+        ///     Stores yearly totals by Bible class.
+        /// </summary>
+        private IEnumerable<(BibleClassEnum BibleClass, string Period, decimal TotalAmount)> _yearlyTotals;
 
         /// <summary>
         ///     Initializes a new instance of the <see cref="ChartPaneViewModel" /> class.
         /// </summary>
-        /// <param name="memberService" >Service for member operations.</param>
-        /// <param name="paymentService" >Service for payment operations.</param>
-        /// <param name="memberStore" >Store for member data.</param>
-        /// <param name="paymentStore" >Store for payment data.</param>
-        public ChartPaneViewModel(
-            IMemberService memberService,
-            IPaymentService paymentService,
-            IMemberStore memberStore,
-            IPaymentStore paymentStore )
+        /// <param name="reportingService" >Service for generating reports</param>
+        public ChartPaneViewModel( IReportingService reportingService )
         {
-            _memberService = memberService;
-            _paymentService = paymentService;
-            _memberStore = memberStore;
-            _paymentStore = paymentStore;
+            _reportingService = reportingService;
         }
 
         /// <summary>
@@ -50,6 +74,15 @@ namespace TitheSync.Core.ViewModels.Panes
         {
             get => _messages;
             private set => SetProperty(ref _messages, value);
+        }
+
+        /// <summary>
+        ///     Gets or sets the top ten payers in the current quarter.
+        /// </summary>
+        public IEnumerable<(string Fullname, decimal TotalAmount)> TopTenPayersInCurrentQuarter
+        {
+            get => _topTenPayersInCurrentQuarter;
+            private set => SetProperty(ref _topTenPayersInCurrentQuarter, value);
         }
 
         /// <summary>
@@ -76,20 +109,51 @@ namespace TitheSync.Core.ViewModels.Panes
         public override async Task Initialize()
         {
             // Load members and payments from the database
-            await _memberService.GetMembersAsync();
-            await _paymentService.GetPaymentsWithNamesAsync();
-            IEnumerable<(BibleClassEnum BibleClass, decimal TotalAmount)> totals = GetTotalPaymentsByBibleClass();
-            IEnumerable<(BibleClassEnum BibleClass, decimal TotalAmount)> totalsByClass = totals.ToList();
-            UpdateSeries(totalsByClass);
-            Messages = GetTotalsSummaryLines(totalsByClass);
+            await _reportingService.GetDataFromDb();
+            PopulateCharts();
+            UpdateSeries(_quarterlyTotals);
             await base.Initialize();
+        }
+
+        /// <summary>
+        ///     Populates the chart data and top ten payers from the reporting service.
+        /// </summary>
+        private void PopulateCharts()
+        {
+            IsLoading = true;
+            // Load totals by Bible class for different periods
+            (IEnumerable<(BibleClassEnum BibleClass, string Period, decimal TotalAmount)> Quarterly,
+                IEnumerable<(BibleClassEnum BibleClass, string Period, decimal TotalAmount)> SemiAnnual,
+                IEnumerable<(BibleClassEnum BibleClass, string Period, decimal TotalAmount)> Yearly) totals = _reportingService.GetTotalPaymentsByBibleClassPeriods();
+
+            _classOverPeriodTotals = totals;
+            AssignPeriodTotals();
+
+            // Assign the totals to the respective fields
+            Messages = _reportingService.GetTotalsSummaryLines(_quarterlyTotals);
+
+            // Load the top ten payers in the current quarter
+            List<(string FullName, decimal TotalAmount)> topTenPayers = _reportingService.GetTopTenPayersInCurrentQuarter();
+            TopTenPayersInCurrentQuarter = topTenPayers;
+
+            IsLoading = false;
+        }
+
+        /// <summary>
+        ///     Assigns the period totals from the class over period totals.
+        /// </summary>
+        private void AssignPeriodTotals()
+        {
+            _quarterlyTotals = _classOverPeriodTotals.Quarterly;
+            _semiAnnualTotals = _classOverPeriodTotals.SemiAnnual;
+            _yearlyTotals = _classOverPeriodTotals.Yearly;
         }
 
         /// <summary>
         ///     Updates the chart series based on the totals by Bible class.
         /// </summary>
         /// <param name="totalsByClass" >The totals by Bible class.</param>
-        private void UpdateSeries( IEnumerable<(BibleClassEnum BibleClass, decimal TotalAmount)> totalsByClass )
+        private void UpdateSeries( IEnumerable<(BibleClassEnum BibleClass, string period, decimal TotalAmount)> totalsByClass )
         {
             Series = totalsByClass
                      .Select(x => new PieSeries<decimal>
@@ -99,44 +163,6 @@ namespace TitheSync.Core.ViewModels.Panes
                      })
                      .Cast<ISeries>()
                      .ToArray();
-        }
-
-        /// <summary>
-        ///     Generates summary lines for each Bible class and its total amount.
-        /// </summary>
-        /// <param name="totals" >The totals by Bible class.</param>
-        /// <returns>Enumerable of summary strings.</returns>
-        private IEnumerable<string> GetTotalsSummaryLines( IEnumerable<(BibleClassEnum BibleClass, decimal TotalAmount)> totals )
-        {
-            return totals.Select(x => $"{x.BibleClass}: ₵{x.TotalAmount:N2}");
-        }
-
-        /// <summary>
-        ///     Calculates the total payments grouped by Bible class.
-        /// </summary>
-        /// <returns>Enumerable of tuples containing Bible class and total amount.</returns>
-        private IEnumerable<(BibleClassEnum BibleClass, decimal TotalAmount)> GetTotalPaymentsByBibleClass()
-        {
-            IsLoading = true;
-            IEnumerable<Member> members = _memberStore.Members;
-            IReadOnlyList<PaymentWithName> payments = _paymentStore.PaymentWithNames;
-
-            IEnumerable<(BibleClassEnum BibleClass, decimal TotalAmount)> totalsByClass = members
-                                                                                          .GroupJoin(
-                                                                                              payments,
-                                                                                              member => member.MemberId,
-                                                                                              payment => payment.PaymentMemberId,
-                                                                                              ( member, memberPayments ) => new
-                                                                                              {
-                                                                                                  member.BibleClass,
-                                                                                                  TotalAmount = memberPayments.Sum(p => p.Amount)
-                                                                                              }
-                                                                                          )
-                                                                                          .GroupBy(x => x.BibleClass)
-                                                                                          .Select(g => (BibleClass: g.Key, TotalAmount: g.Sum(x => x.TotalAmount)));
-
-            IsLoading = false;
-            return totalsByClass;
         }
     }
 }
