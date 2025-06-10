@@ -65,7 +65,7 @@
             </Border>
             <!--  End Pie-Chart  -->
 
-            <!--  Bible Class Amount  -->
+            <!--  Bible Class Amount Summary  -->
             <Border Grid.Row="0"
                     Grid.Column="1"
                     Margin="20"
@@ -74,6 +74,43 @@
                 <Border Background="{DynamicResource PrimaryBackgroundColor}" CornerRadius="7.5">
                     <Grid>
                         <ListBox Background="Transparent" ItemsSource="{Binding Messages}">
+                            <ListBox.ItemTemplate>
+                                <DataTemplate>
+                                    <Border Padding="5"
+                                            Background="{DynamicResource TertiaryBackgroundColor}"
+                                            CornerRadius="5">
+                                        <Grid>
+                                            <TextBlock Height="20"
+                                                       Padding="3,2"
+                                                       VerticalAlignment="Center"
+                                                       FontFamily="Abyssinica SIL"
+                                                       FontSize="13"
+                                                       FontWeight="Medium"
+                                                       Foreground="{DynamicResource TertiaryTextColor}"
+                                                       Text="{Binding}" />
+                                        </Grid>
+                                    </Border>
+                                </DataTemplate>
+                            </ListBox.ItemTemplate>
+                        </ListBox>
+                    </Grid>
+                </Border>
+                <Border.Effect>
+                    <DropShadowEffect BlurRadius="3"
+                                      ShadowDepth="3"
+                                      Color="Gray" />
+                </Border.Effect>
+            </Border>
+
+            <!--  Top ten payers in current-quarter  -->
+            <Border Grid.Row="1"
+                    Grid.Column="0"
+                    Margin="20"
+                    BorderBrush="{StaticResource TertiaryBackgroundColor}"
+                    CornerRadius="7.5">
+                <Border Background="{DynamicResource PrimaryBackgroundColor}" CornerRadius="7.5">
+                    <Grid>
+                        <ListBox Background="Transparent" ItemsSource="{Binding TopTenPayersInCurrentQuarter}">
                             <ListBox.ItemTemplate>
                                 <DataTemplate>
                                     <Border Padding="5"
