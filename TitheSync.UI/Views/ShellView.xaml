@@ -151,7 +151,7 @@
                                         Margin="14,0,0,0"
                                         HorizontalAlignment="Left">
                                     <Border.Background>
-                                        <ImageBrush ImageSource="../Assets/Icons/logo.png" Stretch="Uniform" />
+                                        <ImageBrush ImageSource="../Assets/Icons/TitheSync-logo.png" Stretch="Uniform" />
                                     </Border.Background>
                                 </Border>
 
