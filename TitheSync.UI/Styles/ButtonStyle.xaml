@@ -278,7 +278,20 @@
            BasedOn="{StaticResource EditBtn}"
            TargetType="Button" />
 
-    <!--  End : CRUD Buttons  -->
+    <!--  End: CRUD Buttons  -->
+
+    <!--  View All Button  -->
+    <Style x:Key="NavigateBtn"
+           BasedOn="{StaticResource EditBtn}"
+           TargetType="Button">
+        <Setter Property="Background" Value="{DynamicResource TertiaryBlueColor}" />
+        <Setter Property="Width" Value="200" />
+        <Style.Triggers>
+            <Trigger Property="IsMouseOver" Value="True">
+                <Setter Property="Background" Value="{DynamicResource PrimaryBlueColor}" />
+            </Trigger>
+        </Style.Triggers>
+    </Style>
 
     <!--  Start: ToggleButtonStyle  -->
     <Style x:Key="ToggleButtonStyle" TargetType="{x:Type ToggleButton}">
