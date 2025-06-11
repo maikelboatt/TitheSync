@@ -72,7 +72,7 @@
                             Width="100"
                             Margin="30,0"
                             HorizontalAlignment="Right"
-                            Command="{Binding OpenBatchPaymentDialogAsyncCommand}"
+                            Command="{Binding OpenBatchPaymentDialogCommand}"
                             IsDefault="True"
                             Style="{DynamicResource CreateBtn}">
                         <iconPacks:PackIconMaterial Kind="CashMultiple" Style="{StaticResource IconButtonIcon}" />
@@ -83,7 +83,7 @@
                             Width="100"
                             Margin="10,0"
                             HorizontalAlignment="Right"
-                            Command="{Binding OpenAddDialogAsyncCommand}"
+                            Command="{Binding OpenAddDialogCommand}"
                             IsDefault="True"
                             Style="{DynamicResource CreateBtn}">
                         <iconPacks:PackIconMaterial Kind="AccountPlus" Style="{StaticResource IconButtonIcon}" />
@@ -174,7 +174,7 @@
                                     <StackPanel Orientation="Horizontal">
                                         <!--  Button to open the details dialog for a member  -->
                                         <Button Margin="0,0,5,0"
-                                                Command="{Binding RelativeSource={RelativeSource AncestorType={x:Type UserControl}}, Path=DataContext.OpenAddMemberPaymentDialogAsyncCommand}"
+                                                Command="{Binding RelativeSource={RelativeSource AncestorType={x:Type UserControl}}, Path=DataContext.OpenAddMemberPaymentDialogCommand}"
                                                 CommandParameter="{Binding MemberId}"
                                                 IsDefault="True"
                                                 Style="{DynamicResource CreateBtn}">
@@ -183,7 +183,7 @@
 
                                         <!--  Button to open the update dialog for a member  -->
                                         <Button Margin="0,0,5,0"
-                                                Command="{Binding RelativeSource={RelativeSource AncestorType={x:Type UserControl}}, Path=DataContext.OpenUpdateDialogAsyncCommand}"
+                                                Command="{Binding RelativeSource={RelativeSource AncestorType={x:Type UserControl}}, Path=DataContext.OpenUpdateDialogCommand}"
                                                 CommandParameter="{Binding MemberId}"
                                                 Style="{DynamicResource EditBtn}">
                                             <iconPacks:PackIconMaterial Kind="AccountEdit" Style="{StaticResource IconButtonIcon}" />
@@ -191,7 +191,7 @@
 
                                         <!--  Button to open the delete dialog for a member  -->
                                         <Button Margin="0,0,5,0"
-                                                Command="{Binding RelativeSource={RelativeSource AncestorType={x:Type UserControl}}, Path=DataContext.OpenDeleteDialogAsyncCommand}"
+                                                Command="{Binding RelativeSource={RelativeSource AncestorType={x:Type UserControl}}, Path=DataContext.OpenDeleteDialogCommand}"
                                                 CommandParameter="{Binding MemberId}"
                                                 Style="{DynamicResource DelBtn}">
                                             <iconPacks:PackIconMaterial Kind="DeleteOutline" Style="{StaticResource IconButtonIcon}" />

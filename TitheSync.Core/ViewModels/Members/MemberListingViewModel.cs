@@ -93,11 +93,11 @@ namespace TitheSync.Core.ViewModels.Members
 
 
                 // Initialize commands
-                OpenAddDialogAsyncCommand = new MvxCommand(ExecuteOpenAddDialog);
-                OpenUpdateDialogAsyncCommand = new MvxCommand<int>(ExecuteOpenUpdateDialog);
-                OpenDeleteDialogAsyncCommand = new MvxCommand<int>(ExecuteOpenDeleteDialog);
-                OpenAddMemberPaymentDialogAsyncCommand = new MvxCommand<int>(ExecuteOpenAddMemberPaymentDialog);
-                OpenBatchPaymentDialogAsyncCommand = new MvxCommand<List<Member>>(ExecuteOpenBatchPaymentDialog);
+                OpenAddDialogCommand = new MvxCommand(ExecuteOpenAddDialog);
+                OpenUpdateDialogCommand = new MvxCommand<int>(ExecuteOpenUpdateDialog);
+                OpenDeleteDialogCommand = new MvxCommand<int>(ExecuteOpenDeleteDialog);
+                OpenAddMemberPaymentDialogCommand = new MvxCommand<int>(ExecuteOpenAddMemberPaymentDialog);
+                OpenBatchPaymentDialogCommand = new MvxCommand<List<Member>>(ExecuteOpenBatchPaymentDialog);
 
             }
             catch (ArgumentNullException e)
@@ -269,27 +269,27 @@ namespace TitheSync.Core.ViewModels.Members
         /// <summary>
         ///     Command to open the dialog for adding a new member.
         /// </summary>
-        public IMvxCommand OpenAddDialogAsyncCommand { get; }
+        public IMvxCommand OpenAddDialogCommand { get; }
 
         /// <summary>
         ///     Command to open the dialog for updating an existing member.
         /// </summary>
-        public IMvxCommand<int> OpenUpdateDialogAsyncCommand { get; }
+        public IMvxCommand<int> OpenUpdateDialogCommand { get; }
 
         /// <summary>
         ///     Command to open the dialog for deleting an existing member.
         /// </summary>
-        public IMvxCommand<int> OpenDeleteDialogAsyncCommand { get; }
+        public IMvxCommand<int> OpenDeleteDialogCommand { get; }
 
         /// <summary>
         ///     Command to open the dialog for viewing details of a member.
         /// </summary>
-        public IMvxCommand<int> OpenAddMemberPaymentDialogAsyncCommand { get; }
+        public IMvxCommand<int> OpenAddMemberPaymentDialogCommand { get; }
 
         /// <summary>
         ///     Command to open the dialog for making batch payments
         /// </summary>
-        public IMvxCommand<List<Member>> OpenBatchPaymentDialogAsyncCommand { get; }
+        public IMvxCommand<List<Member>> OpenBatchPaymentDialogCommand { get; }
 
         #endregion
 
