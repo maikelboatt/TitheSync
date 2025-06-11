@@ -73,7 +73,7 @@
                             Width="100"
                             Margin="30,0"
                             HorizontalAlignment="Right"
-                            Command="{Binding OpenBatchPaymentDialogAsyncCommand}"
+                            Command="{Binding OpenBatchPaymentDialogCommand}"
                             IsDefault="True"
                             Style="{DynamicResource CreateBtn}">
                         <iconPacks:PackIconMaterial Kind="AccountMultiplePlus" Style="{StaticResource IconButtonIcon}" />
