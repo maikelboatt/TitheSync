@@ -1,7 +1,9 @@
 ﻿using LiveChartsCore;
 using LiveChartsCore.SkiaSharpView;
+using MvvmCross.Commands;
 using MvvmCross.ViewModels;
 using TitheSync.Business.Services.Reports;
+using TitheSync.Core.Controls;
 using TitheSync.Domain.Enums;
 
 namespace TitheSync.Core.ViewModels.Panes
@@ -11,6 +13,8 @@ namespace TitheSync.Core.ViewModels.Panes
     /// </summary>
     public class ChartPaneViewModel:MvxViewModel
     {
+        private readonly IModalNavigationControl _modalNavigationControl;
+
         /// <summary>
         ///     Service for generating reports.
         /// </summary>
@@ -62,46 +66,28 @@ namespace TitheSync.Core.ViewModels.Panes
         ///     Initializes a new instance of the <see cref="ChartPaneViewModel" /> class.
         /// </summary>
         /// <param name="reportingService" >Service for generating reports</param>
-        public ChartPaneViewModel( IReportingService reportingService )
+        /// <param name="modalNavigationControl" >The control to popup modals</param>
+        public ChartPaneViewModel( IReportingService reportingService, IModalNavigationControl modalNavigationControl )
         {
             _reportingService = reportingService;
+            _modalNavigationControl = modalNavigationControl;
+
+            // Initialise Commands
+            OpenCompareDialogCommand = new MvxCommand(ExecuteOpenCompareDialog);
         }
 
-        /// <summary>
-        ///     Gets the summary messages for the chart.
-        /// </summary>
-        public IEnumerable<string> Messages
+        #region Commands
+
+        public IMvxCommand OpenCompareDialogCommand { get; }
+
+        #endregion
+
+        private void ExecuteOpenCompareDialog()
         {
-            get => _messages;
-            private set => SetProperty(ref _messages, value);
+            _modalNavigationControl.PopUp<ReportCompareViewModel>(1);
         }
 
-        /// <summary>
-        ///     Gets or sets the top ten payers in the current quarter.
-        /// </summary>
-        public IEnumerable<(string Fullname, decimal TotalAmount)> TopTenPayersInCurrentQuarter
-        {
-            get => _topTenPayersInCurrentQuarter;
-            private set => SetProperty(ref _topTenPayersInCurrentQuarter, value);
-        }
-
-        /// <summary>
-        ///     Gets or sets the chart series data.
-        /// </summary>
-        public ISeries[] Series
-        {
-            get => _series;
-            set => SetProperty(ref _series, value);
-        }
-
-        /// <summary>
-        ///     Gets or sets a value indicating whether data is loading.
-        /// </summary>
-        public bool IsLoading
-        {
-            get => _isLoading;
-            set => SetProperty(ref _isLoading, value);
-        }
+        #region LifeCycle
 
         /// <summary>
         ///     Initializes the ViewModel by loading members and payments, updating the chart, and setting summary messages.
@@ -114,6 +100,8 @@ namespace TitheSync.Core.ViewModels.Panes
             UpdateSeries(_quarterlyTotals);
             await base.Initialize();
         }
+
+        #endregion
 
         /// <summary>
         ///     Populates the chart data and top ten payers from the reporting service.
@@ -164,5 +152,45 @@ namespace TitheSync.Core.ViewModels.Panes
                      .Cast<ISeries>()
                      .ToArray();
         }
+
+        #region Properties
+
+        /// <summary>
+        ///     Gets the summary messages for the chart.
+        /// </summary>
+        public IEnumerable<string> Messages
+        {
+            get => _messages;
+            private set => SetProperty(ref _messages, value);
+        }
+
+        /// <summary>
+        ///     Gets or sets the top ten payers in the current quarter.
+        /// </summary>
+        public IEnumerable<(string Fullname, decimal TotalAmount)> TopTenPayersInCurrentQuarter
+        {
+            get => _topTenPayersInCurrentQuarter;
+            private set => SetProperty(ref _topTenPayersInCurrentQuarter, value);
+        }
+
+        /// <summary>
+        ///     Gets or sets the chart series data.
+        /// </summary>
+        public ISeries[] Series
+        {
+            get => _series;
+            set => SetProperty(ref _series, value);
+        }
+
+        /// <summary>
+        ///     Gets or sets a value indicating whether data is loading.
+        /// </summary>
+        public bool IsLoading
+        {
+            get => _isLoading;
+            set => SetProperty(ref _isLoading, value);
+        }
+
+        #endregion
     }
 }
