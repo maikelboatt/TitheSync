@@ -2,9 +2,9 @@
 
 namespace TitheSync.UI.Components
 {
-    public partial class ReportCompare:MvxWpfView
+    public partial class BibleClassReportCompare:MvxWpfView
     {
-        public ReportCompare()
+        public BibleClassReportCompare()
         {
             InitializeComponent();
         }
