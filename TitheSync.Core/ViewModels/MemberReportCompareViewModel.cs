@@ -2,6 +2,7 @@
 using MvvmCross.ViewModels;
 using System.Collections.ObjectModel;
 using TitheSync.ApplicationState.Stores;
+using TitheSync.Business.Services.Exports;
 using TitheSync.Business.Services.Reports;
 using TitheSync.Infrastructure.Models;
 
@@ -13,6 +14,7 @@ namespace TitheSync.Core.ViewModels
     /// </summary>
     public class MemberReportCompareViewModel:MvxViewModel
     {
+        private readonly IExcelExportService _excelExportService;
         private readonly IModalNavigationStore _modalNavigationStore;
         private readonly IReportCompareService _reportCompareService;
 
@@ -28,12 +30,15 @@ namespace TitheSync.Core.ViewModels
         /// </summary>
         /// <param name="reportCompareService" >Service for comparing reports.</param>
         /// <param name="modalNavigationStore" >Navigation store for modal dialogs.</param>
-        public MemberReportCompareViewModel( IReportCompareService reportCompareService, IModalNavigationStore modalNavigationStore )
+        /// <param name="excelExportService" >Service for exporting compare results to excel</param>
+        public MemberReportCompareViewModel( IReportCompareService reportCompareService, IModalNavigationStore modalNavigationStore, IExcelExportService excelExportService )
         {
             _reportCompareService = reportCompareService;
             _modalNavigationStore = modalNavigationStore;
+            _excelExportService = excelExportService;
             CompareCommand = new MvxAsyncCommand(CompareReportsAsync);
             CloseCommand = new MvxCommand(ExecuteClose);
+            ExportToExcelCommand = new MvxCommand(ExecuteExportToExcel);
             SelectedComparisonType = ComparisonTypes[0];
 
             int currentYear = DateTime.Now.Year;
@@ -42,6 +47,7 @@ namespace TitheSync.Core.ViewModels
                 YearOptions.Add((currentYear - i).ToString());
             }
         }
+
 
         /// <summary>
         ///     Gets the available comparison types.
@@ -141,6 +147,11 @@ namespace TitheSync.Core.ViewModels
         public IMvxCommand CloseCommand { get; }
 
         /// <summary>
+        ///     Command to export the first comparison results to an Excel file.
+        /// </summary>
+        public IMvxCommand ExportToExcelCommand { get; }
+
+        /// <summary>
         ///     Executes the close command, closing the modal dialog.
         /// </summary>
         private void ExecuteClose()
@@ -236,6 +247,14 @@ namespace TitheSync.Core.ViewModels
             GetReportsForPeriod(SelectedComparisonType, SelectedPeriod1, SelectedYear1, ComparisonResults1);
             GetReportsForPeriod(SelectedComparisonType, SelectedPeriod2, SelectedYear2, ComparisonResults2);
             await Task.CompletedTask;
+        }
+
+        /// <summary>
+        ///     Exports the first comparison results to an Excel file named "MemberReportComparison1.xlsx".
+        /// </summary>
+        private void ExecuteExportToExcel()
+        {
+            _excelExportService.ExportMemberReports(ComparisonResults1, "MemberReportComparison1.xlsx");
         }
     }
 }

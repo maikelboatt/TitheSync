@@ -2,15 +2,31 @@
 using MvvmCross.ViewModels;
 using System.Collections.ObjectModel;
 using TitheSync.ApplicationState.Stores;
+using TitheSync.Business.Services.Exports;
 using TitheSync.Business.Services.Reports;
 using TitheSync.Domain.Enums;
 using TitheSync.Infrastructure.Models;
 
 namespace TitheSync.Core.ViewModels
 {
+    /// <summary>
+    ///     ViewModel for comparing Bible class payment reports across different periods and exporting results.
+    /// </summary>
     public class BibleClassReportCompareViewModel:MvxViewModel
     {
+        /// <summary>
+        ///     Service for exporting reports to Excel.
+        /// </summary>
+        private readonly IExcelExportService _excelExportService;
+
+        /// <summary>
+        ///     Store for handling modal navigation.
+        /// </summary>
         private readonly IModalNavigationStore _modalNavigationStore;
+
+        /// <summary>
+        ///     Service for comparing Bible class reports.
+        /// </summary>
         private readonly IReportCompareService _reportCompareService;
 
         private string _selectedComparisonType;
@@ -19,12 +35,20 @@ namespace TitheSync.Core.ViewModels
         private string _selectedYear1 = "2024";
         private string _selectedYear2 = "2024";
 
-        public BibleClassReportCompareViewModel( IReportCompareService reportCompareService, IModalNavigationStore modalNavigationStore )
+        /// <summary>
+        ///     Initializes a new instance of the <see cref="BibleClassReportCompareViewModel" /> class.
+        /// </summary>
+        /// <param name="reportCompareService" >Service for comparing reports.</param>
+        /// <param name="modalNavigationStore" >Store for modal navigation.</param>
+        /// <param name="excelExportService" >Service for Excel export.</param>
+        public BibleClassReportCompareViewModel( IReportCompareService reportCompareService, IModalNavigationStore modalNavigationStore, IExcelExportService excelExportService )
         {
             _reportCompareService = reportCompareService;
             _modalNavigationStore = modalNavigationStore;
+            _excelExportService = excelExportService;
             CompareCommand = new MvxAsyncCommand(CompareReportsAsync);
             CloseCommand = new MvxCommand(ExecuteClose);
+            ExportToExcelCommand = new MvxCommand(ExecuteExportToExcel);
             SelectedComparisonType = ComparisonTypes[0];
 
             int currentYear = DateTime.Now.Year;
@@ -34,13 +58,39 @@ namespace TitheSync.Core.ViewModels
             }
         }
 
+        /// <summary>
+        ///     Gets the available comparison types (Quarter, Half-Year, Year).
+        /// </summary>
         public ObservableCollection<string> ComparisonTypes { get; } = ["Quarter", "Half-Year", "Year"];
+
+        /// <summary>
+        ///     Gets the available year options for selection.
+        /// </summary>
         public ObservableCollection<string> YearOptions { get; } = [];
+
+        /// <summary>
+        ///     Gets the available period options for the first comparison.
+        /// </summary>
         public ObservableCollection<string> PeriodOptions1 { get; } = [];
+
+        /// <summary>
+        ///     Gets the available period options for the second comparison.
+        /// </summary>
         public ObservableCollection<string> PeriodOptions2 { get; } = [];
+
+        /// <summary>
+        ///     Gets the comparison results for the first period.
+        /// </summary>
         public ObservableCollection<BibleClassPaymentReport> ComparisonResults1 { get; } = [];
+
+        /// <summary>
+        ///     Gets the comparison results for the second period.
+        /// </summary>
         public ObservableCollection<BibleClassPaymentReport> ComparisonResults2 { get; } = [];
 
+        /// <summary>
+        ///     Gets or sets the selected comparison type.
+        /// </summary>
         public string SelectedComparisonType
         {
             get => _selectedComparisonType;
@@ -51,6 +101,9 @@ namespace TitheSync.Core.ViewModels
             }
         }
 
+        /// <summary>
+        ///     Gets or sets the selected year for the first period.
+        /// </summary>
         public string SelectedYear1
         {
             get => _selectedYear1;
@@ -61,6 +114,9 @@ namespace TitheSync.Core.ViewModels
             }
         }
 
+        /// <summary>
+        ///     Gets or sets the selected year for the second period.
+        /// </summary>
         public string SelectedYear2
         {
             get => _selectedYear2;
@@ -71,26 +127,50 @@ namespace TitheSync.Core.ViewModels
             }
         }
 
+        /// <summary>
+        ///     Gets or sets the selected period for the first comparison.
+        /// </summary>
         public string SelectedPeriod1
         {
             get => _selectedPeriod1;
             set => SetProperty(ref _selectedPeriod1, value);
         }
 
+        /// <summary>
+        ///     Gets or sets the selected period for the second comparison.
+        /// </summary>
         public string SelectedPeriod2
         {
             get => _selectedPeriod2;
             set => SetProperty(ref _selectedPeriod2, value);
         }
 
+        /// <summary>
+        ///     Command to compare reports for the selected periods.
+        /// </summary>
         public IMvxAsyncCommand CompareCommand { get; }
+
+        /// <summary>
+        ///     Command to close the modal dialog.
+        /// </summary>
         public IMvxCommand CloseCommand { get; }
 
+        /// <summary>
+        ///     Command to export the first comparison results to an Excel file.
+        /// </summary>
+        public IMvxCommand ExportToExcelCommand { get; }
+
+        /// <summary>
+        ///     Closes the modal dialog.
+        /// </summary>
         private void ExecuteClose()
         {
             _modalNavigationStore.Close();
         }
 
+        /// <summary>
+        ///     Updates the available period options based on the selected comparison type and years.
+        /// </summary>
         private void UpdatePeriodOptions()
         {
             PeriodOptions1.Clear();
@@ -124,7 +204,18 @@ namespace TitheSync.Core.ViewModels
             RaisePropertyChanged(() => PeriodOptions2);
         }
 
-        private void GetReportsForPeriod( string selectedComparisonType, string selectedPeriod, string selectedYear, ObservableCollection<BibleClassPaymentReport> targetCollection )
+        /// <summary>
+        ///     Retrieves the Bible class payment reports for a given period and year, and populates the target collection.
+        /// </summary>
+        /// <param name="selectedComparisonType" >The type of comparison (Quarter, Half-Year, Year).</param>
+        /// <param name="selectedPeriod" >The selected period (e.g., Q1 2024).</param>
+        /// <param name="selectedYear" >The selected year.</param>
+        /// <param name="targetCollection" >The collection to populate with results.</param>
+        private void GetReportsForPeriod(
+            string selectedComparisonType,
+            string selectedPeriod,
+            string selectedYear,
+            ObservableCollection<BibleClassPaymentReport> targetCollection )
         {
             targetCollection.Clear();
             if (string.IsNullOrEmpty(selectedPeriod) || string.IsNullOrEmpty(selectedYear))
@@ -159,11 +250,22 @@ namespace TitheSync.Core.ViewModels
                 targetCollection.Add(new BibleClassPaymentReport { ClassName = r.ClassName, TotalAmount = r.TotalAmount });
         }
 
+        /// <summary>
+        ///     Compares the reports for the selected periods and populates the result collections.
+        /// </summary>
         private async Task CompareReportsAsync()
         {
             GetReportsForPeriod(SelectedComparisonType, SelectedPeriod1, SelectedYear1, ComparisonResults1);
             GetReportsForPeriod(SelectedComparisonType, SelectedPeriod2, SelectedYear2, ComparisonResults2);
             await Task.CompletedTask;
+        }
+
+        /// <summary>
+        ///     Exports the first comparison results to an Excel file.
+        /// </summary>
+        private void ExecuteExportToExcel()
+        {
+            _excelExportService.ExportBibleClassReports(ComparisonResults1, "BibleClassReportComparison1.xlsx");
         }
     }
 }
