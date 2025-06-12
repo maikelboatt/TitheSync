@@ -50,12 +50,21 @@
 
                 <!--  Button to trigger comparison  -->
                 <Button Width="100"
+                        Margin="0,0,40,0"
                         Command="{Binding CompareCommand}"
                         Style="{StaticResource NavigateBtn}">
                     <iconPacks:PackIconMaterial Kind="Compare" Style="{StaticResource IconButtonIcon}" />
                 </Button>
+
+                <!--  Button to trigger export  -->
+                <Button Width="100"
+                        Command="{Binding ExportToExcelCommand}"
+                        Style="{StaticResource CreateBtn}">
+                    <iconPacks:PackIconMaterial Kind="Export" Style="{StaticResource IconButtonIcon}" />
+                </Button>
+
             </StackPanel>
-            <!--  Main grid for year/period selection and results display  -->
+            <!--  Main grid for year/period selection and result display  -->
             <Grid>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto" />
