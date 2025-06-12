@@ -1,0 +1,163 @@
+﻿<views:MvxWpfView x:Class="TitheSync.UI.Components.MemberReportCompare"
+                  xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                  xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                  xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+                  xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
+                  xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+                  xmlns:resources="clr-namespace:TitheSync.UI.Resources"
+                  xmlns:viewModels="clr-namespace:TitheSync.Core.ViewModels;assembly=TitheSync.Core"
+                  xmlns:views="clr-namespace:MvvmCross.Platforms.Wpf.Views;assembly=MvvmCross.Platforms.Wpf"
+                  d:DataContext="{d:DesignInstance Type=viewModels:MemberReportCompareViewModel,
+                                                   IsDesignTimeCreatable=True}"
+                  d:DesignHeight="auto"
+                  d:DesignWidth="auto"
+                  FontFamily="Raleway"
+                  mc:Ignorable="d">
+    <Grid Margin="10">
+        <StackPanel>
+
+            <!--  Header section containing search and action buttons  -->
+            <Grid FlowDirection="RightToLeft">
+
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="20" />
+                    <ColumnDefinition />
+                </Grid.ColumnDefinitions>
+
+                <!--  Close button  -->
+                <Button Grid.Column="0"
+                        Command="{Binding CloseCommand}"
+                        Content="{DynamicResource Close}"
+                        Style="{StaticResource IconButtonsStyle}" />
+
+                <!--  Title for the comparison view  -->
+                <TextBlock Grid.Column="1"
+                           Margin="30,0,0,10"
+                           HorizontalAlignment="Center"
+                           FontFamily="Abyssinica SIL"
+                           FontWeight="Medium"
+                           Text="Member Report Compare View" />
+            </Grid>
+            <!--  Comparison type selection and compare button  -->
+            <StackPanel Margin="0,0,0,10"
+                        HorizontalAlignment="Center"
+                        Orientation="Horizontal">
+                <!--  ComboBox for selecting comparison type  -->
+                <resources:CustomComboBox Margin="0,0,10,0"
+                                          ChosenValue="{Binding SelectedComparisonType, Mode=TwoWay}"
+                                          Data="{Binding ComparisonTypes}"
+                                          Placeholder="Compare By" />
+
+                <!--  Button to trigger comparison  -->
+                <Button Width="100"
+                        Command="{Binding CompareCommand}"
+                        Style="{StaticResource NavigateBtn}">
+                    <iconPacks:PackIconMaterial Kind="Compare" Style="{StaticResource IconButtonIcon}" />
+                </Button>
+            </StackPanel>
+            <!--  Main grid for year/period selection and results display  -->
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+                <!--  Year 1 selection  -->
+                <resources:CustomComboBox Grid.Row="0"
+                                          Grid.Column="0"
+                                          Margin="0,0,10,0"
+                                          ChosenValue="{Binding SelectedYear1, Mode=TwoWay}"
+                                          Data="{Binding YearOptions}"
+                                          Placeholder="Year 1" />
+
+                <!--  Year 2 selection  -->
+                <resources:CustomComboBox Grid.Row="0"
+                                          Grid.Column="1"
+                                          Margin="0,0,10,0"
+                                          ChosenValue="{Binding SelectedYear2, Mode=TwoWay}"
+                                          Data="{Binding YearOptions}"
+                                          Placeholder="Year 2" />
+
+                <!--  Period 1 selection for Year 1  -->
+                <resources:CustomComboBox Grid.Row="1"
+                                          Grid.Column="0"
+                                          Margin="0,0,10,0"
+                                          ChosenValue="{Binding SelectedPeriod1, Mode=TwoWay}"
+                                          Data="{Binding PeriodOptions1}"
+                                          Placeholder="Period 1" />
+
+                <!--  Period 2 selection for Year 2  -->
+                <resources:CustomComboBox Grid.Row="1"
+                                          Grid.Column="1"
+                                          Margin="0,0,10,0"
+                                          ChosenValue="{Binding SelectedPeriod2, Mode=TwoWay}"
+                                          Data="{Binding PeriodOptions2}"
+                                          Placeholder="Period 2" />
+
+                <!--  DataGrid for comparison results of first selection  -->
+                <DataGrid Grid.Row="2"
+                          Grid.Column="0"
+                          Width="300"
+                          Height="220"
+                          Margin="0,0,10,0"
+                          Background="{DynamicResource SecondaryBackgroundColor}"
+                          CellStyle="{StaticResource DataGridCellStyle1}"
+                          ColumnHeaderStyle="{StaticResource DataGridColumnHeaderStyle1}"
+                          ItemsSource="{Binding ComparisonResults1}"
+                          RowStyle="{StaticResource DataGridRowStyle1}"
+                          Style="{DynamicResource DataGridStyle1}"
+                          VerticalScrollBarVisibility="Auto">
+                    <DataGrid.Columns>
+                        <!--  Column displaying the name of member  -->
+                        <DataGridTextColumn Width="*"
+                                            Binding="{Binding FullName}"
+                                            CanUserResize="False"
+                                            Header="Full Name"
+                                            IsReadOnly="True" />
+
+                        <!--  Column displaying the total payment of member  -->
+                        <DataGridTextColumn Width="*"
+                                            Binding="{Binding TotalAmount}"
+                                            CanUserResize="False"
+                                            Header="Total Payment"
+                                            IsReadOnly="True" />
+                    </DataGrid.Columns>
+                </DataGrid>
+
+                <!--  DataGrid for comparison results of second selection  -->
+                <DataGrid Grid.Row="2"
+                          Grid.Column="1"
+                          Width="300"
+                          Height="220"
+                          Margin="10,0,0,0"
+                          Background="{DynamicResource SecondaryBackgroundColor}"
+                          CellStyle="{StaticResource DataGridCellStyle1}"
+                          ColumnHeaderStyle="{StaticResource DataGridColumnHeaderStyle1}"
+                          ItemsSource="{Binding ComparisonResults2}"
+                          RowStyle="{StaticResource DataGridRowStyle1}"
+                          Style="{DynamicResource DataGridStyle1}"
+                          VerticalScrollBarVisibility="Auto">
+                    <DataGrid.Columns>
+                        <!--  Column displaying the name of member  -->
+                        <DataGridTextColumn Width="*"
+                                            Binding="{Binding FullName}"
+                                            CanUserResize="False"
+                                            Header="Full Name"
+                                            IsReadOnly="True" />
+
+                        <!--  Column displaying the total payment of member  -->
+                        <DataGridTextColumn Width="*"
+                                            Binding="{Binding TotalAmount}"
+                                            CanUserResize="False"
+                                            Header="Total Payment"
+                                            IsReadOnly="True" />
+                    </DataGrid.Columns>
+                </DataGrid>
+            </Grid>
+        </StackPanel>
+    </Grid>
+</views:MvxWpfView>
