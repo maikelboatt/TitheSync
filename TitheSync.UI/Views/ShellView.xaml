@@ -49,8 +49,11 @@
             <local:SettingsView />
         </DataTemplate>
 
-        <DataTemplate DataType="{x:Type viewModels:ReportCompareViewModel}">
-            <components:ReportCompare />
+        <DataTemplate DataType="{x:Type viewModels:BibleClassReportCompareViewModel}">
+            <components:BibleClassReportCompare />
+        </DataTemplate>
+        <DataTemplate DataType="{x:Type viewModels:MemberReportCompareViewModel}">
+            <components:MemberReportCompare />
         </DataTemplate>
 
         <DataTemplate DataType="{x:Type members:MemberListingViewModel}">
