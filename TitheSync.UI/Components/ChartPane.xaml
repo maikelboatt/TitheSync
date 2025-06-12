@@ -14,16 +14,18 @@
                   d:DesignWidth="auto"
                   FontFamily="Raleway"
                   mc:Ignorable="d">
+    <!--  Resources for value converters  -->
     <views:MvxWpfView.Resources>
         <BooleanToVisibilityConverter x:Key="ToVisibilityConverter" />
     </views:MvxWpfView.Resources>
 
     <Grid>
-
+        <!--  Loading spinner shown when IsLoading is true  -->
         <loadingSpinnerControl:LoadingSpinner Diameter="100"
                                               IsLoading="{Binding IsLoading}"
                                               Thickness="3" />
 
+        <!--  Waiting message shown when IsLoading is true  -->
         <StackPanel VerticalAlignment="Center" Visibility="{Binding IsLoading, Converter={StaticResource ToVisibilityConverter}, UpdateSourceTrigger=PropertyChanged}">
             <TextBlock Margin="0,10"
                        FontFamily="Amita"
@@ -31,6 +33,7 @@
                        TextAlignment="Center" />
         </StackPanel>
 
+        <!--  Main content grid, visible when IsLoading is false  -->
         <Grid Visibility="{Binding IsLoading, Converter={StaticResource InverseBooleanToVisibilityConverter}, UpdateSourceTrigger=PropertyChanged}">
 
             <Grid.RowDefinitions>
@@ -43,20 +46,19 @@
                 <ColumnDefinition Width="*" />
             </Grid.ColumnDefinitions>
 
-            <!--  Pie-Chart  -->
+            <!--  Pie Chart Section  -->
             <Border Margin="20"
                     BorderBrush="{StaticResource TertiaryBackgroundColor}"
                     CornerRadius="7.5">
                 <Border Background="{DynamicResource PrimaryBackgroundColor}" CornerRadius="7.5">
-                    <!--  BorderBrush="{StaticResource PrimaryBackgroundColor}">  -->
                     <Grid>
+                        <!--  Pie chart bound to Series property in ViewModel  -->
                         <lvc:PieChart AnimationsSpeed="00:00:00.500"
                                       InitialRotation="90"
                                       LegendPosition="Bottom"
                                       LegendTextPaint="{DynamicResource LegendTextPaint}"
                                       Series="{Binding Series}" />
                     </Grid>
-
                 </Border>
                 <Border.Effect>
                     <DropShadowEffect BlurRadius="3"
@@ -64,9 +66,9 @@
                                       Color="Gray" />
                 </Border.Effect>
             </Border>
-            <!--  End Pie-Chart  -->
+            <!--  End Pie Chart Section  -->
 
-            <!--  Bible Class Amount Summary  -->
+            <!--  Bible Class Amount Summary Section  -->
             <Border Grid.Row="0"
                     Grid.Column="1"
                     Margin="20"
@@ -74,6 +76,7 @@
                     CornerRadius="7.5">
                 <Border Background="{DynamicResource PrimaryBackgroundColor}" CornerRadius="7.5">
                     <Grid>
+                        <!--  List of summary messages  -->
                         <ListBox Background="Transparent" ItemsSource="{Binding Messages}">
                             <ListBox.ItemTemplate>
                                 <DataTemplate>
@@ -102,8 +105,9 @@
                                       Color="Gray" />
                 </Border.Effect>
             </Border>
+            <!--  End Bible Class Amount Summary Section  -->
 
-            <!--  Top ten payers in current-quarter  -->
+            <!--  Top Ten Payers in Current Quarter Section  -->
             <Border Grid.Row="1"
                     Grid.Column="0"
                     Margin="20"
@@ -111,6 +115,7 @@
                     CornerRadius="7.5">
                 <Border Background="{DynamicResource PrimaryBackgroundColor}" CornerRadius="7.5">
                     <Grid>
+                        <!--  List of top ten payers  -->
                         <ListBox Background="Transparent" ItemsSource="{Binding TopTenPayersInCurrentQuarter}">
                             <ListBox.ItemTemplate>
                                 <DataTemplate>
@@ -139,27 +144,49 @@
                                       Color="Gray" />
                 </Border.Effect>
             </Border>
+            <!--  End Top Ten Payers Section  -->
 
-            <!--  Navigate to Compare Modal  -->
+            <!--  Navigation Buttons Section  -->
             <Border Grid.Row="1"
                     Grid.Column="1"
                     Margin="20"
                     BorderBrush="{StaticResource TertiaryBackgroundColor}"
                     CornerRadius="7.5">
-                <StackPanel HorizontalAlignment="Center"
-                            VerticalAlignment="Center"
-                            Orientation="Vertical">
-                    <Button Command="{Binding OpenCompareDialogCommand}" Style="{StaticResource NavigateBtn}">
-                        <iconPacks:PackIconMaterial Width="150"
-                                                    Kind="ArrowRightBoldCircleOutline"
-                                                    Style="{StaticResource IconButtonIcon}" />
-                    </Button>
-                    <TextBlock FontFamily="Abyssinica SIL"
-                               FontSize="13"
-                               Text="View All"
-                               TextAlignment="Center" />
+                <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+
+                    <!--  Button to open Bible Class Compare Dialog  -->
+                    <StackPanel Margin="5" Orientation="Horizontal">
+                        <Button Margin="5,0"
+                                Command="{Binding OpenBibleClassCompareDialogCommand}"
+                                Style="{StaticResource NavigateBtn}">
+                            <iconPacks:PackIconMaterial Width="75"
+                                                        Kind="ArrowRightBoldCircleOutline"
+                                                        Style="{StaticResource IconButtonIcon}" />
+                        </Button>
+                        <TextBlock FontFamily="Abyssinica SIL"
+                                   FontSize="13"
+                                   Text="Compare Payments for Bible Classes"
+                                   TextAlignment="Center" />
+                    </StackPanel>
+
+                    <!--  Button to open Member Compare Dialog  -->
+                    <StackPanel Margin="5" Orientation="Horizontal">
+                        <Button Margin="5,0"
+                                Command="{Binding OpenMemberCompareDialogCommand}"
+                                Style="{StaticResource NavigateBtn}">
+                            <iconPacks:PackIconMaterial Width="75"
+                                                        Kind="ArrowRightBoldCircleOutline"
+                                                        Style="{StaticResource IconButtonIcon}" />
+                        </Button>
+                        <TextBlock FontFamily="Abyssinica SIL"
+                                   FontSize="13"
+                                   Text="Compare Payments for Members"
+                                   TextAlignment="Center" />
+                    </StackPanel>
+
                 </StackPanel>
             </Border>
+            <!--  End Navigation Buttons Section  -->
 
         </Grid>
     </Grid>
