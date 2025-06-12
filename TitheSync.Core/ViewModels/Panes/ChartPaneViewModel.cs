@@ -13,6 +13,43 @@ namespace TitheSync.Core.ViewModels.Panes
     /// </summary>
     public class ChartPaneViewModel:MvxViewModel
     {
+        #region Constructor
+
+        /// <summary>
+        ///     Initializes a new instance of the <see cref="ChartPaneViewModel" /> class.
+        /// </summary>
+        /// <param name="reportingService" >Service for generating reports</param>
+        /// <param name="modalNavigationControl" >The control to popup modals</param>
+        public ChartPaneViewModel( IReportingService reportingService, IModalNavigationControl modalNavigationControl )
+        {
+            _reportingService = reportingService;
+            _modalNavigationControl = modalNavigationControl;
+
+            // Initialise Commands
+            OpenBibleClassCompareDialogCommand = new MvxCommand(ExecuteBibleClassOpenCompareDialog);
+            OpenMemberCompareDialogCommand = new MvxCommand(ExecuteMemberOpenCompareDialog);
+        }
+
+        #endregion
+
+        #region LifeCycle
+
+        /// <summary>
+        ///     Initializes the ViewModel by loading members and payments, updating the chart, and setting summary messages.
+        /// </summary>
+        public override async Task Initialize()
+        {
+            // Load members and payments from the database
+            await _reportingService.GetDataFromDb();
+            PopulateCharts();
+            UpdateSeries(_quarterlyTotals);
+            await base.Initialize();
+        }
+
+        #endregion
+
+        #region Fields
+
         private readonly IModalNavigationControl _modalNavigationControl;
 
         /// <summary>
@@ -62,46 +99,10 @@ namespace TitheSync.Core.ViewModels.Panes
         /// </summary>
         private IEnumerable<(BibleClassEnum BibleClass, string Period, decimal TotalAmount)> _yearlyTotals;
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="ChartPaneViewModel" /> class.
-        /// </summary>
-        /// <param name="reportingService" >Service for generating reports</param>
-        /// <param name="modalNavigationControl" >The control to popup modals</param>
-        public ChartPaneViewModel( IReportingService reportingService, IModalNavigationControl modalNavigationControl )
-        {
-            _reportingService = reportingService;
-            _modalNavigationControl = modalNavigationControl;
-
-            // Initialise Commands
-            OpenCompareDialogCommand = new MvxCommand(ExecuteOpenCompareDialog);
-        }
-
-        #region Commands
-
-        public IMvxCommand OpenCompareDialogCommand { get; }
-
         #endregion
 
-        private void ExecuteOpenCompareDialog()
-        {
-            _modalNavigationControl.PopUp<ReportCompareViewModel>(1);
-        }
 
-        #region LifeCycle
-
-        /// <summary>
-        ///     Initializes the ViewModel by loading members and payments, updating the chart, and setting summary messages.
-        /// </summary>
-        public override async Task Initialize()
-        {
-            // Load members and payments from the database
-            await _reportingService.GetDataFromDb();
-            PopulateCharts();
-            UpdateSeries(_quarterlyTotals);
-            await base.Initialize();
-        }
-
-        #endregion
+        #region Methods
 
         /// <summary>
         ///     Populates the chart data and top ten payers from the reporting service.
@@ -152,6 +153,26 @@ namespace TitheSync.Core.ViewModels.Panes
                      .Cast<ISeries>()
                      .ToArray();
         }
+
+        private void ExecuteMemberOpenCompareDialog()
+        {
+            _modalNavigationControl.PopUp<MemberReportCompareViewModel>(1);
+        }
+
+        private void ExecuteBibleClassOpenCompareDialog()
+        {
+            _modalNavigationControl.PopUp<BibleClassReportCompareViewModel>(1);
+        }
+
+        #endregion
+
+
+        #region Commands
+
+        public IMvxCommand OpenBibleClassCompareDialogCommand { get; }
+        public IMvxCommand OpenMemberCompareDialogCommand { get; }
+
+        #endregion
 
         #region Properties
 
