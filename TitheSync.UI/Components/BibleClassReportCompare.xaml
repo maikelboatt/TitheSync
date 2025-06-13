@@ -63,7 +63,7 @@
                     <iconPacks:PackIconMaterial Kind="Export" Style="{StaticResource IconButtonIcon}" />
                 </Button>
             </StackPanel>
-            <!--  Main grid for year/period selection and results display  -->
+            <!--  Main grid for year/period selection and result display  -->
             <Grid>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto" />
