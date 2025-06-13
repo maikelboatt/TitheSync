@@ -1,4 +1,5 @@
-﻿using MvvmCross.Commands;
+﻿using Microsoft.Win32;
+using MvvmCross.Commands;
 using MvvmCross.ViewModels;
 using System.Collections.ObjectModel;
 using TitheSync.ApplicationState.Stores;
@@ -261,11 +262,21 @@ namespace TitheSync.Core.ViewModels
         }
 
         /// <summary>
-        ///     Exports the first comparison results to an Excel file.
+        ///     Opens a Save File dialog for the user to select a location and filename,
+        ///     then exports the first comparison results to an Excel file using the selected path.
         /// </summary>
         private void ExecuteExportToExcel()
         {
-            _excelExportService.ExportBibleClassReports(ComparisonResults1, "BibleClassReportComparison1.xlsx");
+            SaveFileDialog saveFileDialog = new()
+            {
+                Filter = "Excel Workbook (*.xlsx)|*.xlsx",
+                FileName = "BibleClassComparisonResults.xlsx"
+            };
+
+            if (saveFileDialog.ShowDialog() == true)
+            {
+                _excelExportService.ExportBibleClassReports(ComparisonResults1, saveFileDialog.FileName);
+            }
         }
     }
 }
