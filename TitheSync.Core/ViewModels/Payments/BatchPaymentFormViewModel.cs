@@ -165,9 +165,9 @@ namespace TitheSync.Core.ViewModels.Payments
         /// <returns>True if the batch payment can be submitted; otherwise, false.</returns>
         private bool CanSubmit()
         {
-            return
-                Entries.Count > 0
-                && Entries.All(e => e.Amount > 0);
+            return PaymentDate != default
+                   && Entries.Count > 0
+                   && Entries.All(e => e.Amount > 0);
         }
 
         #endregion
