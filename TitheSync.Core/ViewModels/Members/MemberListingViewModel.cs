@@ -392,6 +392,7 @@ namespace TitheSync.Core.ViewModels.Members
             if (selected.Count == 0)
             {
                 _messageService.Show("Please select one or more members for batch payment", "Notification", MessageBoxButton.OK, MessageBoxImage.Exclamation);
+                return;
             }
             _modalNavigationControl.PopUp<BatchPaymentFormViewModel>(selected);
         }
