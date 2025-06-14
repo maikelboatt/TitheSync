@@ -3,35 +3,130 @@
                   xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                   xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
                   xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+                  xmlns:payments="clr-namespace:TitheSync.Core.ViewModels.Payments;assembly=TitheSync.Core"
+                  xmlns:resources="clr-namespace:TitheSync.UI.Resources"
+                  xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
                   xmlns:views="clr-namespace:MvvmCross.Platforms.Wpf.Views;assembly=MvvmCross.Platforms.Wpf"
-                  d:DesignHeight="300"
-                  d:DesignWidth="300"
+                  d:DataContext="{d:DesignInstance Type=payments:BatchPaymentFormViewModel,
+                                                   IsDesignTimeCreatable=True}"
+                  d:DesignHeight="auto"
+                  d:DesignWidth="auto"
                   mc:Ignorable="d">
-    <StackPanel>
-        <TextBlock FontSize="16"
-                   FontWeight="Bold"
-                   Text="Batch Payment" />
-        <TextBlock Text="Payment Date:" />
-        <DatePicker SelectedDate="{Binding PaymentDate}" />
-        <TextBlock Margin="0,10,0,0"
-                   FontWeight="Bold"
-                   Text="Payments:" />
-        <ItemsControl ItemsSource="{Binding MemberPayments}">
-            <ItemsControl.ItemTemplate>
-                <DataTemplate>
-                    <StackPanel Margin="0,5,0,0" Orientation="Horizontal">
-                        <TextBlock Width="150"
-                                   VerticalAlignment="Center"
-                                   Text="{Binding Member.FullName}" />
-                        <TextBox Width="100"
-                                 Margin="10,0,0,0"
-                                 Text="{Binding PaymentAmount, UpdateSourceTrigger=PropertyChanged}" />
-                    </StackPanel>
-                </DataTemplate>
-            </ItemsControl.ItemTemplate>
-        </ItemsControl>
-        <Button Margin="0,10,0,0"
-                Command="{Binding SubmitBatchPaymentCommand}"
-                Content="Submit" />
-    </StackPanel>
+
+    <!--  Main container with a themed background  -->
+    <Border Background="{DynamicResource TertiaryBackgroundColor}">
+        <Grid Margin="30,20">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="auto" />
+                <RowDefinition Height="*" />
+                <RowDefinition Height="auto" />
+                <RowDefinition Height="auto" />
+            </Grid.RowDefinitions>
+
+            <!--
+                Header section:
+                - Close button (right-aligned)
+                - Title for the comparison view
+            -->
+            <Grid Grid.Row="0" FlowDirection="RightToLeft">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="20" />
+                    <ColumnDefinition />
+                </Grid.ColumnDefinitions>
+
+                <!--  Close button: triggers CloseCommand  -->
+                <Button Grid.Column="0"
+                        Command="{Binding CloseCommand}"
+                        Content="{DynamicResource Close}"
+                        Style="{StaticResource IconButtonsStyle}" />
+
+                <!--  Title text  -->
+                <TextBlock Grid.Column="1"
+                           Margin="30,0,0,10"
+                           HorizontalAlignment="Center"
+                           FontFamily="Abyssinica SIL"
+                           FontWeight="Medium"
+                           Text="Batch Payment Dialog" />
+            </Grid>
+
+            <!--
+                Scrollable list of payment entries:
+                - Each entry displays FullName and editable Amount
+            -->
+            <ScrollViewer Grid.Row="1"
+                          Height="220"
+                          VerticalScrollBarVisibility="Auto">
+                <ItemsControl ItemsSource="{Binding Entries}">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <StackPanel Margin="0,5" Orientation="Horizontal">
+                                <!--  Display the full name of the entry  -->
+                                <TextBlock Width="200"
+                                           VerticalAlignment="Center"
+                                           Text="{Binding FullName}" />
+
+                                <!--  Editable amount field  -->
+                                <resources:CustomTextBox Margin="10,0,0,0"
+                                                         Data="{Binding Amount, Mode=TwoWay}"
+                                                         Description="Amount"
+                                                         Placeholder="₵175" />
+                            </StackPanel>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </ScrollViewer>
+
+            <!--
+                Date selection section:
+                - CalendarDatePicker for payment date
+                - TextBlock to display selected date
+            -->
+            <StackPanel Grid.Row="2"
+                        HorizontalAlignment="Left"
+                        Orientation="Horizontal">
+                <ui:CalendarDatePicker x:Name="CalendarDatePicker"
+                                       Margin="0,0,0,0"
+                                       VerticalAlignment="Center"
+                                       Content="Select date"
+                                       Date="{Binding PaymentDate, Mode=TwoWay}"
+                                       IsTodayHighlighted="True"
+                                       Style="{StaticResource CancelButton}" />
+
+                <ui:TextBlock x:Name="CalendarDate"
+                              Margin="10"
+                              VerticalAlignment="Center"
+                              FontSize="15"
+                              Text="{Binding ElementName=CalendarDatePicker, Path=Date}" />
+            </StackPanel>
+
+            <!--
+                Action buttons section:
+                - Cancel button (triggers CloseCommand)
+                - Submit button (triggers SubmitCommand)
+            -->
+            <Grid Grid.Row="3">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+
+                <!--  Cancel Button  -->
+                <Button Grid.Column="0"
+                        Command="{Binding CloseCommand}"
+                        Content="Cancel"
+                        FontFamily="Cinzel Decorative"
+                        IsCancel="True"
+                        Style="{StaticResource CancelButton}" />
+
+                <!--  Submit Button  -->
+                <Button Grid.Column="1"
+                        Margin="0,10,0,0"
+                        HorizontalAlignment="Right"
+                        Command="{Binding SubmitCommand}"
+                        Content="Submit"
+                        FontFamily="Cinzel Decorative"
+                        Style="{StaticResource SuccessButton}" />
+            </Grid>
+        </Grid>
+    </Border>
 </views:MvxWpfView>
