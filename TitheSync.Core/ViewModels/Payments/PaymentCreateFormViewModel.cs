@@ -26,7 +26,7 @@ namespace TitheSync.Core.ViewModels.Payments
         private readonly IPaymentService _paymentService;
         private readonly PaymentRecordValidation _validator = new();
         private decimal _amount;
-        private DateTime _datePaid;
+        private DateTime _datePaid = DateTime.Today;
         private int _memberId;
 
 
