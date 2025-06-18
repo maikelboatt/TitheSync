@@ -17,29 +17,17 @@ namespace TitheSync.Infrastructure.Services
         /// <returns>The result of the operation.</returns>
         /// <exception cref="TimeoutException" >Thrown when a network timeout occurs during the operation.</exception>
         /// <exception cref="SqlException" >Thrown when SQL error occurs during the operation.</exception>
-        public async Task<T> ExecuteWithExceptionHandlingAsync<T>( string storedProcedure, object parameters, Func<Task<T>> operation )
+        public async Task<T?> ExecuteWithExceptionHandlingAsync<T>( string storedProcedure, object parameters, Func<Task<T>> operation )
         {
             logger.LogInformation("Starting database operation: {StoredProcedure}", storedProcedure);
 
             Stopwatch stopwatch = Stopwatch.StartNew();
-            try
-            {
-                T result = await operation();
-                stopwatch.Stop();
-                logger.LogInformation("Completed database operation: {StoredProcedure} in {ElapsedMilliseconds}ms", storedProcedure, stopwatch.ElapsedMilliseconds);
 
-                return result;
-            }
-            catch (TimeoutException ex)
-            {
-                logger.LogError(ex, "Network timeout occurred during {StoredProcedure}", storedProcedure);
-                throw;
-            }
-            catch (SqlException ex)
-            {
-                logger.LogError(ex, "SQL error occurred during {StoredProcedure}: {ErrorNumber} - {ErrorMessage}", storedProcedure, ex.Number, ex.Message);
-                throw;
-            }
+            T? result = await operation();
+            stopwatch.Stop();
+            logger.LogInformation("Completed database operation: {StoredProcedure} in {ElapsedMilliseconds}ms", storedProcedure, stopwatch.ElapsedMilliseconds);
+
+            return result;
         }
     }
 }

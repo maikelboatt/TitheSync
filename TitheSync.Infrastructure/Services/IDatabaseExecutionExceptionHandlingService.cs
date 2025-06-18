@@ -12,6 +12,6 @@
         /// <returns>The result of the operation.</returns>
         /// <exception cref="TimeoutException" >Thrown when a network timeout occurs during the operation.</exception>
         /// <exception cref="SqlException" >Thrown when a SQL error occurs during the operation.</exception>
-        Task<T> ExecuteWithExceptionHandlingAsync<T>( string storedProcedure, object parameters, Func<Task<T>> operation );
+        Task<T?> ExecuteWithExceptionHandlingAsync<T>( string storedProcedure, object parameters, Func<Task<T>> operation );
     }
 }
