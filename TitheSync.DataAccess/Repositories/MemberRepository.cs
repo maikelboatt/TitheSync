@@ -38,20 +38,12 @@ namespace TitheSync.DataAccess.Repositories
         /// <exception cref="Exception" >Thrown when an error occurs during data retrieval.</exception>
         public async Task<IEnumerable<Member>> GetMembersAsync()
         {
-            try
-            {
-                IEnumerable<MemberDto> result = await _databaseExecutionExceptionHandlingService.ExecuteWithExceptionHandlingAsync(
-                    "sp.Member_GetAll",
-                    new { },
-                    async () => await _dataAccess.QueryAsync<MemberDto, dynamic>("sp.Member_GetAll", new { })
-                );
-                return result.Select(MapToMember);
-            }
-            catch (Exception e)
-            {
-                _logger.LogError(e, "Error retrieving members");
-                throw;
-            }
+            IEnumerable<MemberDto>? result = await _databaseExecutionExceptionHandlingService.ExecuteWithExceptionHandlingAsync(
+                "sp.Member_GetAll",
+                new { },
+                async () => await _dataAccess.QueryAsync<MemberDto, dynamic>("sp.Member_GetAll", new { })
+            );
+            return result.Select(MapToMember);
         }
 
         /// <summary>
@@ -65,7 +57,7 @@ namespace TitheSync.DataAccess.Repositories
             if (id <= 0)
                 throw new ArgumentException("Invalid member ID.", nameof(id));
 
-            IEnumerable<MemberDto> result = await _databaseExecutionExceptionHandlingService.ExecuteWithExceptionHandlingAsync(
+            IEnumerable<MemberDto>? result = await _databaseExecutionExceptionHandlingService.ExecuteWithExceptionHandlingAsync(
                 "sp.Member_GetById",
                 new { MemberId = id },
                 async () => await _dataAccess.QueryAsync<MemberDto, dynamic>("sp.Member_GetById", new { MemberId = id })
@@ -92,7 +84,7 @@ namespace TitheSync.DataAccess.Repositories
 
             MemberDto record = MapToMemberDto(member);
 
-            IEnumerable<int> result = await _databaseExecutionExceptionHandlingService.ExecuteWithExceptionHandlingAsync(
+            IEnumerable<int>? result = await _databaseExecutionExceptionHandlingService.ExecuteWithExceptionHandlingAsync(
                 "sp.Member_Add",
                 null!, // No need to pass parameters here
                 async () => await _dataAccess.QueryAsync<int, dynamic>(
@@ -133,11 +125,6 @@ namespace TitheSync.DataAccess.Repositories
                 }
             );
 
-            // MemberDto record = MapToMemberDto(member);
-            //
-            // await _dataAccess.CommandAsync(
-            //     "sp.Member_Update",
-            //     record);
         }
 
         /// <summary>

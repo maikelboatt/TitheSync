@@ -42,7 +42,7 @@ namespace TitheSync.DataAccess.Repositories
         {
             try
             {
-                IEnumerable<PaymentDto> result = await _databaseExecutionExceptionHandlingService.ExecuteWithExceptionHandlingAsync(
+                IEnumerable<PaymentDto>? result = await _databaseExecutionExceptionHandlingService.ExecuteWithExceptionHandlingAsync(
                     "sp.Payment_GetAll",
                     new { },
                     async () => await _dataAccess.QueryAsync<PaymentDto, dynamic>("sp.Payment_GetAll", new { })
@@ -59,21 +59,13 @@ namespace TitheSync.DataAccess.Repositories
 
         public async Task<IEnumerable<PaymentWithName>> GetPaymentsWithNamesAsync()
         {
-            try
-            {
-                IEnumerable<PaymentWithNameDto> result = await _databaseExecutionExceptionHandlingService.ExecuteWithExceptionHandlingAsync(
-                    "sp.Payment_GetAllWithNames",
-                    new { },
-                    async () => await _dataAccess.QueryAsync<PaymentWithNameDto, dynamic>("sp.Payment_GetAllWithNames", new { })
-                );
-                return result.Select(MapToPaymentWithName);
+            IEnumerable<PaymentWithNameDto>? result = await _databaseExecutionExceptionHandlingService.ExecuteWithExceptionHandlingAsync(
+                "sp.Payment_GetAllWithNames",
+                new { },
+                async () => await _dataAccess.QueryAsync<PaymentWithNameDto, dynamic>("sp.Payment_GetAllWithNames", new { })
+            );
+            return result.Select(MapToPaymentWithName);
 
-            }
-            catch (Exception e)
-            {
-                _logger.LogError(e, "Error retrieving payments with names");
-                throw;
-            }
         }
 
         /// <summary>
@@ -88,27 +80,12 @@ namespace TitheSync.DataAccess.Repositories
             if (id <= 0)
                 throw new ArgumentException("Invalid payment ID.", nameof(id));
 
-            try
-            {
-                IEnumerable<PaymentDto> result = await _databaseExecutionExceptionHandlingService.ExecuteWithExceptionHandlingAsync(
-                    "sp.Payment_GetById",
-                    new { PaymentId = id },
-                    async () => await _dataAccess.QueryAsync<PaymentDto, dynamic>("sp.Payment_GetById", new { PaymentId = id })
-                );
-                return result.Select(MapToPayment).FirstOrDefault();
-            }
-            catch (ArgumentException e)
-            {
-                // Log the Argument Exception
-                _logger.LogError("Invalid member Id {Id}: {ExMessage}", id, e.Message);
-                throw;
-            }
-            catch (Exception e)
-            {
-                // Log the exception
-                _logger.LogError(e, "Error retrieving payment with ID {Id}", id);
-                throw;
-            }
+            IEnumerable<PaymentDto>? result = await _databaseExecutionExceptionHandlingService.ExecuteWithExceptionHandlingAsync(
+                "sp.Payment_GetById",
+                new { PaymentId = id },
+                async () => await _dataAccess.QueryAsync<PaymentDto, dynamic>("sp.Payment_GetById", new { PaymentId = id })
+            );
+            return result.Select(MapToPayment).FirstOrDefault();
         }
 
         /// <summary>
@@ -119,38 +96,23 @@ namespace TitheSync.DataAccess.Repositories
         /// <exception cref="Exception" >Thrown when an error occurs during data insertion.</exception>
         public async Task<int> AddPaymentAsync( PaymentWithName payment )
         {
-            try
-            {
-                ArgumentNullException.ThrowIfNull(payment);
-                PaymentWithNameDto record = MapToPaymentWithNameDto(payment);
+            ArgumentNullException.ThrowIfNull(payment);
+            PaymentWithNameDto record = MapToPaymentWithNameDto(payment);
 
-                IEnumerable<int> result = await _databaseExecutionExceptionHandlingService.ExecuteWithExceptionHandlingAsync(
-                    "sp.Payment_Add",
-                    new { },
-                    async () =>
-                        await _dataAccess.QueryAsync<int, dynamic>(
-                            "sp.Payment_Add",
-                            new
-                            {
-                                record.Amount,
-                                record.DatePaid,
-                                record.PaymentMemberId
-                            })
-                );
-                return result.First();
-            }
-            catch (ArgumentNullException e)
-            {
-                // Log the ArgumentNullException
-                _logger.LogError("Invalid member data: {ExMessage}", e.Message);
-                throw;
-            }
-            catch (Exception ex)
-            {
-                // Log the exception
-                _logger.LogError("Error adding member: {ExMessage}", ex.Message);
-                throw;
-            }
+            IEnumerable<int>? result = await _databaseExecutionExceptionHandlingService.ExecuteWithExceptionHandlingAsync(
+                "sp.Payment_Add",
+                new { },
+                async () =>
+                    await _dataAccess.QueryAsync<int, dynamic>(
+                        "sp.Payment_Add",
+                        new
+                        {
+                            record.Amount,
+                            record.DatePaid,
+                            record.PaymentMemberId
+                        })
+            );
+            return result.First();
         }
 
         /// <summary>
@@ -161,41 +123,26 @@ namespace TitheSync.DataAccess.Repositories
         /// <exception cref="Exception" >Thrown when an error occurs during data update.</exception>
         public async Task UpdatePaymentAsync( PaymentWithName payment )
         {
-            try
-            {
-                ArgumentNullException.ThrowIfNull(payment);
+            ArgumentNullException.ThrowIfNull(payment);
 
-                await _databaseExecutionExceptionHandlingService.ExecuteWithExceptionHandlingAsync(
-                    "sp.Payment_Update",
-                    new { },
-                    async () =>
-                    {
-                        PaymentWithNameDto record = MapToPaymentWithNameDto(payment);
-                        await _dataAccess.CommandAsync(
-                            "sp.Payment_Update",
-                            new
-                            {
-                                record.PaymentId,
-                                record.Amount,
-                                record.DatePaid,
-                                record.PaymentMemberId
-                            });
-                        return true; // Dummy return for Task<bool>
-                    }
-                );
-            }
-            catch (ArgumentNullException e)
-            {
-                // Log the ArgumentNullException
-                _logger.LogError("Invalid member data: {ExMessage}", e.Message);
-                throw;
-            }
-            catch (Exception ex)
-            {
-                // Log the exception
-                _logger.LogError("Error adding member: {ExMessage}", ex.Message);
-                throw;
-            }
+            await _databaseExecutionExceptionHandlingService.ExecuteWithExceptionHandlingAsync(
+                "sp.Payment_Update",
+                new { },
+                async () =>
+                {
+                    PaymentWithNameDto record = MapToPaymentWithNameDto(payment);
+                    await _dataAccess.CommandAsync(
+                        "sp.Payment_Update",
+                        new
+                        {
+                            record.PaymentId,
+                            record.Amount,
+                            record.DatePaid,
+                            record.PaymentMemberId
+                        });
+                    return true; // Dummy return for Task<bool>
+                }
+            );
         }
 
         /// <summary>
@@ -206,33 +153,18 @@ namespace TitheSync.DataAccess.Repositories
         /// <exception cref="Exception" >Thrown when an error occurs during data deletion.</exception>
         public async Task DeletePaymentAsync( int id )
         {
-            try
-            {
-                if (id <= 0)
-                    throw new ArgumentException("Invalid payment ID.", nameof(id));
+            if (id <= 0)
+                throw new ArgumentException("Invalid payment ID.", nameof(id));
 
-                await _databaseExecutionExceptionHandlingService.ExecuteWithExceptionHandlingAsync(
-                    "sp.Payment_Delete",
-                    new { PaymentId = id },
-                    async () =>
-                    {
-                        await _dataAccess.CommandAsync("sp.Payment_Delete", new { PaymentId = id });
-                        return true; // Dummy return for Task<bool>
-                    }
-                );
-            }
-            catch (ArgumentException e)
-            {
-                // Log the ArgumentException
-                _logger.LogError("Invalid member Id {Id}: {ExMessage}", id, e.Message);
-                throw;
-            }
-            catch (Exception e)
-            {
-                // Log the exception
-                _logger.LogError(e, "Error deleting payment with ID {Id}", id);
-                throw;
-            }
+            await _databaseExecutionExceptionHandlingService.ExecuteWithExceptionHandlingAsync(
+                "sp.Payment_Delete",
+                new { PaymentId = id },
+                async () =>
+                {
+                    await _dataAccess.CommandAsync("sp.Payment_Delete", new { PaymentId = id });
+                    return true; // Dummy return for Task<bool>
+                }
+            );
         }
 
         /// <summary>
