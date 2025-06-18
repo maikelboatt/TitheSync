@@ -1,4 +1,5 @@
 ﻿using TitheSync.ApplicationState.Stores.Members;
+using TitheSync.Business.Services.Errors;
 using TitheSync.DataAccess.Repositories;
 using TitheSync.Domain.Models;
 
@@ -7,22 +8,8 @@ namespace TitheSync.Business.Services.Members
     /// <summary>
     ///     Service for managing members, providing methods to retrieve, add, update, and delete member records.
     /// </summary>
-    public class MemberService:IMemberService
+    public class MemberService( IMemberRepository memberRepository, IMemberStore memberStore, IDatabaseErrorHandlerService databaseErrorHandlerService ):IMemberService
     {
-        private readonly IMemberRepository _memberRepository;
-        private readonly IMemberStore _memberStore;
-
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="MemberService" /> class.
-        /// </summary>
-        /// <param name="memberRepository" >The repository for member data access.</param>
-        /// <param name="memberStore" >The store for managing member state.</param>
-        public MemberService( IMemberRepository memberRepository, IMemberStore memberStore )
-        {
-            _memberRepository = memberRepository;
-            _memberStore = memberStore;
-        }
-
         /// <summary>
         ///     Retrieves all members asynchronously and updates the member store.
         /// </summary>
@@ -30,8 +17,11 @@ namespace TitheSync.Business.Services.Members
         /// <returns>A task representing the asynchronous operation.</returns>
         public async Task GetMembersAsync( CancellationToken cancellationToken = default )
         {
-            IEnumerable<Member> members = await _memberRepository.GetMembersAsync();
-            _memberStore.GetMembers(members, cancellationToken);
+            IEnumerable<Member> members = await databaseErrorHandlerService.HandleDatabaseOperationAsync(
+                memberRepository.GetMembersAsync,
+                "Retrieving members"
+            ) ?? [];
+            memberStore.GetMembers(members, cancellationToken);
         }
 
         /// <summary>
@@ -42,7 +32,7 @@ namespace TitheSync.Business.Services.Members
         ///     A task that represents the asynchronous operation.
         ///     The task result contains the member with the specified ID.
         /// </returns>
-        public Member? GetMemberById( int id ) => _memberStore.GetMemberById(id);
+        public Member? GetMemberById( int id ) => memberStore.GetMemberById(id);
 
         /// <summary>
         ///     Adds a new member asynchronously and updates the member store.
@@ -52,9 +42,14 @@ namespace TitheSync.Business.Services.Members
         /// <returns>A task representing the asynchronous operation.</returns>
         public async Task AddMemberAsync( Member member, CancellationToken cancellationToken = default )
         {
-            int uniqueId = await _memberRepository.AddMemberAsync(member);
-            Member memberWithCorrectId = _memberStore.CreateMemberWithCorrectMemberId(uniqueId, member);
-            _memberStore.AddMember(memberWithCorrectId, cancellationToken);
+            int? uniqueId = await databaseErrorHandlerService.HandleDatabaseOperationAsync(
+                () => memberRepository.AddMemberAsync(member),
+                "Adding members"
+            );
+            {
+                Member memberWithCorrectId = memberStore.CreateMemberWithCorrectMemberId(uniqueId.Value, member);
+                memberStore.AddMember(memberWithCorrectId, cancellationToken);
+            }
         }
 
         /// <summary>
@@ -65,8 +60,11 @@ namespace TitheSync.Business.Services.Members
         /// <returns>A task representing the asynchronous operation.</returns>
         public async Task UpdateMemberAsync( Member member, CancellationToken cancellationToken = default )
         {
-            await _memberRepository.UpdateMemberAsync(member);
-            _memberStore.UpdateMember(member, cancellationToken);
+            await databaseErrorHandlerService.HandleDatabaseOperationAsync(
+                () => memberRepository.UpdateMemberAsync(member),
+                "Updating members"
+            );
+            memberStore.UpdateMember(member, cancellationToken);
         }
 
         /// <summary>
@@ -77,8 +75,11 @@ namespace TitheSync.Business.Services.Members
         /// <returns>A task representing the asynchronous operation.</returns>
         public async Task DeleteMemberAsync( int id, CancellationToken cancellationToken = default )
         {
-            await _memberRepository.DeleteMemberAsync(id);
-            _memberStore.DeleteMember(id, cancellationToken);
+            await databaseErrorHandlerService.HandleDatabaseOperationAsync(
+                () => memberRepository.DeleteMemberAsync(id),
+                "Deleting members"
+            );
+            memberStore.DeleteMember(id, cancellationToken);
         }
     }
 }
